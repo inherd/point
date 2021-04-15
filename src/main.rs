@@ -1,8 +1,7 @@
 use iced::tooltip::{self, Tooltip};
-use iced::{
-    button, Button, Column, Container, Element, HorizontalAlignment, Length,
-    Row, Sandbox, Settings, Text, VerticalAlignment,
-};
+use iced::{button, Button, Column, Container, Element, HorizontalAlignment, Length, Row, Sandbox, Settings, Text, VerticalAlignment, window};
+
+pub mod print_ui;
 
 pub fn main() {
     Example::run(Settings::default()).unwrap()
@@ -14,7 +13,6 @@ struct Example {
     bottom: button::State,
     right: button::State,
     left: button::State,
-    follow_cursor: button::State,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -34,40 +32,28 @@ impl Sandbox for Example {
     fn update(&mut self, _message: Message) {}
 
     fn view(&mut self) -> Element<Message> {
-        let top =
-            tooltip("Tooltip at top", &mut self.top, tooltip::Position::Top);
-
-        let bottom = tooltip(
-            "Tooltip at bottom",
+        let top = Button::new(
             &mut self.bottom,
-            tooltip::Position::Bottom,
-        );
-
-        let left =
-            tooltip("Tooltip at left", &mut self.left, tooltip::Position::Left);
-
-        let right = tooltip(
-            "Tooltip at right",
-            &mut self.right,
-            tooltip::Position::Right,
-        );
+            Text::new("Bottom")
+                .size(40)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .horizontal_alignment(HorizontalAlignment::Center)
+                .vertical_alignment(VerticalAlignment::Center),
+        )
+            .on_press(Message)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            // .style(style::Button)
+            ;
 
         let fixed_tooltips = Row::with_children(vec![
             top.into(),
-            bottom.into(),
-            left.into(),
-            right.into(),
         ])
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Align::Center)
             .spacing(50);
-
-        let follow_cursor = tooltip(
-            "Tooltip follows cursor",
-            &mut self.follow_cursor,
-            tooltip::Position::FollowCursor,
-        );
 
         let content = Column::with_children(vec![
             Container::new(fixed_tooltips)
@@ -76,7 +62,6 @@ impl Sandbox for Example {
                 .center_x()
                 .center_y()
                 .into(),
-            follow_cursor.into(),
         ])
             .width(Length::Fill)
             .height(Length::Fill)
@@ -92,40 +77,13 @@ impl Sandbox for Example {
     }
 }
 
-fn tooltip<'a>(
-    label: &str,
-    button_state: &'a mut button::State,
-    position: tooltip::Position,
-) -> Element<'a, Message> {
-    Tooltip::new(
-        Button::new(
-            button_state,
-            Text::new(label)
-                .size(40)
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .horizontal_alignment(HorizontalAlignment::Center)
-                .vertical_alignment(VerticalAlignment::Center),
-        )
-            .on_press(Message)
-            .width(Length::Fill)
-            .height(Length::Fill),
-        "Tooltip",
-        position,
-    )
-        .gap(5)
-        .padding(10)
-        .style(style::Tooltip)
-        .into()
-}
-
 mod style {
     use iced::container;
     use iced::Color;
 
-    pub struct Tooltip;
+    pub struct Button;
 
-    impl container::StyleSheet for Tooltip {
+    impl container::StyleSheet for Button {
         fn style(&self) -> container::Style {
             container::Style {
                 text_color: Some(Color::from_rgb8(0xEE, 0xEE, 0xEE)),
