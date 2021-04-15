@@ -1,5 +1,6 @@
-use iced::tooltip::{self, Tooltip};
-use iced::{Column, Container, Element, Length, Row, Sandbox, Settings, Text};
+use iced::{Application, Clipboard, Column, Command, Container, Element, executor, keyboard, Length,
+           Row, Settings, Subscription, Text, };
+use iced_native::{event, Event, subscription};
 
 pub mod print_ui;
 
@@ -16,22 +17,45 @@ pub enum Message {
     NextPressed,
 }
 
-impl Sandbox for PrintUI {
+impl Application for PrintUI {
+    type Executor = executor::Default;
     type Message = Message;
+    type Flags = ();
 
-    fn new() -> Self {
-        Self::default()
+    fn new(_flags: ()) -> (Self, Command<Message>) {
+        (
+            Self::default(),
+            Command::none(),
+        )
     }
 
     fn title(&self) -> String {
         String::from("Print - Editor")
     }
 
-    fn update(&mut self, event: Message) {
+    fn update(&mut self, event: Message, _clipboard: &mut Clipboard) -> Command<Message> {
         match event {
             Message::BackPressed => {}
             Message::NextPressed => {}
         }
+
+        Command::none()
+    }
+
+    fn subscription(&self) -> Subscription<Message> {
+        subscription::events_with(|event, status| {
+            if let event::Status::Captured = status {
+                return None;
+            }
+
+            match event {
+                Event::Keyboard(keyboard::Event::KeyPressed {
+                                    modifiers,
+                                    key_code,
+                                }) if modifiers.is_command_pressed() => { handle_hotkey(key_code) }
+                _ => None,
+            }
+        })
     }
 
     fn view(&mut self) -> Element<Message> {
@@ -43,8 +67,31 @@ impl Sandbox for PrintUI {
             .center_x()
             .center_y()
             .padding(50)
+            .style(style::Container)
             .into()
-
     }
 }
 
+fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
+    match key_code {
+        _ => Some(Message::BackPressed)
+    }
+}
+
+mod style {
+    use iced::{container, Background, Color};
+
+    pub struct Container;
+
+    impl container::StyleSheet for Container {
+        fn style(&self) -> container::Style {
+            container::Style {
+                background: Some(Background::Color(Color::from_rgb(
+                    242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0,
+                ))),
+                text_color: Some(Color::WHITE),
+                ..container::Style::default()
+            }
+        }
+    }
+}
