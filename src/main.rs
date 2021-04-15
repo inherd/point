@@ -1,5 +1,11 @@
-use iced::{Application, Clipboard, Column, Command, Container, Element, executor, keyboard, Length, Row, Settings, Subscription, Text, Color};
-use iced_native::{event, Event, subscription};
+use crate::print_ui::editor::Editor;
+use crate::print_ui::navigation_bar::NavigationBar;
+use crate::print_ui::status_bar::StatusBar;
+use iced::{
+    executor, keyboard, Align, Application, Clipboard, Color, Column, Command, Container, Element,
+    Length, Row, Settings, Subscription,
+};
+use iced_native::{event, subscription, Event};
 
 pub mod print_ui;
 
@@ -22,10 +28,7 @@ impl Application for PrintUI {
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
-        (
-            Self::default(),
-            Command::none(),
-        )
+        (Self::default(), Command::none())
     }
 
     fn title(&self) -> String {
@@ -49,37 +52,44 @@ impl Application for PrintUI {
 
             match event {
                 Event::Keyboard(keyboard::Event::KeyPressed {
-                                    modifiers,
-                                    key_code,
-                                }) if modifiers.is_command_pressed() => { handle_hotkey(key_code) }
+                    modifiers,
+                    key_code,
+                }) if modifiers.is_command_pressed() => handle_hotkey(key_code),
                 _ => None,
             }
         })
     }
 
     fn view(&mut self) -> Element<Message> {
-        let content = Column::new().spacing(20).push(Text::new("Hello, World").size(50));
+        let center_zone = Row::with_children(vec![Editor::render().into()])
+            .width(Length::Fill)
+            .height(Length::Fill);
 
-        Container::new(content)
+        let bottom = Row::with_children(vec![StatusBar::render().into()])
             .width(Length::Fill)
             .height(Length::Fill)
-            .center_x()
-            .center_y()
-            .padding(50)
-            .style(style::Container)
-            .into()
+            .align_items(iced::Align::End);
+
+        let row = Column::with_children(vec![
+            NavigationBar::render("hello.dat").into(),
+            center_zone.into(),
+            bottom.into(),
+        ])
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .align_items(Align::Start);
+
+        Container::new(row).style(style::Container).into()
     }
 
     fn background_color(&self) -> Color {
-        Color::from_rgb(
-            242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0,
-        )
+        Color::from_rgb(242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0)
     }
 }
 
 fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
     match key_code {
-        _ => Some(Message::BackPressed)
+        _ => Some(Message::BackPressed),
     }
 }
 

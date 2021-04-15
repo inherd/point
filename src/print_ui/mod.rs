@@ -7,3 +7,5 @@ pub mod tool_window;
 pub mod tool_bar;
 pub mod navigation_bar;
 pub mod status_bar;
+
+pub mod editor;
