@@ -1,5 +1,4 @@
-use iced::{Application, Clipboard, Column, Command, Container, Element, executor, keyboard, Length,
-           Row, Settings, Subscription, Text, };
+use iced::{Application, Clipboard, Column, Command, Container, Element, executor, keyboard, Length, Row, Settings, Subscription, Text, Color};
 use iced_native::{event, Event, subscription};
 
 pub mod print_ui;
@@ -70,6 +69,12 @@ impl Application for PrintUI {
             .style(style::Container)
             .into()
     }
+
+    fn background_color(&self) -> Color {
+        Color::from_rgb(
+            242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0,
+        )
+    }
 }
 
 fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
@@ -79,17 +84,14 @@ fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
 }
 
 mod style {
-    use iced::{container, Background, Color};
+    use iced::{container, Color};
 
     pub struct Container;
 
     impl container::StyleSheet for Container {
         fn style(&self) -> container::Style {
             container::Style {
-                background: Some(Background::Color(Color::from_rgb(
-                    242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0,
-                ))),
-                text_color: Some(Color::WHITE),
+                text_color: Some(Color::BLACK),
                 ..container::Style::default()
             }
         }
