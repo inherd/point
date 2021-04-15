@@ -1,24 +1,22 @@
 use iced::tooltip::{self, Tooltip};
-use iced::{button, Button, Column, Container, Element, HorizontalAlignment, Length, Row, Sandbox, Settings, Text, VerticalAlignment, window};
+use iced::{Column, Container, Element, Length, Row, Sandbox, Settings, Text};
 
 pub mod print_ui;
 
-pub fn main() {
-    Example::run(Settings::default()).unwrap()
+pub fn main() -> iced::Result {
+    PrintUI::run(Settings::default())
 }
 
 #[derive(Default)]
-struct Example {
-    top: button::State,
-    bottom: button::State,
-    right: button::State,
-    left: button::State,
-}
+struct PrintUI {}
 
 #[derive(Debug, Clone, Copy)]
-struct Message;
+pub enum Message {
+    BackPressed,
+    NextPressed,
+}
 
-impl Sandbox for Example {
+impl Sandbox for PrintUI {
     type Message = Message;
 
     fn new() -> Self {
@@ -26,46 +24,18 @@ impl Sandbox for Example {
     }
 
     fn title(&self) -> String {
-        String::from("Tooltip - Iced")
+        String::from("Print - Editor")
     }
 
-    fn update(&mut self, _message: Message) {}
+    fn update(&mut self, event: Message) {
+        match event {
+            Message::BackPressed => {}
+            Message::NextPressed => {}
+        }
+    }
 
     fn view(&mut self) -> Element<Message> {
-        let top = Button::new(
-            &mut self.bottom,
-            Text::new("Bottom")
-                .size(40)
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .horizontal_alignment(HorizontalAlignment::Center)
-                .vertical_alignment(VerticalAlignment::Center),
-        )
-            .on_press(Message)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            // .style(style::Button)
-            ;
-
-        let fixed_tooltips = Row::with_children(vec![
-            top.into(),
-        ])
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .align_items(iced::Align::Center)
-            .spacing(50);
-
-        let content = Column::with_children(vec![
-            Container::new(fixed_tooltips)
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .center_x()
-                .center_y()
-                .into(),
-        ])
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .spacing(50);
+        let content = Column::new().spacing(20).push(Text::new("Hello, World").size(50));
 
         Container::new(content)
             .width(Length::Fill)
@@ -74,23 +44,7 @@ impl Sandbox for Example {
             .center_y()
             .padding(50)
             .into()
+
     }
 }
 
-mod style {
-    use iced::container;
-    use iced::Color;
-
-    pub struct Button;
-
-    impl container::StyleSheet for Button {
-        fn style(&self) -> container::Style {
-            container::Style {
-                text_color: Some(Color::from_rgb8(0xEE, 0xEE, 0xEE)),
-                background: Some(Color::from_rgb(0.11, 0.42, 0.87).into()),
-                border_radius: 12.0,
-                ..container::Style::default()
-            }
-        }
-    }
-}
