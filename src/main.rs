@@ -1,6 +1,7 @@
 use iced::{
-    executor, keyboard, pane_grid, scrollable, Application, Clipboard, Color, Column, Command,
-    Container, Element, Length, PaneGrid, Row, Rule, Settings, Subscription, Text,
+    button, executor, keyboard, pane_grid, scrollable, Align, Application, Clipboard, Color,
+    Column, Command, Container, Element, Length, PaneGrid, Row, Rule, Scrollable, Settings,
+    Subscription, Text,
 };
 use iced_native::{event, subscription, Event};
 
@@ -33,6 +34,26 @@ impl Content {
             id,
             scroll: scrollable::State::new(),
         }
+    }
+
+    fn view(&mut self, pane: pane_grid::Pane) -> Element<Message> {
+        let Content { scroll, .. } = self;
+
+        let element = NavigationBar::render("hello.dat");
+        let mut controls = Column::new().spacing(5).max_width(150).push(element);
+
+        let content = Scrollable::new(scroll)
+            .width(Length::Fill)
+            .spacing(10)
+            .align_items(Align::Center)
+            .push(controls);
+
+        Container::new(content)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .padding(5)
+            .center_y()
+            .into()
     }
 }
 
@@ -81,10 +102,7 @@ impl Application for PrintUI {
             Row::with_children(vec![NavigationBar::render("hello.dat").into()]).width(Length::Fill);
 
         let pane_grid = PaneGrid::new(&mut self.panes, |pane, content| {
-            let title = ProjectToolWindow::render();
-            let title_bar = pane_grid::TitleBar::new(title).padding(10);
-
-            pane_grid::Content::new(ProjectToolWindow::render()).title_bar(title_bar)
+            pane_grid::Content::new(content.view(pane))
         });
 
         let middle = Row::with_children(vec![
