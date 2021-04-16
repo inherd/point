@@ -25,13 +25,7 @@ struct DemoState {
 
 #[derive(Clone, Data, Lens)]
 struct Params {
-    axis: FlexType,
-    cross_alignment: CrossAxisAlignment,
-    main_alignment: MainAxisAlignment,
-    fill_major_axis: bool,
     debug_layout: bool,
-    fix_minor_axis: bool,
-    fix_major_axis: bool,
     spacers: Spacers,
     spacer_size: f64,
 }
@@ -111,7 +105,6 @@ impl Widget<AppState> for EditView {
 
 fn navigation_bar() -> impl Widget<AppState> {
     Flex::row()
-        .cross_axis_alignment(CrossAxisAlignment::Start)
         .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
         .border(Color::grey(0.6), 1.0)
@@ -130,13 +123,7 @@ fn space_if_needed<T: Data>(flex: &mut Flex<T>, params: &Params) {
 }
 
 fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
-    let mut flex = match state.axis {
-        FlexType::Column => Flex::column(),
-        FlexType::Row => Flex::row(),
-    }
-    .cross_axis_alignment(state.cross_alignment)
-    .main_axis_alignment(state.main_alignment)
-    .must_fill_main_axis(state.fill_major_axis);
+    let mut flex = Flex::row();
 
     flex.add_child(
         TextBox::new()
@@ -147,7 +134,6 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     space_if_needed(&mut flex, state);
 
     let flex = flex
-        .border(Color::grey(0.6), 2.0)
         .lens(AppState::demo_state)
         .background(Color::WHITE)
         .expand_width()
@@ -162,10 +148,14 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
 
 fn status_bar() -> impl Widget<AppState> {
     Flex::row()
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .with_child(Label::new("status bar").with_text_color(Color::BLACK))
-        .expand_width()
+        .with_default_spacer()
+        .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
+        .with_default_spacer()
+        .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
         .lens(AppState::params)
+        .padding(5.0)
+        .border(Color::grey(0.6), 1.0)
+        .expand_width()
         .align_horizontal(UnitPoint::LEFT)
 }
 
@@ -194,15 +184,9 @@ pub fn main() {
     };
 
     let params = Params {
-        axis: FlexType::Row,
-        cross_alignment: CrossAxisAlignment::Center,
-        main_alignment: MainAxisAlignment::Start,
         debug_layout: false,
-        fix_minor_axis: false,
-        fix_major_axis: false,
         spacers: Spacers::None,
         spacer_size: DEFAULT_SPACER_SIZE,
-        fill_major_axis: false,
     };
 
     AppLauncher::with_window(main_window)
