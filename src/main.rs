@@ -67,7 +67,7 @@ impl Application for PrintUI {
 
         let middle = Row::with_children(vec![
             ProjectToolWindow::render().into(),
-            Rule::vertical(0).style(style::Rule).into(),
+            PrintUI::vertical_rule(),
             Editor::render().into(),
         ])
         .width(Length::Fill)
@@ -76,11 +76,11 @@ impl Application for PrintUI {
         let bottom = Row::with_children(vec![StatusBar::render().into()]).width(Length::Fill);
 
         let row = Column::with_children(vec![
-            Rule::horizontal(0).style(style::Rule).into(),
+            PrintUI::horizontal_rule(),
             top.into(),
-            Rule::horizontal(1).style(style::Rule).into(),
+            PrintUI::horizontal_rule(),
             middle.into(),
-            Rule::horizontal(0).style(style::Rule).into(),
+            PrintUI::horizontal_rule(),
             bottom.into(),
         ])
         .width(Length::Fill)
@@ -131,5 +131,17 @@ mod style {
                 fill_mode: rule::FillMode::Full,
             }
         }
+    }
+}
+
+impl PrintUI {
+    fn horizontal_rule() -> Element<Message, Renderer<Backend>> {
+        Rule::horizontal(0).style(style::Rule).into()
+    }
+}
+
+impl PrintUI {
+    fn vertical_rule() -> Element<Message, Renderer<Backend>> {
+        Rule::vertical(0).style(style::Rule).into()
     }
 }
