@@ -1,15 +1,38 @@
 use crate::message::Message;
-use iced::{Container, Element, HorizontalAlignment, Text, VerticalAlignment};
+use iced::{
+    text_input, Container, Element, HorizontalAlignment, Length, Text, TextInput, VerticalAlignment,
+};
+use iced_native::Widget;
 
-pub struct Editor {}
+pub struct Editor {
+    input: text_input::State,
+    pub input_value: String,
+}
+
+impl Default for Editor {
+    fn default() -> Self {
+        Editor {
+            input: Default::default(),
+            input_value: "".to_string(),
+        }
+    }
+}
 
 impl Editor {
-    pub fn render<'a>() -> Element<'a, Message> {
-        let editor = Text::new("Editor")
-            .size(50)
-            .horizontal_alignment(HorizontalAlignment::Right)
-            .vertical_alignment(VerticalAlignment::Top);
+    pub fn render(&mut self) -> Element<Message> {
+        let editor = TextInput::new(
+            &mut self.input,
+            "What needs to be done?",
+            &self.input_value,
+            Message::InputChanged,
+        )
+        .padding(15)
+        .size(14)
+        .width(Length::Fill);
 
-        Container::new(editor).into()
+        Container::new(editor)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
     }
 }

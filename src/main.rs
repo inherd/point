@@ -21,6 +21,7 @@ pub fn main() -> iced::Result {
 
 struct PrintUI {
     panes: pane_grid::State<Content>,
+    editor: Editor,
 }
 
 struct Content {
@@ -65,7 +66,13 @@ impl Application for PrintUI {
     fn new(_flags: ()) -> (Self, Command<Message>) {
         let (panes, _) = pane_grid::State::new(Content::new(0));
 
-        (PrintUI { panes }, Command::none())
+        (
+            PrintUI {
+                panes,
+                editor: Default::default(),
+            },
+            Command::none(),
+        )
     }
 
     fn title(&self) -> String {
@@ -76,6 +83,7 @@ impl Application for PrintUI {
         match event {
             Message::BackPressed => {}
             Message::NextPressed => {}
+            Message::InputChanged(value) => self.editor.input_value = value,
         }
 
         Command::none()
@@ -107,9 +115,9 @@ impl Application for PrintUI {
 
         let middle = Row::with_children(vec![
             ProjectToolWindow::render().into(),
-            pane_grid.into(),
+            // pane_grid.into(),
             PrintUI::vertical_rule(),
-            Editor::render().into(),
+            self.editor.render().into(),
         ])
         .width(Length::Fill)
         .height(Length::Fill);

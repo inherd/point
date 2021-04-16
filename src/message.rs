@@ -1,5 +1,6 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Message {
     BackPressed,
     NextPressed,
+    InputChanged(String),
 }
