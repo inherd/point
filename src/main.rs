@@ -114,8 +114,8 @@ fn navigation_bar() -> impl Widget<AppState> {
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
-        .border(Color::grey(0.6), 2.0)
-        .rounded(5.0)
+        .border(Color::grey(0.6), 1.0)
+        .expand_width()
         .lens(AppState::params)
         .align_horizontal(UnitPoint::LEFT)
 }
@@ -141,15 +141,17 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     flex.add_child(
         TextBox::new()
             .with_placeholder("Sample text")
+            .with_text_color(Color::WHITE)
             .lens(DemoState::input_text),
     );
     space_if_needed(&mut flex, state);
 
     let flex = flex
-        .padding(8.0)
         .border(Color::grey(0.6), 2.0)
-        .rounded(5.0)
-        .lens(AppState::demo_state);
+        .lens(AppState::demo_state)
+        .background(Color::WHITE)
+        .expand_width()
+        .expand_height();
 
     if state.debug_layout {
         flex.debug_paint_layout().boxed()
@@ -158,13 +160,23 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     }
 }
 
+fn status_bar() -> impl Widget<AppState> {
+    Flex::row()
+        .cross_axis_alignment(CrossAxisAlignment::Start)
+        .with_child(Label::new("status bar").with_text_color(Color::BLACK))
+        .expand_width()
+        .lens(AppState::params)
+        .align_horizontal(UnitPoint::LEFT)
+}
+
 fn make_ui() -> impl Widget<AppState> {
     Flex::column()
         .must_fill_main_axis(true)
         .with_child(navigation_bar())
         .with_default_spacer()
-        .with_child(EditView::new().center())
-        .padding(10.0)
+        .with_flex_child(EditView::new().center(), 1.0)
+        .with_default_spacer()
+        .with_child(status_bar())
         .background(LIGHTER_GREY)
 }
 
