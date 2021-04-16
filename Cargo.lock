@@ -938,6 +938,7 @@ version = "0.1.0"
 dependencies = [
  "druid",
  "druid-shell",
+ "simple_logger",
 ]
 
 [[package]]
