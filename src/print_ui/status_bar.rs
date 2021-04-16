@@ -1,4 +1,4 @@
-use crate::Message;
+use crate::message::Message;
 use iced::{Container, Element, HorizontalAlignment, Text, VerticalAlignment};
 
 pub struct StatusBar {}

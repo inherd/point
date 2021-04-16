@@ -1,13 +1,17 @@
-use crate::print_ui::editor::Editor;
-use crate::print_ui::navigation_bar::NavigationBar;
-use crate::print_ui::project_tool_window::ProjectToolWindow;
-use crate::print_ui::status_bar::StatusBar;
 use iced::{
     executor, keyboard, Align, Application, Clipboard, Color, Column, Command, Container, Element,
     Length, Row, Rule, Settings, Subscription,
 };
 use iced_native::{event, subscription, Event};
 
+use message::Message;
+
+use crate::print_ui::editor::Editor;
+use crate::print_ui::navigation_bar::NavigationBar;
+use crate::print_ui::project_tool_window::ProjectToolWindow;
+use crate::print_ui::status_bar::StatusBar;
+
+pub mod message;
 pub mod print_ui;
 
 pub fn main() -> iced::Result {
@@ -16,12 +20,6 @@ pub fn main() -> iced::Result {
 
 #[derive(Default)]
 struct PrintUI {}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Message {
-    BackPressed,
-    NextPressed,
-}
 
 impl Application for PrintUI {
     type Executor = executor::Default;

@@ -1,5 +1,5 @@
+use crate::message::Message;
 use crate::print_ui::ToolWindow;
-use crate::Message;
 use iced::{Container, Element, HorizontalAlignment, Length, Text, VerticalAlignment};
 
 pub struct ProjectToolWindow {}
