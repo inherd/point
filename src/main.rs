@@ -1,5 +1,6 @@
 use crate::print_ui::editor::Editor;
 use crate::print_ui::navigation_bar::NavigationBar;
+use crate::print_ui::project_tool_window::ProjectToolWindow;
 use crate::print_ui::status_bar::StatusBar;
 use iced::{
     executor, keyboard, Align, Application, Clipboard, Color, Column, Command, Container, Element,
@@ -61,25 +62,26 @@ impl Application for PrintUI {
     }
 
     fn view(&mut self) -> Element<Message> {
-        let center_zone = Row::with_children(vec![Editor::render().into()])
-            .width(Length::Fill)
-            .height(Length::Fill);
+        let top =
+            Row::with_children(vec![NavigationBar::render("hello.dat").into()]).width(Length::Fill);
+
+        let middle = Row::with_children(vec![
+            ProjectToolWindow::render().into(),
+            Editor::render().into(),
+        ])
+        .width(Length::Fill)
+        .height(Length::Fill);
 
         let bottom = Row::with_children(vec![StatusBar::render().into()])
             .width(Length::Fill)
-            .height(Length::Fill)
             .align_items(iced::Align::End);
 
-        let row = Column::with_children(vec![
-            NavigationBar::render("hello.dat").into(),
-            center_zone.into(),
-            bottom.into(),
-        ])
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .align_items(Align::Start);
+        let row = Column::with_children(vec![top.into(), middle.into(), bottom.into()])
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_items(Align::Start);
 
-        Container::new(row).style(style::Container).into()
+        Container::new(row).style(style::MainView).into()
     }
 
     fn background_color(&self) -> Color {
@@ -96,9 +98,9 @@ fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
 mod style {
     use iced::{container, Color};
 
-    pub struct Container;
+    pub struct MainView;
 
-    impl container::StyleSheet for Container {
+    impl container::StyleSheet for MainView {
         fn style(&self) -> container::Style {
             container::Style {
                 text_color: Some(Color::BLACK),
