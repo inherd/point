@@ -1,9 +1,7 @@
 pub mod print_ui;
 
 use druid::widget::prelude::*;
-use druid::widget::{
-    CrossAxisAlignment, Flex, Label, MainAxisAlignment, SizedBox, TextBox, WidgetExt,
-};
+use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
@@ -172,6 +170,7 @@ fn make_ui() -> impl Widget<AppState> {
 
 pub fn main() {
     let title = "Print UI";
+
     let main_window = WindowDesc::new(make_ui)
         .window_size((720., 600.))
         .with_min_size((620., 300.))
