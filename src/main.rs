@@ -1,6 +1,6 @@
 use iced::{
-    executor, keyboard, Application, Clipboard, Color, Column, Command, Container, Element, Length,
-    Row, Rule, Settings, Subscription,
+    executor, keyboard, pane_grid, scrollable, Application, Clipboard, Color, Column, Command,
+    Container, Element, Length, PaneGrid, Row, Rule, Settings, Subscription, Text,
 };
 use iced_native::{event, subscription, Event};
 
@@ -18,8 +18,23 @@ pub fn main() -> iced::Result {
     PrintUI::run(Settings::default())
 }
 
-#[derive(Default)]
-struct PrintUI {}
+struct PrintUI {
+    panes: pane_grid::State<Content>,
+}
+
+struct Content {
+    id: usize,
+    scroll: scrollable::State,
+}
+
+impl Content {
+    fn new(id: usize) -> Self {
+        Content {
+            id,
+            scroll: scrollable::State::new(),
+        }
+    }
+}
 
 impl Application for PrintUI {
     type Executor = executor::Default;
@@ -27,7 +42,9 @@ impl Application for PrintUI {
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
-        (Self::default(), Command::none())
+        let (panes, _) = pane_grid::State::new(Content::new(0));
+
+        (PrintUI { panes }, Command::none())
     }
 
     fn title(&self) -> String {
@@ -63,8 +80,16 @@ impl Application for PrintUI {
         let top =
             Row::with_children(vec![NavigationBar::render("hello.dat").into()]).width(Length::Fill);
 
+        let pane_grid = PaneGrid::new(&mut self.panes, |pane, content| {
+            let title = ProjectToolWindow::render();
+            let title_bar = pane_grid::TitleBar::new(title).padding(10);
+
+            pane_grid::Content::new(ProjectToolWindow::render()).title_bar(title_bar)
+        });
+
         let middle = Row::with_children(vec![
             ProjectToolWindow::render().into(),
+            pane_grid.into(),
             PrintUI::vertical_rule(),
             Editor::render().into(),
         ])
