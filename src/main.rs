@@ -2,13 +2,12 @@ pub mod print_ui;
 
 use druid::widget::prelude::*;
 use druid::widget::{
-    CrossAxisAlignment, Flex, Label, MainAxisAlignment, RadioGroup, SizedBox, TextBox, WidgetExt,
+    CrossAxisAlignment, Flex, Label, MainAxisAlignment, SizedBox, TextBox, WidgetExt,
 };
-use druid::{AppLauncher, Color, Data, Lens, WidgetId, WindowDesc};
+use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
-const FLEX_TYPE_OPTIONS: [(&str, FlexType); 2] =
-    [("Row", FlexType::Row), ("Column", FlexType::Column)];
+const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
 
 #[derive(Clone, Data, Lens)]
 struct AppState {
@@ -47,19 +46,20 @@ enum Spacers {
 }
 
 #[derive(Clone, Copy, PartialEq, Data)]
+#[allow(dead_code)]
 enum FlexType {
     Row,
     Column,
 }
 
 /// builds a child Flex widget from some paramaters.
-struct Rebuilder {
+struct EditView {
     inner: Box<dyn Widget<AppState>>,
 }
 
-impl Rebuilder {
-    fn new() -> Rebuilder {
-        Rebuilder {
+impl EditView {
+    fn new() -> EditView {
+        EditView {
             inner: SizedBox::empty().boxed(),
         }
     }
@@ -69,7 +69,7 @@ impl Rebuilder {
     }
 }
 
-impl Widget<AppState> for Rebuilder {
+impl Widget<AppState> for EditView {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
         self.inner.event(ctx, event, data, env)
     }
@@ -109,21 +109,15 @@ impl Widget<AppState> for Rebuilder {
     }
 }
 
-fn make_control_row() -> impl Widget<AppState> {
+fn navigation_bar() -> impl Widget<AppState> {
     Flex::row()
         .cross_axis_alignment(CrossAxisAlignment::Start)
-        .with_child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Start)
-                .with_child(Label::new("Type:"))
-                .with_default_spacer()
-                .with_child(RadioGroup::new(FLEX_TYPE_OPTIONS.to_vec()).lens(Params::axis)),
-        )
-        .with_default_spacer()
+        .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
         .border(Color::grey(0.6), 2.0)
         .rounded(5.0)
         .lens(AppState::params)
+        .align_horizontal(UnitPoint::LEFT)
 }
 
 fn space_if_needed<T: Data>(flex: &mut Flex<T>, params: &Params) {
@@ -167,10 +161,11 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
 fn make_ui() -> impl Widget<AppState> {
     Flex::column()
         .must_fill_main_axis(true)
-        .with_child(make_control_row())
+        .with_child(navigation_bar())
         .with_default_spacer()
-        .with_flex_child(Rebuilder::new().center(), 1.0)
+        .with_child(EditView::new().center())
         .padding(10.0)
+        .background(LIGHTER_GREY)
 }
 
 pub fn main() {

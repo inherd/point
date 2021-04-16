@@ -8,5 +8,6 @@ pub mod navigation_bar;
 pub mod status_bar;
 pub mod tool_bar;
 
+pub mod color;
 pub mod editor;
 pub mod theme;
