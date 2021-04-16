@@ -1,6 +1,6 @@
 use iced::{
-    executor, keyboard, Align, Application, Clipboard, Color, Column, Command, Container, Element,
-    Length, Row, Rule, Settings, Subscription,
+    executor, keyboard, Application, Clipboard, Color, Column, Command, Container, Element, Length,
+    Row, Rule, Settings, Subscription,
 };
 use iced_native::{event, subscription, Event};
 
@@ -8,8 +8,8 @@ use message::Message;
 
 use crate::print_ui::editor::Editor;
 use crate::print_ui::navigation_bar::NavigationBar;
-use crate::print_ui::project_tool_window::ProjectToolWindow;
 use crate::print_ui::status_bar::StatusBar;
+use crate::print_ui::tool_window::ProjectToolWindow;
 
 pub mod message;
 pub mod print_ui;
@@ -74,11 +74,11 @@ impl Application for PrintUI {
         let bottom = Row::with_children(vec![StatusBar::render().into()]).width(Length::Fill);
 
         let row = Column::with_children(vec![
-            PrintUI::horizontal_rule(),
+            PrintUI::horizontal_rule().into(),
             top.into(),
-            PrintUI::horizontal_rule(),
+            PrintUI::horizontal_rule().into(),
             middle.into(),
-            PrintUI::horizontal_rule(),
+            PrintUI::horizontal_rule().into(),
             bottom.into(),
         ])
         .width(Length::Fill)
@@ -89,6 +89,16 @@ impl Application for PrintUI {
 
     fn background_color(&self) -> Color {
         Color::from_rgb(242.0 / 255.0, 242.0 / 255.0, 242.0 / 255.0)
+    }
+}
+
+impl PrintUI {
+    fn horizontal_rule<'a>() -> Element<'a, Message> {
+        Rule::horizontal(1).style(style::Rule).into()
+    }
+
+    fn vertical_rule<'a>() -> Element<'a, Message> {
+        Rule::vertical(1).style(style::Rule).into()
     }
 }
 
@@ -129,17 +139,5 @@ mod style {
                 fill_mode: rule::FillMode::Full,
             }
         }
-    }
-}
-
-impl PrintUI {
-    fn horizontal_rule() -> Element<Message, Renderer<Backend>> {
-        Rule::horizontal(0).style(style::Rule).into()
-    }
-}
-
-impl PrintUI {
-    fn vertical_rule() -> Element<Message, Renderer<Backend>> {
-        Rule::vertical(0).style(style::Rule).into()
     }
 }

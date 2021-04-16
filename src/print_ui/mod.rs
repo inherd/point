@@ -1,7 +1,7 @@
+pub use tool_window::project_tool_window::ProjectToolWindow;
+pub use tool_window::structure_tool_window::StructureToolWindow;
 pub use tool_window::ToolWindow;
 
-pub mod project_tool_window;
-pub mod structure_tool_window;
 pub mod tool_window;
 
 pub mod navigation_bar;
