@@ -4,7 +4,7 @@ use crate::print_ui::project_tool_window::ProjectToolWindow;
 use crate::print_ui::status_bar::StatusBar;
 use iced::{
     executor, keyboard, Align, Application, Clipboard, Color, Column, Command, Container, Element,
-    Length, Row, Settings, Subscription,
+    Length, Row, Rule, Settings, Subscription,
 };
 use iced_native::{event, subscription, Event};
 
@@ -67,19 +67,24 @@ impl Application for PrintUI {
 
         let middle = Row::with_children(vec![
             ProjectToolWindow::render().into(),
+            Rule::vertical(0).style(style::Rule).into(),
             Editor::render().into(),
         ])
         .width(Length::Fill)
         .height(Length::Fill);
 
-        let bottom = Row::with_children(vec![StatusBar::render().into()])
-            .width(Length::Fill)
-            .align_items(iced::Align::End);
+        let bottom = Row::with_children(vec![StatusBar::render().into()]).width(Length::Fill);
 
-        let row = Column::with_children(vec![top.into(), middle.into(), bottom.into()])
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .align_items(Align::Start);
+        let row = Column::with_children(vec![
+            Rule::horizontal(0).style(style::Rule).into(),
+            top.into(),
+            Rule::horizontal(1).style(style::Rule).into(),
+            middle.into(),
+            Rule::horizontal(0).style(style::Rule).into(),
+            bottom.into(),
+        ])
+        .width(Length::Fill)
+        .height(Length::Fill);
 
         Container::new(row).style(style::MainView).into()
     }
@@ -96,7 +101,7 @@ fn handle_hotkey(key_code: keyboard::KeyCode) -> Option<Message> {
 }
 
 mod style {
-    use iced::{container, Color};
+    use iced::{container, rule, Color};
 
     pub struct MainView;
 
@@ -105,6 +110,25 @@ mod style {
             container::Style {
                 text_color: Some(Color::BLACK),
                 ..container::Style::default()
+            }
+        }
+    }
+
+    pub struct Rule;
+
+    const SURFACE: Color = Color::from_rgb(
+        0x40 as f32 / 255.0,
+        0x44 as f32 / 255.0,
+        0x4B as f32 / 255.0,
+    );
+
+    impl rule::StyleSheet for Rule {
+        fn style(&self) -> rule::Style {
+            rule::Style {
+                color: SURFACE,
+                width: 1,
+                radius: 1.0,
+                fill_mode: rule::FillMode::Full,
             }
         }
     }

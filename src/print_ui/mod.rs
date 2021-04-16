@@ -4,8 +4,9 @@ pub mod project_tool_window;
 pub mod structure_tool_window;
 pub mod tool_window;
 
-pub mod tool_bar;
 pub mod navigation_bar;
 pub mod status_bar;
+pub mod tool_bar;
 
 pub mod editor;
+pub mod theme;
