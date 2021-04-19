@@ -2,10 +2,10 @@ pub mod print_ui;
 
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
-use druid::{AppLauncher, Color, Data, Lens, Region, UnitPoint, WidgetId, WindowDesc};
-use druid_shell::piet::Piet;
-use druid_shell::{Application, WinHandler, WindowBuilder, WindowHandle};
-use std::any::Any;
+use druid::{
+    commands, platform_menus, AppLauncher, Color, Data, FileDialogOptions, Lens, LocalizedString,
+    MenuDesc, MenuItem, SysMods, UnitPoint, WidgetId, WindowDesc,
+};
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
@@ -27,9 +27,27 @@ struct DemoState {
 #[derive(Clone, Data, Lens)]
 struct Params {
     debug_layout: bool,
+    spacers: Spacers,
     spacer_size: f64,
 }
 
+#[allow(dead_code)]
+#[derive(Clone, Copy, PartialEq, Data)]
+enum Spacers {
+    None,
+    Default,
+    Flex,
+    Fixed,
+}
+
+#[derive(Clone, Copy, PartialEq, Data)]
+#[allow(dead_code)]
+enum FlexType {
+    Row,
+    Column,
+}
+
+/// builds a child Flex widget from some paramaters.
 struct EditView {
     inner: Box<dyn Widget<AppState>>,
 }
@@ -96,6 +114,15 @@ fn navigation_bar() -> impl Widget<AppState> {
         .align_horizontal(UnitPoint::LEFT)
 }
 
+fn space_if_needed<T: Data>(flex: &mut Flex<T>, params: &Params) {
+    match params.spacers {
+        Spacers::None => (),
+        Spacers::Default => flex.add_default_spacer(),
+        Spacers::Fixed => flex.add_spacer(params.spacer_size),
+        Spacers::Flex => flex.add_flex_spacer(1.0),
+    }
+}
+
 fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     let mut flex = Flex::row();
 
@@ -105,6 +132,7 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
             .with_text_color(Color::WHITE)
             .lens(DemoState::input_text),
     );
+    space_if_needed(&mut flex, state);
 
     let flex = flex
         .lens(AppState::demo_state)
@@ -143,35 +171,59 @@ fn make_ui() -> impl Widget<AppState> {
         .background(LIGHTER_GREY)
 }
 
-struct UiMain {
-    handle: WindowHandle,
+fn menus<T: Data>() -> MenuDesc<T> {
+    let mut menu = MenuDesc::empty();
+    #[cfg(target_os = "macos")]
+    {
+        menu = menu.append(platform_menus::mac::application::default());
+    }
+
+    menu.append(file_menu())
 }
 
-impl WinHandler for UiMain {
-    fn connect(&mut self, _handle: &WindowHandle) {}
-
-    fn prepare_paint(&mut self) {}
-
-    fn paint<'a>(&mut self, _piet: &mut Piet<'a>, invalid: &Region) {}
-
-    fn as_any(&mut self) -> &mut dyn Any {
-        self
-    }
+fn file_menu<T: Data>() -> MenuDesc<T> {
+    MenuDesc::new(LocalizedString::new("common-menu-file-menu"))
+        .append(platform_menus::mac::file::new_file().disabled())
+        .append(
+            MenuItem::new(
+                LocalizedString::new("common-menu-file-open"),
+                commands::SHOW_OPEN_PANEL.with(FileDialogOptions::new()),
+            )
+            .hotkey(SysMods::Cmd, "o"),
+        )
+        .append_separator()
+        .append(platform_menus::mac::file::close())
 }
 
 pub fn main() {
-    simple_logger::SimpleLogger::new().init().unwrap();
-    let app = Application::new().unwrap();
-    let mut builder = WindowBuilder::new(app.clone());
-    let ui_main = UiMain {
-        handle: Default::default(),
+    let title = "Print UI";
+
+    let menu = menus();
+
+    let main_window = WindowDesc::new(make_ui)
+        .window_size((720., 600.))
+        .with_min_size((620., 300.))
+        .menu(menu)
+        .title(title);
+
+    let demo_state = DemoState {
+        input_text: "hello".into(),
+        enabled: false,
+        volume: 0.0,
     };
-    builder.set_handler(Box::new(ui_main));
-    builder.set_title("Performance tester");
 
-    let window = builder.build().unwrap();
+    let params = Params {
+        debug_layout: false,
+        spacers: Spacers::None,
+        spacer_size: DEFAULT_SPACER_SIZE,
+    };
 
-    window.show();
-
-    app.run(None);
+    AppLauncher::with_window(main_window)
+        .use_simple_logger()
+        .launch(AppState {
+            title: title.to_string(),
+            demo_state,
+            params,
+        })
+        .expect("Failed to launch application");
 }
