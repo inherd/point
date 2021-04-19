@@ -2,7 +2,10 @@ pub mod print_ui;
 
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
-use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
+use druid::{AppLauncher, Color, Data, Lens, Region, UnitPoint, WidgetId, WindowDesc};
+use druid_shell::piet::Piet;
+use druid_shell::{Application, WinHandler, WindowBuilder, WindowHandle};
+use std::any::Any;
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
@@ -140,4 +143,35 @@ fn make_ui() -> impl Widget<AppState> {
         .background(LIGHTER_GREY)
 }
 
-pub fn main() {}
+struct UiMain {
+    handle: WindowHandle,
+}
+
+impl WinHandler for UiMain {
+    fn connect(&mut self, _handle: &WindowHandle) {}
+
+    fn prepare_paint(&mut self) {}
+
+    fn paint<'a>(&mut self, _piet: &mut Piet<'a>, invalid: &Region) {}
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+pub fn main() {
+    simple_logger::SimpleLogger::new().init().unwrap();
+    let app = Application::new().unwrap();
+    let mut builder = WindowBuilder::new(app.clone());
+    let ui_main = UiMain {
+        handle: Default::default(),
+    };
+    builder.set_handler(Box::new(ui_main));
+    builder.set_title("Performance tester");
+
+    let window = builder.build().unwrap();
+
+    window.show();
+
+    app.run(None);
+}
