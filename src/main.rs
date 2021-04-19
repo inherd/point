@@ -24,27 +24,9 @@ struct DemoState {
 #[derive(Clone, Data, Lens)]
 struct Params {
     debug_layout: bool,
-    spacers: Spacers,
     spacer_size: f64,
 }
 
-#[allow(dead_code)]
-#[derive(Clone, Copy, PartialEq, Data)]
-enum Spacers {
-    None,
-    Default,
-    Flex,
-    Fixed,
-}
-
-#[derive(Clone, Copy, PartialEq, Data)]
-#[allow(dead_code)]
-enum FlexType {
-    Row,
-    Column,
-}
-
-/// builds a child Flex widget from some paramaters.
 struct EditView {
     inner: Box<dyn Widget<AppState>>,
 }
@@ -111,15 +93,6 @@ fn navigation_bar() -> impl Widget<AppState> {
         .align_horizontal(UnitPoint::LEFT)
 }
 
-fn space_if_needed<T: Data>(flex: &mut Flex<T>, params: &Params) {
-    match params.spacers {
-        Spacers::None => (),
-        Spacers::Default => flex.add_default_spacer(),
-        Spacers::Fixed => flex.add_spacer(params.spacer_size),
-        Spacers::Flex => flex.add_flex_spacer(1.0),
-    }
-}
-
 fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     let mut flex = Flex::row();
 
@@ -129,7 +102,6 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
             .with_text_color(Color::WHITE)
             .lens(DemoState::input_text),
     );
-    space_if_needed(&mut flex, state);
 
     let flex = flex
         .lens(AppState::demo_state)
@@ -168,32 +140,4 @@ fn make_ui() -> impl Widget<AppState> {
         .background(LIGHTER_GREY)
 }
 
-pub fn main() {
-    let title = "Print UI";
-
-    let main_window = WindowDesc::new(make_ui)
-        .window_size((720., 600.))
-        .with_min_size((620., 300.))
-        .title(title);
-
-    let demo_state = DemoState {
-        input_text: "hello".into(),
-        enabled: false,
-        volume: 0.0,
-    };
-
-    let params = Params {
-        debug_layout: false,
-        spacers: Spacers::None,
-        spacer_size: DEFAULT_SPACER_SIZE,
-    };
-
-    AppLauncher::with_window(main_window)
-        .use_simple_logger()
-        .launch(AppState {
-            title: title.to_string(),
-            demo_state,
-            params,
-        })
-        .expect("Failed to launch application");
-}
+pub fn main() {}
