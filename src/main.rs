@@ -1,11 +1,9 @@
-pub mod print_ui;
-
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
-use druid::{
-    commands, platform_menus, AppLauncher, Color, Data, FileDialogOptions, Lens, LocalizedString,
-    MenuDesc, MenuItem, SysMods, UnitPoint, WidgetId, WindowDesc,
-};
+use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
+
+pub mod menu;
+pub mod print_ui;
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
@@ -171,34 +169,10 @@ fn make_ui() -> impl Widget<AppState> {
         .background(LIGHTER_GREY)
 }
 
-fn menus<T: Data>() -> MenuDesc<T> {
-    let mut menu = MenuDesc::empty();
-    #[cfg(target_os = "macos")]
-    {
-        menu = menu.append(platform_menus::mac::application::default());
-    }
-
-    menu.append(file_menu())
-}
-
-fn file_menu<T: Data>() -> MenuDesc<T> {
-    MenuDesc::new(LocalizedString::new("common-menu-file-menu"))
-        .append(platform_menus::mac::file::new_file().disabled())
-        .append(
-            MenuItem::new(
-                LocalizedString::new("common-menu-file-open"),
-                commands::SHOW_OPEN_PANEL.with(FileDialogOptions::new()),
-            )
-            .hotkey(SysMods::Cmd, "o"),
-        )
-        .append_separator()
-        .append(platform_menus::mac::file::close())
-}
-
 pub fn main() {
     let title = "Print UI";
 
-    let menu = menus();
+    let menu = menu::menus();
 
     let main_window = WindowDesc::new(make_ui)
         .window_size((720., 600.))
