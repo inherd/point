@@ -8,6 +8,7 @@ use crate::delegate::Delegate;
 use std::path::PathBuf;
 pub use support::line;
 
+pub mod command;
 pub mod delegate;
 pub mod menu;
 pub mod print_ui;
@@ -29,7 +30,7 @@ struct Workspace {
 }
 
 impl Workspace {
-    pub fn set_file(path: impl Into<Option<PathBuf>>) {}
+    pub fn set_file(&self, _path: impl Into<Option<PathBuf>>) {}
 }
 
 #[derive(Clone, Data, Lens)]

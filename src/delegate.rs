@@ -1,5 +1,8 @@
+use crate::command::command;
 use crate::AppState;
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
+use infer::Type;
+use std::io::Error;
 
 #[derive(Debug, Default)]
 pub struct Delegate;
@@ -8,14 +11,30 @@ impl AppDelegate<AppState> for Delegate {
     fn command<'a>(
         &mut self,
         ctx: &mut DelegateCtx<'a>,
-        target: Target,
+        _target: Target,
         cmd: &Command,
         data: &mut AppState,
-        env: &Env,
+        _env: &Env,
     ) -> Handled {
         if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
-            println!("{:?}", info);
-            return Handled::Yes;
+            return match infer::get_from_path(info.path()) {
+                Ok(typ) => match typ {
+                    None => {
+                        log::info!("unknown type: {:?}", info);
+                        Handled::No
+                    }
+                    Some(file_type) => {
+                        log::info!("file type: {:?}", file_type);
+                        data.workspace.set_file(info.path().to_owned());
+                        ctx.submit_command(command::REBUILD_MENUS);
+                        Handled::Yes
+                    }
+                },
+                Err(err) => {
+                    log::info!("error file type: {:?}", err);
+                    Handled::No
+                }
+            };
         }
 
         Handled::No
