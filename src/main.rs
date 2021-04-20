@@ -107,7 +107,6 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
 
     let flex = flex
         .lens(AppState::demo_state)
-        .background(Color::WHITE)
         .expand_width()
         .expand_height()
         .background(line::hline());
