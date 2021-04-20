@@ -1,6 +1,5 @@
-use druid::kurbo::Line;
 use druid::widget::prelude::*;
-use druid::widget::{Flex, Label, Painter, SizedBox, TextBox, WidgetExt};
+use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
 
 pub mod line;
@@ -8,7 +7,6 @@ pub mod menu;
 pub mod print_ui;
 pub mod theme;
 
-const DEFAULT_SPACER_SIZE: f64 = 8.;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
 
 #[derive(Clone, Data, Lens)]
@@ -28,24 +26,6 @@ struct DemoState {
 #[derive(Clone, Data, Lens)]
 struct Params {
     debug_layout: bool,
-    spacers: Spacers,
-    spacer_size: f64,
-}
-
-#[allow(dead_code)]
-#[derive(Clone, Copy, PartialEq, Data)]
-enum Spacers {
-    None,
-    Default,
-    Flex,
-    Fixed,
-}
-
-#[derive(Clone, Copy, PartialEq, Data)]
-#[allow(dead_code)]
-enum FlexType {
-    Row,
-    Column,
 }
 
 /// builds a child Flex widget from some paramaters.
@@ -109,19 +89,10 @@ fn navigation_bar() -> impl Widget<AppState> {
     Flex::row()
         .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
-        .border(Color::grey(0.6), 1.0)
         .expand_width()
         .lens(AppState::params)
+        .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
-}
-
-fn space_if_needed<T: Data>(flex: &mut Flex<T>, params: &Params) {
-    match params.spacers {
-        Spacers::None => (),
-        Spacers::Default => flex.add_default_spacer(),
-        Spacers::Fixed => flex.add_spacer(params.spacer_size),
-        Spacers::Flex => flex.add_flex_spacer(1.0),
-    }
 }
 
 fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
@@ -133,13 +104,13 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
             .with_text_color(Color::WHITE)
             .lens(DemoState::input_text),
     );
-    space_if_needed(&mut flex, state);
 
     let flex = flex
         .lens(AppState::demo_state)
         .background(Color::WHITE)
         .expand_width()
-        .expand_height();
+        .expand_height()
+        .background(line::hline());
 
     if state.debug_layout {
         flex.debug_paint_layout().boxed()
@@ -149,15 +120,6 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
 }
 
 fn status_bar() -> impl Widget<AppState> {
-    let hline_painter = Painter::new(|ctx, _: &AppState, env| {
-        let rect = ctx.size().to_rect();
-        let max_y = rect.height() - 0.5;
-        let line = Line::new((0.0, max_y), (rect.width(), max_y));
-
-        ctx.fill(rect, &env.get(theme::GLYPH_LIST_BACKGROUND));
-        ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
-    });
-
     Flex::row()
         .with_default_spacer()
         .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
@@ -165,7 +127,6 @@ fn status_bar() -> impl Widget<AppState> {
         .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
         .lens(AppState::params)
         .padding(5.0)
-        .background(hline_painter)
         .align_horizontal(UnitPoint::LEFT)
 }
 
@@ -173,9 +134,7 @@ fn make_ui() -> impl Widget<AppState> {
     Flex::column()
         .must_fill_main_axis(true)
         .with_child(navigation_bar())
-        .with_default_spacer()
         .with_flex_child(EditView::new().center(), 1.0)
-        .with_default_spacer()
         .with_child(status_bar())
         .background(LIGHTER_GREY)
 }
@@ -199,8 +158,6 @@ pub fn main() {
 
     let params = Params {
         debug_layout: false,
-        spacers: Spacers::None,
-        spacer_size: DEFAULT_SPACER_SIZE,
     };
 
     AppLauncher::with_window(main_window)
