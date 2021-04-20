@@ -2,7 +2,7 @@ use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 
-use print_ui::editor::EditView;
+use print::editor::EditView;
 
 use crate::delegate::Delegate;
 use std::path::{Path, PathBuf};
@@ -12,7 +12,7 @@ pub use support::line;
 pub mod command;
 pub mod delegate;
 pub mod menu;
-pub mod print_ui;
+pub mod print;
 pub mod support;
 pub mod theme;
 
