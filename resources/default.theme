@@ -3,4 +3,4 @@ BACKGROUND_COLOR:                   #e7e7e7
 SIDEBAR_BACKGROUND:                 #e7e7e7
 SIDEBAR_EDGE_STROKE:                #c7c7c7
 
-GLYPH_LIST_STROKE:                  #e7e7e7
+GLYPH_LIST_BACKGROUND:              #f0f0f0
