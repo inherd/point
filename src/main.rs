@@ -14,14 +14,14 @@ pub mod theme;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
 
 #[derive(Clone, Data, Lens)]
-struct Workspace {
+struct AppState {
     title: String,
-    project: ProjectState,
+    workspace: Workspace,
     params: Params,
 }
 
 #[derive(Clone, Data, Lens)]
-struct ProjectState {
+struct Workspace {
     pub input_text: String,
 }
 
@@ -30,28 +30,28 @@ struct Params {
     debug_layout: bool,
 }
 
-fn navigation_bar() -> impl Widget<Workspace> {
+fn navigation_bar() -> impl Widget<AppState> {
     Flex::row()
         .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
         .expand_width()
-        .lens(Workspace::params)
+        .lens(AppState::params)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }
 
-fn status_bar() -> impl Widget<Workspace> {
+fn status_bar() -> impl Widget<AppState> {
     Flex::row()
         .with_default_spacer()
         .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
         .with_default_spacer()
         .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
-        .lens(Workspace::params)
+        .lens(AppState::params)
         .padding(5.0)
         .align_horizontal(UnitPoint::LEFT)
 }
 
-fn make_ui() -> impl Widget<Workspace> {
+fn make_ui() -> impl Widget<AppState> {
     Flex::column()
         .must_fill_main_axis(true)
         .with_child(navigation_bar())
@@ -71,7 +71,7 @@ pub fn main() {
         .menu(menu)
         .title(title);
 
-    let demo_state = ProjectState {
+    let demo_state = Workspace {
         input_text: "".into(),
     };
 
@@ -81,9 +81,9 @@ pub fn main() {
 
     AppLauncher::with_window(main_window)
         .log_to_console()
-        .launch(Workspace {
+        .launch(AppState {
             title: title.to_string(),
-            project: demo_state,
+            workspace: demo_state,
             params,
         })
         .expect("Failed to launch application");
