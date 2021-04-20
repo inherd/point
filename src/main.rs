@@ -1,5 +1,5 @@
 use druid::widget::prelude::*;
-use druid::widget::{Flex, Label, WidgetExt};
+use druid::widget::{Button, Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 
 use print::editor::EditView;
@@ -70,9 +70,10 @@ fn navigation_bar() -> impl Widget<AppState> {
 }
 
 fn status_bar() -> impl Widget<AppState> {
+    let label = Label::new("status bar").with_text_color(Color::BLACK);
     Flex::row()
         .with_default_spacer()
-        .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
+        .with_flex_child(label, 1.0)
         .with_default_spacer()
         .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
         .lens(AppState::params)
@@ -80,11 +81,24 @@ fn status_bar() -> impl Widget<AppState> {
         .align_horizontal(UnitPoint::LEFT)
 }
 
+fn bottom_tool_window() -> impl Widget<AppState> {
+    let text = "Run";
+    let label = Label::new(text).with_text_color(Color::WHITE);
+    let button = Button::from_label(label);
+    Flex::row()
+        .with_default_spacer()
+        .with_flex_child(button, 1.0)
+        .lens(AppState::params)
+        .padding(5.0)
+        .background(line::hline())
+}
+
 fn make_ui() -> impl Widget<AppState> {
     Flex::column()
         .must_fill_main_axis(true)
         .with_child(navigation_bar())
         .with_flex_child(EditView::new().center(), 1.0)
+        .with_child(bottom_tool_window())
         .with_child(status_bar())
         .background(LIGHTER_GREY)
 }
