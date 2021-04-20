@@ -10,6 +10,7 @@ use std::sync::Arc;
 pub use support::line;
 
 pub mod command;
+pub mod components;
 pub mod delegate;
 pub mod menu;
 pub mod print;
