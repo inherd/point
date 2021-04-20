@@ -39,7 +39,29 @@ impl EditView {
     }
 
     fn rebuild_inner(&mut self, data: &Workspace) {
-        self.inner = build_widget(&data.params);
+        let mut flex = Flex::row();
+
+        flex.add_child(
+            TextBox::multiline()
+                .with_placeholder("Sample text")
+                .with_text_color(Color::BLACK)
+                .fix_width(400.0)
+                .fix_height(600.0)
+                .lens(ProjectState::input_text)
+                .background(Color::WHITE),
+        );
+
+        let flex = flex
+            .expand_width()
+            .expand_height()
+            .background(line::hline())
+            .lens(Workspace::project);
+
+        if data.params.debug_layout {
+            self.inner = flex.debug_paint_layout().boxed()
+        } else {
+            self.inner = flex.boxed()
+        }
     }
 }
 
@@ -97,32 +119,6 @@ fn navigation_bar() -> impl Widget<Workspace> {
         .lens(Workspace::params)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
-}
-
-fn build_widget(state: &Params) -> Box<dyn Widget<Workspace>> {
-    let mut flex = Flex::row();
-
-    flex.add_child(
-        TextBox::new()
-            .with_placeholder("Sample text")
-            .with_text_color(Color::BLACK)
-            .fix_width(400.0)
-            .fix_height(600.0)
-            .background(Color::WHITE)
-            .lens(ProjectState::input_text),
-    );
-
-    let flex = flex
-        .lens(Workspace::demo_state)
-        .expand_width()
-        .expand_height()
-        .background(line::hline());
-
-    if state.debug_layout {
-        flex.debug_paint_layout().boxed()
-    } else {
-        flex.boxed()
-    }
 }
 
 fn status_bar() -> impl Widget<Workspace> {
