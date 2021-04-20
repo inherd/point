@@ -101,7 +101,10 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     flex.add_child(
         TextBox::new()
             .with_placeholder("Sample text")
-            .with_text_color(Color::WHITE)
+            .with_text_color(Color::BLACK)
+            .fix_width(400.0)
+            .fix_height(600.0)
+            .background(Color::WHITE)
             .lens(DemoState::input_text),
     );
 
