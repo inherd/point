@@ -1,8 +1,6 @@
 use crate::command::command;
 use crate::AppState;
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
-use infer::Type;
-use std::io::Error;
 
 #[derive(Debug, Default)]
 pub struct Delegate;

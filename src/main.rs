@@ -5,7 +5,8 @@ use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 use print_ui::editor::EditView;
 
 use crate::delegate::Delegate;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 pub use support::line;
 
 pub mod command;
@@ -26,11 +27,15 @@ struct AppState {
 
 #[derive(Clone, Data, Lens)]
 struct Workspace {
+    pub current_file: Option<Arc<Path>>,
     pub input_text: String,
 }
 
 impl Workspace {
-    pub fn set_file(&self, _path: impl Into<Option<PathBuf>>) {}
+    pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
+        let path = path.into().map(Into::into);
+        self.current_file = path;
+    }
 }
 
 #[derive(Clone, Data, Lens)]
@@ -39,11 +44,20 @@ struct Params {
 }
 
 fn navigation_bar() -> impl Widget<AppState> {
+    let label = Label::new(|data: &Workspace, _: &Env| match &data.current_file {
+        None => {
+            format!("")
+        }
+        Some(path) => {
+            format!("{}", path.to_owned().display())
+        }
+    });
+
     Flex::row()
-        .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
+        .with_child(label.with_text_color(Color::BLACK))
         .padding(10.0)
         .expand_width()
-        .lens(AppState::params)
+        .lens(AppState::workspace)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }
@@ -80,6 +94,7 @@ pub fn main() {
         .title(title);
 
     let demo_state = Workspace {
+        current_file: None,
         input_text: "".into(),
     };
 
