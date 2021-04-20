@@ -1,9 +1,10 @@
 use druid::widget::prelude::*;
-use druid::widget::{Button, Flex, Label, WidgetExt};
+use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 
 use print::editor::EditView;
 
+use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::tool_window::project_tool_window::ProjectToolWindow;
 use std::path::{Path, PathBuf};
@@ -84,13 +85,12 @@ fn status_bar() -> impl Widget<AppState> {
 
 fn bottom_tool_window() -> impl Widget<AppState> {
     let text = "Run";
-    let label = Label::new(text).with_text_color(Color::WHITE);
-    let button = Button::from_label(label);
+    let label = Label::new(text).with_text_color(Color::BLACK);
+    let button = IconButton::from_label(label);
     Flex::row()
         .with_default_spacer()
         .with_flex_child(button, 1.0)
         .lens(AppState::params)
-        .padding(5.0)
         .background(line::hline())
 }
 

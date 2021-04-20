@@ -6,5 +6,5 @@ SIDEBAR_EDGE_STROKE:                #333
 
 GLYPH_LIST_BACKGROUND:              #111
 
-BUTTON_LIGHT: #eee
-BUTTON_DARK: #eee
+BUTTON_LIGHT: #e7e7e7
+BUTTON_DARK:  #e7e7e7

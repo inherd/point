@@ -8,8 +8,8 @@ pub const GLYPH_LIST_BACKGROUND: Key<Color> = Key::new("print.background");
 pub const TOOL_WINDOW_COLOR: Key<Color> = Key::new("print.tool-window-color");
 
 pub const BACKGROUND_COLOR: Key<Color> = Key::new("print.theme.bg-color");
-pub const BUTTON_DARK: Key<Color> = Key::new("org.linebender.druid.theme.button_dark");
-pub const BUTTON_LIGHT: Key<Color> = Key::new("org.linebender.druid.theme.button_light");
+pub const BUTTON_DARK: Key<Color> = Key::new("print.theme.button_dark");
+pub const BUTTON_LIGHT: Key<Color> = Key::new("print.theme.button_light");
 
 include!(concat!(env!("OUT_DIR"), "/theme_path.rs"));
 
