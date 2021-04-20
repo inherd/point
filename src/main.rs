@@ -2,8 +2,10 @@ use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
 
+pub mod line;
 pub mod menu;
 pub mod print_ui;
+pub mod theme;
 
 const DEFAULT_SPACER_SIZE: f64 = 8.;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
@@ -174,7 +176,7 @@ pub fn main() {
 
     let menu = menu::menus();
 
-    let main_window = WindowDesc::new(make_ui)
+    let main_window = WindowDesc::new(make_ui())
         .window_size((720., 600.))
         .with_min_size((620., 300.))
         .menu(menu)
@@ -193,7 +195,7 @@ pub fn main() {
     };
 
     AppLauncher::with_window(main_window)
-        .use_simple_logger()
+        .log_to_console()
         .launch(AppState {
             title: title.to_string(),
             demo_state,
