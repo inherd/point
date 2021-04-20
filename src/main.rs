@@ -1,5 +1,6 @@
+use druid::kurbo::Line;
 use druid::widget::prelude::*;
-use druid::widget::{Flex, Label, SizedBox, TextBox, WidgetExt};
+use druid::widget::{Flex, Label, Painter, SizedBox, TextBox, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WidgetId, WindowDesc};
 
 pub mod line;
@@ -148,6 +149,15 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
 }
 
 fn status_bar() -> impl Widget<AppState> {
+    let hline_painter = Painter::new(|ctx, _: &AppState, env| {
+        let rect = ctx.size().to_rect();
+        let max_y = rect.height() - 0.5;
+        let line = Line::new((0.0, max_y), (rect.width(), max_y));
+
+        // ctx.fill(rect, &env.get(theme::GLYPH_LIST_BACKGROUND));
+        // ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
+    });
+
     Flex::row()
         .with_default_spacer()
         .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
@@ -155,8 +165,7 @@ fn status_bar() -> impl Widget<AppState> {
         .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
         .lens(AppState::params)
         .padding(5.0)
-        .border(Color::grey(0.6), 1.0)
-        .expand_width()
+        .background(hline_painter)
         .align_horizontal(UnitPoint::LEFT)
 }
 
@@ -176,7 +185,7 @@ pub fn main() {
 
     let menu = menu::menus();
 
-    let main_window = WindowDesc::new(make_ui())
+    let main_window = WindowDesc::new(crate::theme::wrap_in_theme_loader(make_ui()))
         .window_size((720., 600.))
         .with_min_size((620., 300.))
         .menu(menu)
