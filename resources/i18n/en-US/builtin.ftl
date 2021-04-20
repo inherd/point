@@ -1,7 +1,5 @@
 -app-name = Print UI
 
-hello-counter = Current value is { $count }
-
 # The 'application' menu on macOS
 macos-menu-about-app = About { -app-name }
 macos-menu-preferences = Preferences...

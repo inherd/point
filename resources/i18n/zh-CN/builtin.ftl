@@ -1,41 +1,39 @@
 -app-name = Print UI
 
-hello-counter = Current value is { $count }
-
 # The 'application' menu on macOS
-macos-menu-about-app = About { -app-name }
-macos-menu-preferences = Preferences...
-macos-menu-hide-app = Hide { -app-name }
-macos-menu-hide-others = Hide Others
-macos-menu-show-all = Show All
-macos-menu-services = Services
+macos-menu-about-app = 关于 { -app-name }
+macos-menu-preferences = 首选项...
+macos-menu-hide-app = 隐藏 { -app-name }
+macos-menu-hide-others = 隐藏其它
+macos-menu-show-all = 显示全部
+macos-menu-services = 服务
 macos-menu-application-menu = { -app-name }
-macos-menu-quit-app = Quit { -app-name }
+macos-menu-quit-app = 退出 { -app-name }
 
 # common 'File' menu items
-common-menu-file-menu = File
-common-menu-file-new = New
-common-menu-file-new-window = New Window
+common-menu-file-menu = 文件
+common-menu-file-new = 新建
+common-menu-file-new-window = 新窗口
 
-common-menu-file-open = Open...
-common-menu-file-close = Close
+common-menu-file-open = 打开...
+common-menu-file-close = 关闭
 
 common-menu-file-save = Save
 # used for new files, if we need to show a dialog
-common-menu-file-save-ellipsis = Save...
-common-menu-file-save-as = Save As...
+common-menu-file-save-ellipsis = 保存...
+common-menu-file-save-as = 另存为...
 
-common-menu-file-page-setup = Page Setup...
-common-menu-file-print = Print...
+common-menu-file-page-setup = 打印设置...
+common-menu-file-print = 打印...
 
 # windows 'File' menu items
-win-menu-file-exit = Exit
+win-menu-file-exit = 退出
 
 # common 'Edit' menu items.
-common-menu-edit-menu = Edit
+common-menu-edit-menu = 编辑
 
-common-menu-cut = Cut
-common-menu-copy = Copy
-common-menu-paste = Paste
-common-menu-undo = Undo
-common-menu-redo = Redo
+common-menu-cut = 剪切
+common-menu-copy = 复制
+common-menu-paste = 粘贴
+common-menu-undo = 撤消
+common-menu-redo = 重做
