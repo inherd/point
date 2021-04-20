@@ -10,17 +10,15 @@ pub mod theme;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
 
 #[derive(Clone, Data, Lens)]
-struct AppState {
+struct Workspace {
     title: String,
-    demo_state: DemoState,
+    project: ProjectState,
     params: Params,
 }
 
 #[derive(Clone, Data, Lens)]
-struct DemoState {
+struct ProjectState {
     pub input_text: String,
-    pub enabled: bool,
-    volume: f64,
 }
 
 #[derive(Clone, Data, Lens)]
@@ -30,7 +28,7 @@ struct Params {
 
 /// builds a child Flex widget from some paramaters.
 struct EditView {
-    inner: Box<dyn Widget<AppState>>,
+    inner: Box<dyn Widget<Workspace>>,
 }
 
 impl EditView {
@@ -40,24 +38,30 @@ impl EditView {
         }
     }
 
-    fn rebuild_inner(&mut self, data: &AppState) {
+    fn rebuild_inner(&mut self, data: &Workspace) {
         self.inner = build_widget(&data.params);
     }
 }
 
-impl Widget<AppState> for EditView {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
+impl Widget<Workspace> for EditView {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut Workspace, env: &Env) {
         self.inner.event(ctx, event, data, env)
     }
 
-    fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &AppState, env: &Env) {
+    fn lifecycle(
+        &mut self,
+        ctx: &mut LifeCycleCtx,
+        event: &LifeCycle,
+        data: &Workspace,
+        env: &Env,
+    ) {
         if let LifeCycle::WidgetAdded = event {
             self.rebuild_inner(data);
         }
         self.inner.lifecycle(ctx, event, data, env)
     }
 
-    fn update(&mut self, ctx: &mut UpdateCtx, old_data: &AppState, data: &AppState, env: &Env) {
+    fn update(&mut self, ctx: &mut UpdateCtx, old_data: &Workspace, data: &Workspace, env: &Env) {
         if !old_data.params.same(&data.params) {
             self.rebuild_inner(data);
             ctx.children_changed();
@@ -70,13 +74,13 @@ impl Widget<AppState> for EditView {
         &mut self,
         ctx: &mut LayoutCtx,
         bc: &BoxConstraints,
-        data: &AppState,
+        data: &Workspace,
         env: &Env,
     ) -> Size {
         self.inner.layout(ctx, bc, data, env)
     }
 
-    fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, env: &Env) {
+    fn paint(&mut self, ctx: &mut PaintCtx, data: &Workspace, env: &Env) {
         self.inner.paint(ctx, data, env)
     }
 
@@ -85,17 +89,17 @@ impl Widget<AppState> for EditView {
     }
 }
 
-fn navigation_bar() -> impl Widget<AppState> {
+fn navigation_bar() -> impl Widget<Workspace> {
     Flex::row()
         .with_child(Label::new("print/src/main.rs").with_text_color(Color::BLACK))
         .padding(10.0)
         .expand_width()
-        .lens(AppState::params)
+        .lens(Workspace::params)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }
 
-fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
+fn build_widget(state: &Params) -> Box<dyn Widget<Workspace>> {
     let mut flex = Flex::row();
 
     flex.add_child(
@@ -105,11 +109,11 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
             .fix_width(400.0)
             .fix_height(600.0)
             .background(Color::WHITE)
-            .lens(DemoState::input_text),
+            .lens(ProjectState::input_text),
     );
 
     let flex = flex
-        .lens(AppState::demo_state)
+        .lens(Workspace::demo_state)
         .expand_width()
         .expand_height()
         .background(line::hline());
@@ -121,18 +125,18 @@ fn build_widget(state: &Params) -> Box<dyn Widget<AppState>> {
     }
 }
 
-fn status_bar() -> impl Widget<AppState> {
+fn status_bar() -> impl Widget<Workspace> {
     Flex::row()
         .with_default_spacer()
         .with_flex_child(Label::new("status bar").with_text_color(Color::BLACK), 1.0)
         .with_default_spacer()
         .with_flex_child(Label::new("time").with_text_color(Color::BLACK), 1.0)
-        .lens(AppState::params)
+        .lens(Workspace::params)
         .padding(5.0)
         .align_horizontal(UnitPoint::LEFT)
 }
 
-fn make_ui() -> impl Widget<AppState> {
+fn make_ui() -> impl Widget<Workspace> {
     Flex::column()
         .must_fill_main_axis(true)
         .with_child(navigation_bar())
@@ -152,10 +156,8 @@ pub fn main() {
         .menu(menu)
         .title(title);
 
-    let demo_state = DemoState {
-        input_text: "hello".into(),
-        enabled: false,
-        volume: 0.0,
+    let demo_state = ProjectState {
+        input_text: "".into(),
     };
 
     let params = Params {
@@ -164,9 +166,9 @@ pub fn main() {
 
     AppLauncher::with_window(main_window)
         .log_to_console()
-        .launch(AppState {
+        .launch(Workspace {
             title: title.to_string(),
-            demo_state,
+            project: demo_state,
             params,
         })
         .expect("Failed to launch application");
