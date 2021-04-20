@@ -1,7 +1,9 @@
-pub use project_tool_window::ProjectToolWindow;
-pub use structure_tool_window::StructureToolWindow;
+pub use left_tool_window::LeftToolWindow;
+pub use right_tool_window::RightToolWindow;
 
-pub mod project_tool_window;
-pub mod structure_tool_window;
+pub mod bottom_tool_window;
+pub mod left_tool_window;
+pub mod right_tool_window;
+pub mod top_tool_window;
 
 pub trait ToolWindow {}
