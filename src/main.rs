@@ -4,8 +4,11 @@ use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 
 use print_ui::editor::EditView;
 
+use crate::delegate::Delegate;
+use std::path::PathBuf;
 pub use support::line;
 
+pub mod delegate;
 pub mod menu;
 pub mod print_ui;
 pub mod support;
@@ -23,6 +26,10 @@ struct AppState {
 #[derive(Clone, Data, Lens)]
 struct Workspace {
     pub input_text: String,
+}
+
+impl Workspace {
+    pub fn set_file(path: impl Into<Option<PathBuf>>) {}
 }
 
 #[derive(Clone, Data, Lens)]
@@ -80,6 +87,7 @@ pub fn main() {
     };
 
     AppLauncher::with_window(main_window)
+        .delegate(Delegate::default())
         .log_to_console()
         .launch(AppState {
             title: title.to_string(),
