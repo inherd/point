@@ -28,6 +28,7 @@ struct AppState {
 #[derive(Clone, Data, Lens)]
 struct Workspace {
     pub current_file: Option<Arc<Path>>,
+    pub current_dir: Option<Arc<Path>>,
     pub input_text: String,
 }
 
@@ -35,6 +36,11 @@ impl Workspace {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         self.current_file = path;
+    }
+
+    pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
+        let path = path.into().map(Into::into);
+        self.current_dir = path;
     }
 }
 
@@ -44,7 +50,7 @@ struct Params {
 }
 
 fn navigation_bar() -> impl Widget<AppState> {
-    let label = Label::new(|data: &Workspace, _: &Env| match &data.current_file {
+    let label = Label::new(|data: &Workspace, _: &Env| match &data.current_dir {
         None => {
             format!("")
         }
@@ -93,8 +99,9 @@ pub fn main() {
         .menu(menu)
         .title(title);
 
-    let demo_state = Workspace {
+    let workspace = Workspace {
         current_file: None,
+        current_dir: None,
         input_text: "".into(),
     };
 
@@ -107,7 +114,7 @@ pub fn main() {
         .log_to_console()
         .launch(AppState {
             title: title.to_string(),
-            workspace: demo_state,
+            workspace,
             params,
         })
         .expect("Failed to launch application");

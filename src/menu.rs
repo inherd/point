@@ -18,7 +18,7 @@ fn file_menu<T: Data>() -> MenuDesc<T> {
         .append(
             MenuItem::new(
                 LocalizedString::new("common-menu-file-open"),
-                commands::SHOW_OPEN_PANEL.with(FileDialogOptions::new()),
+                commands::SHOW_OPEN_PANEL.with(FileDialogOptions::new().select_directories()),
             )
             .hotkey(SysMods::Cmd, "o"),
         )

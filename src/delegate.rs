@@ -1,4 +1,4 @@
-use crate::command::command;
+use crate::command::print_command;
 use crate::AppState;
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
 
@@ -15,6 +15,11 @@ impl AppDelegate<AppState> for Delegate {
         _env: &Env,
     ) -> Handled {
         if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
+            if info.path().is_dir() {
+                data.workspace.set_dir(info.path().to_owned());
+                ctx.submit_command(print_command::OPEN);
+                return Handled::Yes;
+            }
             return match infer::get_from_path(info.path()) {
                 Ok(typ) => match typ {
                     None => {
@@ -23,8 +28,16 @@ impl AppDelegate<AppState> for Delegate {
                     }
                     Some(file_type) => {
                         log::info!("file type: {:?}", file_type);
+
+                        match info.path().parent() {
+                            None => {}
+                            Some(parent) => {
+                                data.workspace.set_dir(Some(parent.to_owned()));
+                            }
+                        }
+
                         data.workspace.set_file(info.path().to_owned());
-                        ctx.submit_command(command::REBUILD_MENUS);
+                        ctx.submit_command(print_command::OPEN);
                         Handled::Yes
                     }
                 },
