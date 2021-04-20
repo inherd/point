@@ -12,4 +12,3 @@ pub mod tool_bar;
 
 pub mod color;
 pub mod editor;
-pub mod theme;

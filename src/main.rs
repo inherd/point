@@ -4,9 +4,11 @@ use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 
 use print_ui::editor::EditView;
 
-pub mod line;
+pub use support::line;
+
 pub mod menu;
 pub mod print_ui;
+pub mod support;
 pub mod theme;
 
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
