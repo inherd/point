@@ -99,6 +99,8 @@ fn center() -> impl Widget<AppState> {
         .with_flex_child(ProjectToolWindow::new(), 1.0)
         .with_default_spacer()
         .with_flex_child(EditView::new().center(), 1.0)
+        .padding(1.0)
+        .background(line::hline())
 }
 
 fn make_ui() -> impl Widget<AppState> {

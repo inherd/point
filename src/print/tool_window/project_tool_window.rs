@@ -32,7 +32,7 @@ impl Widget<AppState> for ProjectToolWindow {
         env: &Env,
     ) -> Size {
         let size = 32.0;
-        bc.constrain(Size::new(size, size))
+        bc.constrain(Size::new(size, f64::INFINITY))
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, env: &Env) {
@@ -40,7 +40,7 @@ impl Widget<AppState> for ProjectToolWindow {
         let x_pos = rect.width() - 0.5;
         let line = Line::new((x_pos, 0.0), (x_pos, rect.height()));
 
-        ctx.fill(rect, &env.get(theme::GLYPH_LIST_BACKGROUND));
+        ctx.fill(rect, &env.get(theme::TOOL_WINDOW_COLOR));
         ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
     }
 }

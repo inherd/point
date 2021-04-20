@@ -49,7 +49,6 @@ impl EditView {
         let flex = flex
             .expand_width()
             .expand_height()
-            .background(line::hline())
             .lens(AppState::workspace);
 
         if data.params.debug_layout {
