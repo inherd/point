@@ -4,7 +4,7 @@ use druid::{
     PaintCtx, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
 };
 
-use crate::{line, AppState, Workspace};
+use crate::{AppState, Workspace};
 
 pub struct Editor {
     pub input_value: String,
