@@ -5,6 +5,7 @@ use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 use print::editor::EditView;
 
 use crate::delegate::Delegate;
+use crate::print::tool_window::project_tool_window::ProjectToolWindow;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 pub use support::line;
@@ -93,11 +94,17 @@ fn bottom_tool_window() -> impl Widget<AppState> {
         .background(line::hline())
 }
 
+fn center() -> impl Widget<AppState> {
+    Flex::row()
+        .with_flex_child(ProjectToolWindow::new(), 1.0)
+        .with_default_spacer()
+        .with_flex_child(EditView::new().center(), 1.0)
+}
+
 fn make_ui() -> impl Widget<AppState> {
     Flex::column()
-        .must_fill_main_axis(true)
         .with_child(navigation_bar())
-        .with_flex_child(EditView::new().center(), 1.0)
+        .with_flex_child(center(), 1.0)
         .with_child(bottom_tool_window())
         .with_child(status_bar())
         .background(LIGHTER_GREY)
