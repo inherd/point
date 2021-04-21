@@ -85,8 +85,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
                 visit_dirs(&path, depth, entry, base_dir)?;
                 node.children.push(entry.to_owned());
             } else {
-                let file_name = format!("{}", path.file_name().unwrap().to_str().unwrap());
-                let entry1 = FileEntry::new(file_name);
+                let entry1 = FileEntry::from_path(path);
                 node.children.push(entry1);
             }
         }

@@ -2,12 +2,14 @@ use std::fmt;
 
 use crate::components::tree::TreeNode;
 use druid::{Data, Lens};
+use std::path::PathBuf;
 
 #[derive(Clone, Lens, Debug)]
 pub struct FileEntry {
     pub name: String,
-    pub icon: String,
+    pub ext: String,
     pub is_dir: bool,
+    pub path: String,
     pub children: Vec<FileEntry>,
 }
 
@@ -15,19 +17,42 @@ impl Default for FileEntry {
     fn default() -> Self {
         FileEntry {
             name: "".to_string(),
-            icon: "".to_string(),
+            ext: "".to_string(),
             is_dir: false,
+            path: "".to_string(),
             children: vec![],
         }
     }
 }
 
 impl FileEntry {
+    pub fn from_path(path: PathBuf) -> Self {
+        let file_name = path.file_name().unwrap();
+        let name = match file_name.to_str() {
+            None => "".to_string(),
+            Some(na) => na.to_string(),
+        };
+        let ext = match path.extension() {
+            None => "".to_string(),
+            Some(ext) => ext.to_str().unwrap().to_string(),
+        };
+
+        let path = format!("{}", path.display());
+
+        FileEntry {
+            name,
+            ext,
+            is_dir: false,
+            path,
+            children: vec![],
+        }
+    }
     pub fn new(name: String) -> Self {
         FileEntry {
             name: name,
-            icon: "".to_string(),
+            ext: "".to_string(),
             is_dir: false,
+            path: "".to_string(),
             children: vec![],
         }
     }
