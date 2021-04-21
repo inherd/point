@@ -1,9 +1,11 @@
+use crate::components::tree::TreeNode;
 use crate::{theme, AppState};
 use druid::kurbo::Line;
 use druid::{
     BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
     RenderContext, Size, UpdateCtx, Widget,
 };
+use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -54,6 +56,26 @@ impl Data for FileEntry {
                 .iter()
                 .zip(other.children.iter())
                 .all(|(a, b)| a.same(b))
+    }
+}
+
+impl TreeNode for FileEntry {
+    fn children_count(&self) -> usize {
+        self.children.len()
+    }
+
+    fn get_child(&self, index: usize) -> &Taxonomy {
+        &self.children[index]
+    }
+
+    fn get_child_mut(&mut self, index: usize) -> &mut Taxonomy {
+        &mut self.children[index]
+    }
+}
+
+impl fmt::Display for FileEntry {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.name)
     }
 }
 
