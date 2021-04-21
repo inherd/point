@@ -81,6 +81,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
                 let depth = depth + 1;
                 let relative_path = path.strip_prefix(base_dir).unwrap();
                 let entry = &mut FileEntry::new(format!("{}", relative_path.display()));
+                entry.is_dir = true;
                 visit_dirs(&path, depth, entry, base_dir)?;
                 node.children.push(entry.to_owned());
             } else {

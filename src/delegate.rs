@@ -14,7 +14,9 @@ impl AppDelegate<AppState> for Delegate {
         data: &mut AppState,
         _env: &Env,
     ) -> Handled {
-        if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
+        if let Some(info) = cmd.get(print_command::OPEN_FILE) {
+            println!("{:?}", info);
+        } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             if info.path().is_dir() {
                 data.set_dir(info.path().to_owned());
                 ctx.submit_command(print_command::OPEN);
