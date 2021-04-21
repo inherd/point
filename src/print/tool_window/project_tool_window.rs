@@ -1,7 +1,7 @@
 use crate::{theme, AppState};
 use druid::kurbo::Line;
 use druid::{
-    BoxConstraints, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
+    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
     RenderContext, Size, UpdateCtx, Widget,
 };
 use std::path::PathBuf;
@@ -17,6 +17,17 @@ struct FileEntry {
     pub children: Vec<FileEntry>,
 }
 
+impl Default for FileEntry {
+    fn default() -> Self {
+        FileEntry {
+            name: "".to_string(),
+            icon: "".to_string(),
+            path: Arc::new(Default::default()),
+            children: vec![],
+        }
+    }
+}
+
 impl FileEntry {
     pub fn new(name: &'static str, path: &PathBuf) -> Self {
         FileEntry {
@@ -30,6 +41,19 @@ impl FileEntry {
     pub fn add_child(mut self, child: Self) -> Self {
         self.children.push(child);
         self
+    }
+}
+
+impl Data for FileEntry {
+    fn same(&self, other: &Self) -> bool {
+        self.name.same(&other.name)
+            && *self.path == *self.path
+            && self.children.len() == other.children.len()
+            && self
+                .children
+                .iter()
+                .zip(other.children.iter())
+                .all(|(a, b)| a.same(b))
     }
 }
 
