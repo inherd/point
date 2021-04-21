@@ -25,7 +25,12 @@ pub struct AppState {
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
-        let string = fs::read_to_string(path.as_ref().unwrap()).unwrap();
+        let string = match fs::read_to_string(path.as_ref().unwrap()) {
+            Ok(str) => str,
+            Err(_) => {
+                return;
+            }
+        };
 
         self.workspace.input_text = string;
 

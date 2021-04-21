@@ -17,7 +17,7 @@ impl EditView {
         }
     }
 
-    fn rebuild_inner(&mut self, data: &AppState) {
+    fn rebuild_inner(&mut self, _data: &AppState) {
         let mut flex = Flex::row();
 
         flex.add_flex_child(
