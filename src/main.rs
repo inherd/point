@@ -1,19 +1,17 @@
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
-use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
-use walkdir::{DirEntry, WalkDir};
+use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
 
 use app_state::{AppState, Workspace};
-use model::file_tree::FileEntry;
 use print::editor::EditView;
 pub use support::line;
 
+use crate::app_state::Params;
 use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
-use crate::print::tool_window::project_tool_window::ProjectToolWindow;
+use crate::print::ProjectToolWindow;
 
 pub mod app_state;
 pub mod command;
@@ -26,11 +24,6 @@ pub mod support;
 pub mod theme;
 
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
-
-#[derive(Clone, Data, Lens)]
-struct Params {
-    debug_layout: bool,
-}
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|data: &AppState, _: &Env| match &data.current_dir {

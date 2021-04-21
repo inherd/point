@@ -1,3 +1,4 @@
+pub use tool_window::project_tool_window::ProjectToolWindow;
 pub use tool_window::ToolWindow;
 
 pub mod tool_window;

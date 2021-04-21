@@ -4,7 +4,8 @@ use std::sync::Arc;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::model::file_tree::FileEntry;
-use crate::Params;
+
+use druid::{Data, Lens};
 
 #[derive(Clone, Data, Lens)]
 pub struct AppState {
@@ -82,4 +83,9 @@ impl Default for Workspace {
             input_text: "".to_string(),
         }
     }
+}
+
+#[derive(Clone, Data, Lens)]
+pub struct Params {
+    pub debug_layout: bool,
 }
