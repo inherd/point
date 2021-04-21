@@ -5,10 +5,8 @@ use druid::{
     BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
 };
+use std::fmt;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::{fmt, fs};
-use walkdir::{DirEntry, WalkDir};
 
 #[derive(Clone, Lens)]
 pub struct FileEntry {
@@ -88,16 +86,12 @@ impl ProjectToolWindow {
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
 
-        // if data.workspace.current_dir.is_some() {
-        //     let mut sub_flex = Flex::column();
-        //
-        //     flex.add_child(sub_flex);
-        //
-        //     self.inner = flex.debug_paint_layout().boxed();
-        //     return;
-        // }
+        if data.workspace.current_dir.is_some() {
+            let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
+            flex.add_child(scroll);
+        }
 
-        flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
+        let flex = flex.lens(AppState::entry);
 
         self.inner = flex.debug_paint_layout().boxed()
     }

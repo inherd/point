@@ -27,6 +27,7 @@ struct AppState {
     title: String,
     workspace: Workspace,
     params: Params,
+    entry: FileEntry,
 }
 
 #[derive(Clone, Data, Lens)]
@@ -40,11 +41,18 @@ struct Workspace {
 impl Workspace {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
+        if let Some(dir) = &path {
+            self.entry = self.path_to_tree(dir);
+        }
         self.current_file = path;
     }
 
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
+        if let Some(dir) = &path {
+            self.entry = self.path_to_tree(dir);
+            log::info!("open dir: {:?}", dir);
+        }
         self.current_dir = path;
     }
 
@@ -178,6 +186,7 @@ pub fn main() {
         title: title.to_string(),
         workspace: Workspace::default(),
         params,
+        entry: Default::default(),
     };
 
     AppLauncher::with_window(main_window)
