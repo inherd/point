@@ -20,14 +20,15 @@ impl EditView {
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
 
-        flex.add_child(
+        flex.add_flex_child(
             TextBox::multiline()
                 .with_placeholder("Sample text")
                 .with_text_color(Color::BLACK)
-                .fix_width(400.0)
-                .fix_height(600.0)
+                .expand_width()
+                .expand_height()
                 .lens(Workspace::input_text)
                 .background(Color::WHITE),
+            1.0,
         );
 
         let flex = flex
@@ -35,11 +36,11 @@ impl EditView {
             .expand_height()
             .lens(AppState::workspace);
 
-        if data.params.debug_layout {
-            self.inner = flex.debug_paint_layout().boxed()
-        } else {
-            self.inner = flex.boxed()
-        }
+        // if data.params.debug_layout {
+        self.inner = flex.debug_paint_layout().boxed()
+        // } else {
+        //     self.inner = flex.boxed()
+        // }
     }
 }
 

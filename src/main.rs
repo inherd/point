@@ -72,6 +72,8 @@ fn center() -> impl Widget<AppState> {
         .with_default_spacer()
         .with_flex_child(EditView::new().center(), 1.0)
         .padding(1.0)
+        .expand_height()
+        .expand_width()
         .background(line::hline())
 }
 
