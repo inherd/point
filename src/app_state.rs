@@ -25,9 +25,10 @@ pub struct AppState {
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
-        if let Some(dir) = &path {
-            self.entry = path_to_tree(self.title.clone(), dir);
-        }
+        let string = fs::read_to_string(path.as_ref().unwrap()).unwrap();
+
+        self.workspace.input_text = string;
+
         self.current_file = path;
     }
 

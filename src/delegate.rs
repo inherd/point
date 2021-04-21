@@ -1,6 +1,7 @@
 use crate::app_state::AppState;
 use crate::command::print_command;
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
+use std::path::PathBuf;
 
 #[derive(Debug, Default)]
 pub struct Delegate;
@@ -15,7 +16,10 @@ impl AppDelegate<AppState> for Delegate {
         _env: &Env,
     ) -> Handled {
         if let Some(info) = cmd.get(print_command::OPEN_FILE) {
-            println!("{:?}", info);
+            let path = PathBuf::from(info.path.as_str());
+            log::info!("open file: {:?}", path.display());
+            data.set_file(path);
+            return Handled::Yes;
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             if info.path().is_dir() {
                 data.set_dir(info.path().to_owned());
