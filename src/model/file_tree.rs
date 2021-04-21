@@ -2,9 +2,11 @@ use std::fmt;
 
 use crate::components::tree::TreeNode;
 use druid::{Data, Lens};
+use serde::{Deserialize, Serialize};
+
 use std::path::PathBuf;
 
-#[derive(Clone, Lens, Debug)]
+#[derive(Serialize, Deserialize, Clone, Lens, Debug)]
 pub struct FileEntry {
     pub name: String,
     pub ext: String,

@@ -7,13 +7,18 @@ use druid::{Data, Lens};
 use std::fs::DirEntry;
 use std::{fs, io};
 
-#[derive(Clone, Data, Lens)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone, Data, Lens)]
 pub struct AppState {
     pub title: String,
     pub workspace: Workspace,
     pub params: Params,
     pub entry: FileEntry,
+
+    #[serde(skip_serializing, skip_deserializing)]
     pub current_file: Option<Arc<Path>>,
+    #[serde(skip_serializing, skip_deserializing)]
     pub current_dir: Option<Arc<Path>>,
 }
 
@@ -93,7 +98,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
     Ok(())
 }
 
-#[derive(Clone, Data, Lens)]
+#[derive(Serialize, Deserialize, Clone, Data, Lens)]
 pub struct Workspace {
     pub input_text: String,
 }
@@ -108,7 +113,7 @@ impl Default for Workspace {
     }
 }
 
-#[derive(Clone, Data, Lens)]
+#[derive(Serialize, Deserialize, Clone, Data, Lens)]
 pub struct Params {
     pub debug_layout: bool,
 }

@@ -18,6 +18,10 @@ infer = "0.3"
 
 druid-theme-loader = { version = "0.1.0", path = "druid-theme-loader", features = ["notify"] }
 
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
 [patch.crates-io]
 druid = { version = "0.7.0", git = "https://github.com/linebender/druid.git", rev = "31c39744" }
 
