@@ -3,13 +3,15 @@ use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
 
 use app_state::{AppState, Workspace};
-use print::editor::EditView;
+use print::edit_view::EditView;
 pub use support::line;
 
 use crate::app_state::Params;
 use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::ProjectToolWindow;
+use std::path::Path;
+use std::sync::Arc;
 
 pub mod app_state;
 pub mod command;
@@ -97,12 +99,13 @@ pub fn main() {
         debug_layout: false,
     };
 
+    let test_file = Path::new("/Users/fdhuang/write/phodal.com/light-weight-analysis.md");
     let init_state = AppState {
         title: title.to_string(),
         workspace: Workspace::default(),
         params,
         entry: Default::default(),
-        current_file: None,
+        current_file: Some(Arc::from(test_file)),
         current_dir: None,
     };
 

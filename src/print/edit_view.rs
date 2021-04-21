@@ -6,22 +6,6 @@ use druid::{
 
 use crate::app_state::{AppState, Workspace};
 
-pub struct Editor {
-    pub input_value: String,
-}
-
-impl Default for Editor {
-    fn default() -> Self {
-        Editor {
-            input_value: "".to_string(),
-        }
-    }
-}
-
-impl Editor {
-    pub fn render(&mut self) {}
-}
-
 pub struct EditView {
     inner: Box<dyn Widget<AppState>>,
 }
