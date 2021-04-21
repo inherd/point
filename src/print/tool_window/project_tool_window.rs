@@ -1,6 +1,6 @@
-use crate::components::tree::TreeNode;
+use crate::components::tree::{Tree, TreeNode};
 use crate::AppState;
-use druid::widget::{Flex, Label, SizedBox};
+use druid::widget::{Flex, Label, Scroll, SizedBox};
 use druid::{
     BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
@@ -14,7 +14,6 @@ use walkdir::{DirEntry, WalkDir};
 struct FileEntry {
     pub name: String,
     pub icon: String,
-    pub path: Arc<PathBuf>,
     pub children: Vec<FileEntry>,
 }
 
@@ -23,18 +22,16 @@ impl Default for FileEntry {
         FileEntry {
             name: "".to_string(),
             icon: "".to_string(),
-            path: Arc::new(Default::default()),
             children: vec![],
         }
     }
 }
 
 impl FileEntry {
-    pub fn new(name: &'static str, path: &PathBuf) -> Self {
+    pub fn new(name: String) -> Self {
         FileEntry {
-            name: name.to_string(),
+            name: name,
             icon: "".to_string(),
-            path: Arc::new(path.to_owned()),
             children: vec![],
         }
     }
@@ -48,7 +45,6 @@ impl FileEntry {
 impl Data for FileEntry {
     fn same(&self, other: &Self) -> bool {
         self.name.same(&other.name)
-            && *self.path == *self.path
             && self.children.len() == other.children.len()
             && self
                 .children
@@ -91,25 +87,28 @@ impl ProjectToolWindow {
 
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
-        // Tree::new(|t: &FileEntry| Label::new(t.name.as_str()))
-
         if data.workspace.current_dir.is_some() {
             let current_dir = data.workspace.current_dir.as_ref().unwrap();
-            self.path_to_tree(current_dir);
+            let entry = self.path_to_tree(current_dir);
+
+            // let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
+            // flex.add_child(scroll);
+            // flex.lens(entry);
+
+            // return;
         }
 
         flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
 
-        let flex = flex
-            .expand_width()
-            .expand_height()
-            .lens(AppState::workspace);
-
         self.inner = flex.debug_paint_layout().boxed()
     }
 
-    fn path_to_tree(&mut self, dir: &Arc<Path>) {
+    fn path_to_tree(&mut self, dir: &Arc<Path>) -> FileEntry {
         fn is_hidden(entry: &DirEntry) -> bool {
+            if entry.file_type().is_file() {
+                return false;
+            }
+
             entry
                 .file_name()
                 .to_str()
@@ -117,17 +116,25 @@ impl ProjectToolWindow {
                 .unwrap_or(false)
         }
 
-        let buf = dir.to_path_buf();
-        let root = FileEntry::new("", &buf);
+        let _buf = dir.to_path_buf();
+        let root = FileEntry::new("".to_string());
 
         let walker = WalkDir::new(dir).into_iter();
 
-        let last_root = root;
+        let mut last_root = root;
         for entry in walker.filter_entry(|e| !is_hidden(e)) {
             let entry = entry.unwrap();
             let file_name = entry.file_name().to_os_string();
-            println!("{:?}", file_name);
+            if entry.file_type().is_dir() {
+                //
+            }
+
+            last_root
+                .children
+                .push(FileEntry::new(format!("{:?}", file_name)));
         }
+
+        last_root
     }
 }
 
