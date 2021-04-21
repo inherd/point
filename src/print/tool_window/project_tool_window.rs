@@ -67,12 +67,5 @@ impl Widget<AppState> for ProjectToolWindow {
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, env: &Env) {
         self.inner.paint(ctx, data, env);
-        //
-        // let rect = ctx.size().to_rect();
-        // let x_pos = rect.width() - 0.5;
-        // let line = Line::new((x_pos, 0.0), (x_pos, rect.height()));
-        //
-        // ctx.fill(rect, &env.get(theme::TOOL_WINDOW_COLOR));
-        // ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
     }
 }
