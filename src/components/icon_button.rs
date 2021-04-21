@@ -14,9 +14,10 @@
 
 //! A button widget.
 
+use crate::theme;
 use druid::widget::prelude::*;
 use druid::widget::{Click, ControllerHost, Label, LabelText};
-use druid::{theme, Affine, Data, Insets};
+use druid::{Affine, Data, Insets};
 
 // the minimum padding added to a button.
 // NOTE: these values are chosen to match the existing look of TextBox; these
@@ -163,7 +164,7 @@ impl<T: Data> Widget<T> for IconButton<T> {
         let rounded_rect = size.to_rect().inset(-stroke_width / 2.0);
 
         if is_hot || is_active {
-            let bg = env.get(theme::BORDER_DARK);
+            let bg = env.get(theme::BUTTON_DARK);
             ctx.fill(rounded_rect, &bg);
         }
 

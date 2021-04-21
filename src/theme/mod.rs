@@ -8,8 +8,11 @@ pub const GLYPH_LIST_BACKGROUND: Key<Color> = Key::new("print.background");
 pub const TOOL_WINDOW_COLOR: Key<Color> = Key::new("print.tool-window-color");
 
 pub const BACKGROUND_COLOR: Key<Color> = Key::new("print.theme.bg-color");
-pub const BUTTON_DARK: Key<Color> = Key::new("print.theme.button_dark");
-pub const BUTTON_LIGHT: Key<Color> = Key::new("print.theme.button_light");
+pub const BUTTON_DARK: Key<Color> = Key::new("print.theme.button-dark");
+pub const BUTTON_LIGHT: Key<Color> = Key::new("print.theme.button-light");
+
+pub const BORDERED_WIDGET_HEIGHT: Key<f64> = Key::new("print.theme.button-light-height");
+pub const BUTTON_BORDER_WIDTH: Key<f64> = Key::new("print.theme.button-border-width");
 
 include!(concat!(env!("OUT_DIR"), "/theme_path.rs"));
 
@@ -21,7 +24,9 @@ loadable_theme!(pub MyTheme {
     BACKGROUND_COLOR,
     TOOL_WINDOW_COLOR,
     BUTTON_LIGHT,
-    BUTTON_DARK
+    BUTTON_DARK,
+    BORDERED_WIDGET_HEIGHT,
+    BUTTON_BORDER_WIDTH
 });
 
 pub fn wrap_in_theme_loader<T: Data>(widget: impl Widget<T>) -> impl Widget<T> {

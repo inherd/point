@@ -6,5 +6,8 @@ SIDEBAR_EDGE_STROKE:                #333
 
 GLYPH_LIST_BACKGROUND:              #111
 
-BUTTON_LIGHT: #e7e7e7
-BUTTON_DARK:  #e7e7e7
+BUTTON_LIGHT:                       #e7e7e7
+BUTTON_DARK:                        #e7e7e7
+
+BORDERED_WIDGET_HEIGHT:             32.0
+BUTTON_BORDER_WIDTH:                2.0
