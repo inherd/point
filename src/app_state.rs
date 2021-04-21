@@ -26,7 +26,7 @@ impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {
-            self.entry = path_to_tree(dir);
+            self.entry = path_to_tree(self.title.clone(), dir);
         }
         self.current_file = path;
     }
@@ -34,7 +34,7 @@ impl AppState {
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {
-            self.entry = path_to_tree(dir);
+            self.entry = path_to_tree(self.title.clone(), dir);
             log::info!("open dir: {:?}", dir);
         }
 
@@ -54,8 +54,8 @@ fn is_hidden(entry: &DirEntry) -> bool {
         .unwrap_or(false)
 }
 
-pub fn path_to_tree(dir: &Arc<Path>) -> FileEntry {
-    let mut root = FileEntry::new("root".to_string());
+pub fn path_to_tree(title: String, dir: &Arc<Path>) -> FileEntry {
+    let mut root = FileEntry::new(title);
 
     let _result = visit_dirs(dir, 0, &mut root, dir);
 
