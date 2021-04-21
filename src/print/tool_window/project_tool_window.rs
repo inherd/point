@@ -1,16 +1,44 @@
 use crate::{theme, AppState};
 use druid::kurbo::Line;
 use druid::{
-    BoxConstraints, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx,
+    BoxConstraints, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
     RenderContext, Size, UpdateCtx, Widget,
 };
+use std::path::PathBuf;
+use std::sync::Arc;
 
 pub struct ProjectToolWindow {}
+
+#[derive(Clone, Lens)]
+struct FileEntry {
+    pub name: String,
+    pub icon: String,
+    pub path: Arc<PathBuf>,
+    pub children: Vec<FileEntry>,
+}
+
+impl FileEntry {
+    pub fn new(name: &'static str, path: &PathBuf) -> Self {
+        FileEntry {
+            name: name.to_string(),
+            icon: "".to_string(),
+            path: Arc::new(path.to_owned()),
+            children: vec![],
+        }
+    }
+
+    pub fn add_child(mut self, child: Self) -> Self {
+        self.children.push(child);
+        self
+    }
+}
 
 impl ProjectToolWindow {
     pub fn new() -> ProjectToolWindow {
         ProjectToolWindow {}
     }
+
+    pub fn draw() {}
 }
 
 #[allow(unused_variables)]
