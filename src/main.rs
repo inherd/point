@@ -48,6 +48,17 @@ impl Workspace {
     }
 }
 
+impl Default for Workspace {
+    fn default() -> Self {
+        Workspace {
+            current_file: None,
+            current_dir: None,
+            input_text: "".to_string(),
+            entry: Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Data, Lens)]
 struct Params {
     debug_layout: bool,
@@ -124,24 +135,19 @@ pub fn main() {
         .menu(menu)
         .title(title);
 
-    let workspace = Workspace {
-        current_file: None,
-        current_dir: None,
-        input_text: "".into(),
-        entry: Default::default(),
-    };
-
     let params = Params {
         debug_layout: false,
+    };
+
+    let init_state = AppState {
+        title: title.to_string(),
+        workspace: Workspace::default(),
+        params,
     };
 
     AppLauncher::with_window(main_window)
         .delegate(Delegate::default())
         .log_to_console()
-        .launch(AppState {
-            title: title.to_string(),
-            workspace,
-            params,
-        })
+        .launch(init_state)
         .expect("Failed to launch application");
 }
