@@ -1,15 +1,14 @@
 use crate::components::tree::TreeNode;
 use crate::{theme, AppState};
 use druid::kurbo::Line;
+use druid::widget::{Flex, Label, SizedBox};
 use druid::{
-    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
-    RenderContext, Size, UpdateCtx, Widget,
+    BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
+    PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
 };
 use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
-
-pub struct ProjectToolWindow {}
 
 #[derive(Clone, Lens)]
 struct FileEntry {
@@ -64,11 +63,11 @@ impl TreeNode for FileEntry {
         self.children.len()
     }
 
-    fn get_child(&self, index: usize) -> &Taxonomy {
+    fn get_child(&self, index: usize) -> &FileEntry {
         &self.children[index]
     }
 
-    fn get_child_mut(&mut self, index: usize) -> &mut Taxonomy {
+    fn get_child_mut(&mut self, index: usize) -> &mut FileEntry {
         &mut self.children[index]
     }
 }
@@ -79,23 +78,52 @@ impl fmt::Display for FileEntry {
     }
 }
 
+pub struct ProjectToolWindow {
+    inner: Box<dyn Widget<AppState>>,
+}
+
 impl ProjectToolWindow {
     pub fn new() -> ProjectToolWindow {
-        ProjectToolWindow {}
+        ProjectToolWindow {
+            inner: SizedBox::empty().boxed(),
+        }
     }
 
-    pub fn draw() {}
+    fn rebuild_inner(&mut self, data: &AppState) {
+        let mut flex = Flex::row();
+        // Tree::new(|t: &FileEntry| Label::new(t.name.as_str()))
+
+        flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
+
+        let flex = flex
+            .expand_width()
+            .expand_height()
+            .lens(AppState::workspace);
+
+        self.inner = flex.debug_paint_layout().boxed()
+    }
 }
 
 #[allow(unused_variables)]
 impl Widget<AppState> for ProjectToolWindow {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {}
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
+        self.inner.event(ctx, event, data, env)
+    }
 
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &AppState, env: &Env) {
+        if let LifeCycle::WidgetAdded = event {
+            self.rebuild_inner(data);
+        }
+        self.inner.lifecycle(ctx, event, data, env)
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &AppState, data: &AppState, env: &Env) {
-        ctx.request_paint();
+        if !old_data.params.same(&data.params) {
+            self.rebuild_inner(data);
+            ctx.children_changed();
+        } else {
+            self.inner.update(ctx, old_data, data, env);
+        }
     }
 
     fn layout(
@@ -105,16 +133,17 @@ impl Widget<AppState> for ProjectToolWindow {
         data: &AppState,
         env: &Env,
     ) -> Size {
-        let size = 32.0;
-        bc.constrain(Size::new(size, f64::INFINITY))
+        self.inner.layout(ctx, bc, data, env)
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, env: &Env) {
-        let rect = ctx.size().to_rect();
-        let x_pos = rect.width() - 0.5;
-        let line = Line::new((x_pos, 0.0), (x_pos, rect.height()));
-
-        ctx.fill(rect, &env.get(theme::TOOL_WINDOW_COLOR));
-        ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
+        self.inner.paint(ctx, data, env);
+        //
+        // let rect = ctx.size().to_rect();
+        // let x_pos = rect.width() - 0.5;
+        // let line = Line::new((x_pos, 0.0), (x_pos, rect.height()));
+        //
+        // ctx.fill(rect, &env.get(theme::TOOL_WINDOW_COLOR));
+        // ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
     }
 }
