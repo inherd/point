@@ -1,11 +1,13 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use walkdir::{DirEntry, WalkDir};
-
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
+use std::borrow::BorrowMut;
+use std::fs::DirEntry;
+use std::io::Error;
+use std::{fs, io};
 
 #[derive(Clone, Data, Lens)]
 pub struct AppState {
@@ -38,7 +40,7 @@ impl AppState {
 }
 
 fn is_hidden(entry: &DirEntry) -> bool {
-    if entry.file_type().is_file() {
+    if !entry.path().is_dir() {
         return false;
     }
 
@@ -50,26 +52,44 @@ fn is_hidden(entry: &DirEntry) -> bool {
 }
 
 pub fn path_to_tree(dir: &Arc<Path>) -> FileEntry {
-    // todo: change root to project name
     let mut root = FileEntry::new("root".to_string());
 
-    let walker = WalkDir::new(dir).into_iter();
-
-    for entry in walker.filter_entry(|e| !is_hidden(e)) {
-        let entry = entry.unwrap();
-        let file_name = entry.file_name().to_os_string();
-
-        let relative_path = entry.path().strip_prefix(&dir).unwrap();
-        let last_node = &mut root;
-        for path in relative_path.iter() {
-            let mut file_entry = FileEntry::new(format!("{}", path.to_str().unwrap()));
-            last_node.children.push(file_entry);
-        }
-
-        print!("{:?}", file_name);
-    }
+    visit_dirs(dir, 0, &mut root);
 
     root
+}
+
+fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry) -> io::Result<()> {
+    if dir.is_dir() {
+        let entry_set = fs::read_dir(dir)?; // contains DirEntry
+        let mut entries = entry_set
+            .filter_map(|v| match v {
+                Ok(dir) => {
+                    if is_hidden(&dir) {
+                        return None;
+                    }
+                    Some(dir)
+                }
+                Err(_) => None,
+            })
+            .collect::<Vec<_>>();
+
+        entries.sort_by(|a, b| a.path().file_name().cmp(&b.path().file_name()));
+
+        for (index, entry) in entries.iter().enumerate() {
+            let path = entry.path();
+
+            if path.is_dir() {
+                let depth = depth + 1;
+                let entry = &mut FileEntry::new(format!("{}", path.display()));
+                visit_dirs(&path, depth, entry)?
+            } else {
+                let file_name = format!("{}", path.file_name().unwrap().to_str().unwrap());
+                node.children.push(FileEntry::new(file_name));
+            }
+        }
+    }
+    Ok(())
 }
 
 #[derive(Clone, Data, Lens)]
