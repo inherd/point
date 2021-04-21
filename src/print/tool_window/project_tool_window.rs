@@ -1,14 +1,14 @@
 use crate::components::tree::TreeNode;
-use crate::{theme, AppState};
-use druid::kurbo::Line;
+use crate::AppState;
 use druid::widget::{Flex, Label, SizedBox};
 use druid::{
     BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
 };
-use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::{fmt, fs};
+use walkdir::{DirEntry, WalkDir};
 
 #[derive(Clone, Lens)]
 struct FileEntry {
@@ -93,6 +93,31 @@ impl ProjectToolWindow {
         let mut flex = Flex::row();
         // Tree::new(|t: &FileEntry| Label::new(t.name.as_str()))
 
+        if data.workspace.current_dir.is_some() {
+            let root = FileEntry::new(
+                "",
+                &data.workspace.current_dir.as_ref().unwrap().to_path_buf(),
+            );
+
+            fn is_hidden(entry: &DirEntry) -> bool {
+                entry
+                    .file_name()
+                    .to_str()
+                    .map(|s| s.starts_with("."))
+                    .unwrap_or(false)
+            }
+
+            let current_dir = data.workspace.current_dir.as_ref().unwrap();
+            let walker = WalkDir::new(current_dir).into_iter();
+
+            let last_root = root;
+            for entry in walker.filter_entry(|e| !is_hidden(e)) {
+                let entry = entry.unwrap();
+                let file_name = entry.file_name().to_os_string();
+                println!("{:?}", file_name);
+            }
+        }
+
         flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
 
         let flex = flex
@@ -118,7 +143,11 @@ impl Widget<AppState> for ProjectToolWindow {
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &AppState, data: &AppState, env: &Env) {
-        if !old_data.params.same(&data.params) {
+        if !old_data
+            .workspace
+            .current_dir
+            .same(&data.workspace.current_dir)
+        {
             self.rebuild_inner(data);
             ctx.children_changed();
         } else {

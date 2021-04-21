@@ -11,6 +11,8 @@ druid = "0.7"
 log = "0.4.8"
 druid-shell = "0.7.0"
 
+walkdir = "2"
+
 # mime type
 infer = "0.3"
 

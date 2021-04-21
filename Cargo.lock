@@ -1203,6 +1203,7 @@ dependencies = [
  "druid-theme-loader",
  "infer",
  "log",
+ "walkdir",
 ]
 
 [[package]]
