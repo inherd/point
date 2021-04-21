@@ -17,8 +17,8 @@ impl EditView {
         }
     }
 
-    fn rebuild_inner(&mut self, _data: &AppState) {
-        let mut flex = Flex::row();
+    fn rebuild_inner(&mut self, data: &AppState) {
+        let mut flex = Flex::column();
 
         flex.add_flex_child(
             TextBox::multiline()
@@ -36,11 +36,11 @@ impl EditView {
             .expand_height()
             .lens(AppState::workspace);
 
-        // if data.params.debug_layout {
-        self.inner = flex.debug_paint_layout().boxed()
-        // } else {
-        //     self.inner = flex.boxed()
-        // }
+        if data.params.debug_layout {
+            self.inner = flex.debug_paint_layout().boxed()
+        } else {
+            self.inner = flex.boxed()
+        }
     }
 }
 

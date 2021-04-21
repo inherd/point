@@ -34,8 +34,7 @@ impl ProjectToolWindow {
                         }
                     },
                 );
-            }))
-            .expand_height();
+            }));
             flex.add_child(scroll);
         }
 

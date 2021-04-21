@@ -74,7 +74,7 @@ fn bottom_tool_window() -> impl Widget<AppState> {
 
 fn center() -> impl Widget<AppState> {
     Flex::row()
-        .with_flex_child(ProjectToolWindow::new(), 1.0)
+        .with_child(ProjectToolWindow::new())
         .with_default_spacer()
         .with_flex_child(EditView::new().center(), 1.0)
         .padding(1.0)
