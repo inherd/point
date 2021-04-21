@@ -5,7 +5,7 @@ use druid::{
     BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{fmt, fs};
 use walkdir::{DirEntry, WalkDir};
@@ -94,28 +94,8 @@ impl ProjectToolWindow {
         // Tree::new(|t: &FileEntry| Label::new(t.name.as_str()))
 
         if data.workspace.current_dir.is_some() {
-            let root = FileEntry::new(
-                "",
-                &data.workspace.current_dir.as_ref().unwrap().to_path_buf(),
-            );
-
-            fn is_hidden(entry: &DirEntry) -> bool {
-                entry
-                    .file_name()
-                    .to_str()
-                    .map(|s| s.starts_with("."))
-                    .unwrap_or(false)
-            }
-
             let current_dir = data.workspace.current_dir.as_ref().unwrap();
-            let walker = WalkDir::new(current_dir).into_iter();
-
-            let last_root = root;
-            for entry in walker.filter_entry(|e| !is_hidden(e)) {
-                let entry = entry.unwrap();
-                let file_name = entry.file_name().to_os_string();
-                println!("{:?}", file_name);
-            }
+            self.path_to_tree(current_dir);
         }
 
         flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
@@ -126,6 +106,28 @@ impl ProjectToolWindow {
             .lens(AppState::workspace);
 
         self.inner = flex.debug_paint_layout().boxed()
+    }
+
+    fn path_to_tree(&mut self, dir: &Arc<Path>) {
+        fn is_hidden(entry: &DirEntry) -> bool {
+            entry
+                .file_name()
+                .to_str()
+                .map(|s| s.starts_with("."))
+                .unwrap_or(false)
+        }
+
+        let buf = dir.to_path_buf();
+        let root = FileEntry::new("", &buf);
+
+        let walker = WalkDir::new(dir).into_iter();
+
+        let last_root = root;
+        for entry in walker.filter_entry(|e| !is_hidden(e)) {
+            let entry = entry.unwrap();
+            let file_name = entry.file_name().to_os_string();
+            println!("{:?}", file_name);
+        }
     }
 }
 
