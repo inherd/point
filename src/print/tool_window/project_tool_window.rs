@@ -11,7 +11,7 @@ use std::{fmt, fs};
 use walkdir::{DirEntry, WalkDir};
 
 #[derive(Clone, Lens)]
-struct FileEntry {
+pub struct FileEntry {
     pub name: String,
     pub icon: String,
     pub children: Vec<FileEntry>,
@@ -87,15 +87,20 @@ impl ProjectToolWindow {
 
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
+
         if data.workspace.current_dir.is_some() {
+            let mut sub_flex = Flex::column();
+
             let current_dir = data.workspace.current_dir.as_ref().unwrap();
             let entry = self.path_to_tree(current_dir);
 
             // let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
-            // flex.add_child(scroll);
-            // flex.lens(entry);
+            // sub_flex.add_child(scroll);
 
-            // return;
+            flex.add_child(sub_flex);
+
+            self.inner = flex.debug_paint_layout().boxed();
+            return;
         }
 
         flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));

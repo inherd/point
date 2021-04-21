@@ -6,7 +6,7 @@ use print::editor::EditView;
 
 use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
-use crate::print::tool_window::project_tool_window::ProjectToolWindow;
+use crate::print::tool_window::project_tool_window::{FileEntry, ProjectToolWindow};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 pub use support::line;
@@ -33,6 +33,7 @@ struct Workspace {
     pub current_file: Option<Arc<Path>>,
     pub current_dir: Option<Arc<Path>>,
     pub input_text: String,
+    pub entry: FileEntry,
 }
 
 impl Workspace {
@@ -127,6 +128,7 @@ pub fn main() {
         current_file: None,
         current_dir: None,
         input_text: "".into(),
+        entry: Default::default(),
     };
 
     let params = Params {
