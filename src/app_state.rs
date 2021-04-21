@@ -4,9 +4,7 @@ use std::sync::Arc;
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
-use std::borrow::BorrowMut;
 use std::fs::DirEntry;
-use std::io::Error;
 use std::{fs, io};
 
 #[derive(Clone, Data, Lens)]
@@ -54,7 +52,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
 pub fn path_to_tree(dir: &Arc<Path>) -> FileEntry {
     let mut root = FileEntry::new("root".to_string());
 
-    visit_dirs(dir, 0, &mut root);
+    let _result = visit_dirs(dir, 0, &mut root);
 
     root
 }
@@ -76,7 +74,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry) -> io::Result<()> 
 
         entries.sort_by(|a, b| a.path().file_name().cmp(&b.path().file_name()));
 
-        for (index, entry) in entries.iter().enumerate() {
+        for (_index, entry) in entries.iter().enumerate() {
             let path = entry.path();
 
             if path.is_dir() {
