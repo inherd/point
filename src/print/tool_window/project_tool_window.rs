@@ -88,58 +88,18 @@ impl ProjectToolWindow {
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
 
-        if data.workspace.current_dir.is_some() {
-            let mut sub_flex = Flex::column();
-
-            let current_dir = data.workspace.current_dir.as_ref().unwrap();
-            let entry = self.path_to_tree(current_dir);
-
-            // let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
-            // sub_flex.add_child(scroll);
-
-            flex.add_child(sub_flex);
-
-            self.inner = flex.debug_paint_layout().boxed();
-            return;
-        }
+        // if data.workspace.current_dir.is_some() {
+        //     let mut sub_flex = Flex::column();
+        //
+        //     flex.add_child(sub_flex);
+        //
+        //     self.inner = flex.debug_paint_layout().boxed();
+        //     return;
+        // }
 
         flex.add_child(Label::new("Tree").with_text_color(Color::BLACK));
 
         self.inner = flex.debug_paint_layout().boxed()
-    }
-
-    fn path_to_tree(&mut self, dir: &Arc<Path>) -> FileEntry {
-        fn is_hidden(entry: &DirEntry) -> bool {
-            if entry.file_type().is_file() {
-                return false;
-            }
-
-            entry
-                .file_name()
-                .to_str()
-                .map(|s| s.starts_with("."))
-                .unwrap_or(false)
-        }
-
-        let _buf = dir.to_path_buf();
-        let root = FileEntry::new("".to_string());
-
-        let walker = WalkDir::new(dir).into_iter();
-
-        let mut last_root = root;
-        for entry in walker.filter_entry(|e| !is_hidden(e)) {
-            let entry = entry.unwrap();
-            let file_name = entry.file_name().to_os_string();
-            if entry.file_type().is_dir() {
-                //
-            }
-
-            last_root
-                .children
-                .push(FileEntry::new(format!("{:?}", file_name)));
-        }
-
-        last_root
     }
 }
 

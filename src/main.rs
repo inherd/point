@@ -10,6 +10,7 @@ use crate::print::tool_window::project_tool_window::{FileEntry, ProjectToolWindo
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 pub use support::line;
+use walkdir::{DirEntry, WalkDir};
 
 pub mod command;
 pub mod components;
@@ -45,6 +46,40 @@ impl Workspace {
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         self.current_dir = path;
+    }
+
+    fn path_to_tree(&mut self, dir: &Arc<Path>) -> FileEntry {
+        fn is_hidden(entry: &DirEntry) -> bool {
+            if entry.file_type().is_file() {
+                return false;
+            }
+
+            entry
+                .file_name()
+                .to_str()
+                .map(|s| s.starts_with("."))
+                .unwrap_or(false)
+        }
+
+        let _buf = dir.to_path_buf();
+        let root = FileEntry::new("".to_string());
+
+        let walker = WalkDir::new(dir).into_iter();
+
+        let mut last_root = root;
+        for entry in walker.filter_entry(|e| !is_hidden(e)) {
+            let entry = entry.unwrap();
+            let file_name = entry.file_name().to_os_string();
+            if entry.file_type().is_dir() {
+                //
+            }
+
+            last_root
+                .children
+                .push(FileEntry::new(format!("{:?}", file_name)));
+        }
+
+        last_root
     }
 }
 
