@@ -16,7 +16,7 @@ impl AppDelegate<AppState> for Delegate {
     ) -> Handled {
         if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             if info.path().is_dir() {
-                data.workspace.set_dir(info.path().to_owned());
+                data.set_dir(info.path().to_owned());
                 ctx.submit_command(print_command::OPEN);
                 return Handled::Yes;
             }
@@ -32,11 +32,11 @@ impl AppDelegate<AppState> for Delegate {
                         match info.path().parent() {
                             None => {}
                             Some(parent) => {
-                                data.workspace.set_dir(Some(parent.to_owned()));
+                                data.set_dir(Some(parent.to_owned()));
                             }
                         }
 
-                        data.workspace.set_file(info.path().to_owned());
+                        data.set_file(info.path().to_owned());
                         ctx.submit_command(print_command::OPEN);
                         Handled::Yes
                     }

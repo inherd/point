@@ -2,11 +2,10 @@ use crate::components::tree::{Tree, TreeNode};
 use crate::AppState;
 use druid::widget::{Flex, Label, Scroll, SizedBox};
 use druid::{
-    BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx,
-    PaintCtx, RenderContext, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
+    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, Lens, LifeCycle, LifeCycleCtx, PaintCtx,
+    Size, UpdateCtx, Widget, WidgetExt,
 };
 use std::fmt;
-use std::path::{Path, PathBuf};
 
 #[derive(Clone, Lens)]
 pub struct FileEntry {
@@ -86,7 +85,7 @@ impl ProjectToolWindow {
     fn rebuild_inner(&mut self, data: &AppState) {
         let mut flex = Flex::row();
 
-        if data.workspace.current_dir.is_some() {
+        if data.current_dir.is_some() {
             let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
             flex.add_child(scroll);
         }
@@ -111,11 +110,7 @@ impl Widget<AppState> for ProjectToolWindow {
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &AppState, data: &AppState, env: &Env) {
-        if !old_data
-            .workspace
-            .current_dir
-            .same(&data.workspace.current_dir)
-        {
+        if !old_data.current_dir.same(&data.current_dir) {
             self.rebuild_inner(data);
             ctx.children_changed();
         } else {

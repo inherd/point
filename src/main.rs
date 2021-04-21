@@ -27,18 +27,12 @@ struct AppState {
     title: String,
     workspace: Workspace,
     params: Params,
-    entry: FileEntry,
-}
-
-#[derive(Clone, Data, Lens)]
-struct Workspace {
+    pub entry: FileEntry,
     pub current_file: Option<Arc<Path>>,
     pub current_dir: Option<Arc<Path>>,
-    pub input_text: String,
-    pub entry: FileEntry,
 }
 
-impl Workspace {
+impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {
@@ -91,13 +85,17 @@ impl Workspace {
     }
 }
 
+#[derive(Clone, Data, Lens)]
+struct Workspace {
+    pub input_text: String,
+}
+
+impl Workspace {}
+
 impl Default for Workspace {
     fn default() -> Self {
         Workspace {
-            current_file: None,
-            current_dir: None,
             input_text: "".to_string(),
-            entry: Default::default(),
         }
     }
 }
@@ -108,7 +106,7 @@ struct Params {
 }
 
 fn navigation_bar() -> impl Widget<AppState> {
-    let label = Label::new(|data: &Workspace, _: &Env| match &data.current_dir {
+    let label = Label::new(|data: &AppState, _: &Env| match &data.current_dir {
         None => {
             format!("")
         }
@@ -121,7 +119,6 @@ fn navigation_bar() -> impl Widget<AppState> {
         .with_child(label.with_text_color(Color::BLACK))
         .padding(10.0)
         .expand_width()
-        .lens(AppState::workspace)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }
@@ -187,6 +184,8 @@ pub fn main() {
         workspace: Workspace::default(),
         params,
         entry: Default::default(),
+        current_file: None,
+        current_dir: None,
     };
 
     AppLauncher::with_window(main_window)
