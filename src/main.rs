@@ -30,9 +30,15 @@ fn navigation_bar() -> impl Widget<AppState> {
         None => {
             format!("")
         }
-        Some(path) => {
-            format!("{}", path.to_owned().display())
-        }
+        Some(path) => match &data.current_file {
+            None => {
+                return data.title.clone();
+            }
+            Some(file) => {
+                let result = file.strip_prefix(path).unwrap();
+                format!("{}", result.to_owned().display())
+            }
+        },
     });
 
     Flex::row()
