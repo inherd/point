@@ -23,11 +23,12 @@ impl ProjectToolWindow {
         let mut flex = Flex::row();
 
         if data.current_dir.is_some() {
-            let scroll = Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str())));
+            let scroll =
+                Scroll::new(Tree::new(|t: &FileEntry| Label::new(t.name.as_str()))).expand_height();
             flex.add_child(scroll);
         }
 
-        let flex = flex.lens(AppState::entry);
+        let flex = flex.expand_height().lens(AppState::entry);
 
         self.inner = flex.debug_paint_layout().boxed()
     }
