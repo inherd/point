@@ -52,12 +52,12 @@ fn is_hidden(entry: &DirEntry) -> bool {
 pub fn path_to_tree(dir: &Arc<Path>) -> FileEntry {
     let mut root = FileEntry::new("root".to_string());
 
-    let _result = visit_dirs(dir, 0, &mut root);
+    let _result = visit_dirs(dir, 0, &mut root, dir);
 
     root
 }
 
-fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry) -> io::Result<()> {
+fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -> io::Result<()> {
     if dir.is_dir() {
         let entry_set = fs::read_dir(dir)?; // contains DirEntry
         let mut entries = entry_set
@@ -79,11 +79,14 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry) -> io::Result<()> 
 
             if path.is_dir() {
                 let depth = depth + 1;
-                let entry = &mut FileEntry::new(format!("{}", path.display()));
-                visit_dirs(&path, depth, entry)?
+                let relative_path = path.strip_prefix(base_dir).unwrap();
+                let entry = &mut FileEntry::new(format!("{}", relative_path.display()));
+                visit_dirs(&path, depth, entry, base_dir)?;
+                node.children.push(entry.to_owned());
             } else {
                 let file_name = format!("{}", path.file_name().unwrap().to_str().unwrap());
-                node.children.push(FileEntry::new(file_name));
+                let entry1 = FileEntry::new(file_name);
+                node.children.push(entry1);
             }
         }
     }

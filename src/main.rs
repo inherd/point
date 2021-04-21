@@ -1,5 +1,3 @@
-use std::path::{Path, PathBuf};
-
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, UnitPoint, WindowDesc};

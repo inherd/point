@@ -3,7 +3,7 @@ use std::fmt;
 use crate::components::tree::TreeNode;
 use druid::{Data, Lens};
 
-#[derive(Clone, Lens)]
+#[derive(Clone, Lens, Debug)]
 pub struct FileEntry {
     pub name: String,
     pub icon: String,
