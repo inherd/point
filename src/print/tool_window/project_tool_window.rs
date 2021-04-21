@@ -4,9 +4,9 @@ use druid::{
     UpdateCtx, Widget, WidgetExt,
 };
 
+use crate::app_state::AppState;
 use crate::components::tree::Tree;
 use crate::model::file_tree::FileEntry;
-use crate::AppState;
 
 pub struct ProjectToolWindow {
     inner: Box<dyn Widget<AppState>>,

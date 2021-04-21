@@ -1,5 +1,5 @@
+use crate::app_state::AppState;
 use crate::command::print_command;
-use crate::AppState;
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
 
 #[derive(Debug, Default)]

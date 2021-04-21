@@ -6,6 +6,7 @@ use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
 use walkdir::{DirEntry, WalkDir};
 
+use app_state::{AppState, Workspace};
 use model::file_tree::FileEntry;
 use print::editor::EditView;
 pub use support::line;
@@ -14,6 +15,7 @@ use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::tool_window::project_tool_window::ProjectToolWindow;
 
+pub mod app_state;
 pub mod command;
 pub mod components;
 pub mod delegate;
@@ -24,84 +26,6 @@ pub mod support;
 pub mod theme;
 
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
-
-#[derive(Clone, Data, Lens)]
-struct AppState {
-    title: String,
-    workspace: Workspace,
-    params: Params,
-    pub entry: FileEntry,
-    pub current_file: Option<Arc<Path>>,
-    pub current_dir: Option<Arc<Path>>,
-}
-
-impl AppState {
-    pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
-        let path = path.into().map(Into::into);
-        if let Some(dir) = &path {
-            self.entry = self.path_to_tree(dir);
-        }
-        self.current_file = path;
-    }
-
-    pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
-        let path = path.into().map(Into::into);
-        if let Some(dir) = &path {
-            self.entry = self.path_to_tree(dir);
-            log::info!("open dir: {:?}", dir);
-        }
-        self.current_dir = path;
-    }
-
-    fn path_to_tree(&mut self, dir: &Arc<Path>) -> FileEntry {
-        fn is_hidden(entry: &DirEntry) -> bool {
-            if entry.file_type().is_file() {
-                return false;
-            }
-
-            entry
-                .file_name()
-                .to_str()
-                .map(|s| s.starts_with("."))
-                .unwrap_or(false)
-        }
-
-        let _buf = dir.to_path_buf();
-        let root = FileEntry::new("".to_string());
-
-        let walker = WalkDir::new(dir).into_iter();
-
-        let mut last_root = root;
-        for entry in walker.filter_entry(|e| !is_hidden(e)) {
-            let entry = entry.unwrap();
-            let file_name = entry.file_name().to_os_string();
-            if entry.file_type().is_dir() {
-                //
-            }
-
-            last_root
-                .children
-                .push(FileEntry::new(format!("{:?}", file_name)));
-        }
-
-        last_root
-    }
-}
-
-#[derive(Clone, Data, Lens)]
-struct Workspace {
-    pub input_text: String,
-}
-
-impl Workspace {}
-
-impl Default for Workspace {
-    fn default() -> Self {
-        Workspace {
-            input_text: "".to_string(),
-        }
-    }
-}
 
 #[derive(Clone, Data, Lens)]
 struct Params {
