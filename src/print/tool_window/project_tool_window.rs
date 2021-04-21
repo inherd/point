@@ -41,7 +41,11 @@ impl ProjectToolWindow {
 
         let flex = flex.expand_height().lens(AppState::entry);
 
-        self.inner = flex.debug_paint_layout().boxed()
+        if data.params.debug_layout {
+            self.inner = flex.debug_paint_layout().boxed()
+        } else {
+            self.inner = flex.boxed();
+        }
     }
 }
 
