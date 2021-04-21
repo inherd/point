@@ -7,6 +7,7 @@ use druid::{Data, Lens};
 pub struct FileEntry {
     pub name: String,
     pub icon: String,
+    pub is_dir: bool,
     pub children: Vec<FileEntry>,
 }
 
@@ -15,6 +16,7 @@ impl Default for FileEntry {
         FileEntry {
             name: "".to_string(),
             icon: "".to_string(),
+            is_dir: false,
             children: vec![],
         }
     }
@@ -25,6 +27,7 @@ impl FileEntry {
         FileEntry {
             name: name,
             icon: "".to_string(),
+            is_dir: false,
             children: vec![],
         }
     }

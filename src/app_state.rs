@@ -21,7 +21,7 @@ impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {
-            self.entry = self.path_to_tree(dir);
+            self.entry = path_to_tree(dir);
         }
         self.current_file = path;
     }
@@ -29,45 +29,47 @@ impl AppState {
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {
-            self.entry = self.path_to_tree(dir);
+            self.entry = path_to_tree(dir);
             log::info!("open dir: {:?}", dir);
         }
+
         self.current_dir = path;
     }
+}
 
-    fn path_to_tree(&mut self, dir: &Arc<Path>) -> FileEntry {
-        fn is_hidden(entry: &DirEntry) -> bool {
-            if entry.file_type().is_file() {
-                return false;
-            }
-
-            entry
-                .file_name()
-                .to_str()
-                .map(|s| s.starts_with("."))
-                .unwrap_or(false)
-        }
-
-        let _buf = dir.to_path_buf();
-        let root = FileEntry::new("".to_string());
-
-        let walker = WalkDir::new(dir).into_iter();
-
-        let mut last_root = root;
-        for entry in walker.filter_entry(|e| !is_hidden(e)) {
-            let entry = entry.unwrap();
-            let file_name = entry.file_name().to_os_string();
-            if entry.file_type().is_dir() {
-                //
-            }
-
-            last_root
-                .children
-                .push(FileEntry::new(format!("{:?}", file_name)));
-        }
-
-        last_root
+fn is_hidden(entry: &DirEntry) -> bool {
+    if entry.file_type().is_file() {
+        return false;
     }
+
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with("."))
+        .unwrap_or(false)
+}
+
+pub fn path_to_tree(dir: &Arc<Path>) -> FileEntry {
+    // todo: change root to project name
+    let mut root = FileEntry::new("root".to_string());
+
+    let walker = WalkDir::new(dir).into_iter();
+
+    for entry in walker.filter_entry(|e| !is_hidden(e)) {
+        let entry = entry.unwrap();
+        let file_name = entry.file_name().to_os_string();
+
+        let relative_path = entry.path().strip_prefix(&dir).unwrap();
+        let last_node = &mut root;
+        for path in relative_path.iter() {
+            let mut file_entry = FileEntry::new(format!("{}", path.to_str().unwrap()));
+            last_node.children.push(file_entry);
+        }
+
+        print!("{:?}", file_name);
+    }
+
+    root
 }
 
 #[derive(Clone, Data, Lens)]
