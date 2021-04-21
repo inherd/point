@@ -88,8 +88,8 @@ pub fn main() {
     let menu = menu::menus();
 
     let main_window = WindowDesc::new(crate::theme::wrap_in_theme_loader(make_ui()))
-        .window_size((720., 600.))
-        .with_min_size((620., 300.))
+        .window_size((1024., 768.))
+        .with_min_size((1024., 768.))
         .menu(menu)
         .title(title);
 
