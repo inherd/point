@@ -1,21 +1,24 @@
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Data, Lens, UnitPoint, WindowDesc};
+use walkdir::{DirEntry, WalkDir};
 
+use model::file_tree::FileEntry;
 use print::editor::EditView;
+pub use support::line;
 
 use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
-use crate::print::tool_window::project_tool_window::{FileEntry, ProjectToolWindow};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-pub use support::line;
-use walkdir::{DirEntry, WalkDir};
+use crate::print::tool_window::project_tool_window::ProjectToolWindow;
 
 pub mod command;
 pub mod components;
 pub mod delegate;
 pub mod menu;
+pub mod model;
 pub mod print;
 pub mod support;
 pub mod theme;
