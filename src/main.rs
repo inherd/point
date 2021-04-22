@@ -91,6 +91,7 @@ pub fn main() {
     let title = "Print UI";
 
     let init_state = directory::read_config();
+    println!("init state: {:?}", init_state);
 
     let menu = menu::menus();
 

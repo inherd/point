@@ -10,7 +10,7 @@ use std::{fs, io};
 use crate::support::directory;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Data, Lens)]
+#[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
     pub title: String,
     pub workspace: Workspace,
@@ -128,7 +128,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
     Ok(())
 }
 
-#[derive(Serialize, Deserialize, Clone, Data, Lens)]
+#[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct Workspace {
     pub input_text: String,
 }
@@ -143,7 +143,7 @@ impl Default for Workspace {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Data, Lens)]
+#[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct Params {
     pub debug_layout: bool,
 }
