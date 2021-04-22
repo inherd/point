@@ -1,4 +1,4 @@
-use druid::{Color, Data, Key, Widget};
+use druid::{Color, Data, Env, Key, Widget};
 use druid_theme_loader::loadable_theme;
 
 pub const SIDEBAR_BACKGROUND: Key<Color> = Key::new("print.sidebar-background");
@@ -20,6 +20,12 @@ pub const BUTTON_BORDER_WIDTH: Key<f64> = Key::new("print.theme.button-border-wi
 pub const BASIC_TEXT_SIZE: Key<f64> = Key::new("print.theme.basic-font-size");
 
 include!(concat!(env!("OUT_DIR"), "/theme_path.rs"));
+
+#[rustfmt::skip]
+pub fn configure_env(env: &mut Env) {
+    env.set(druid::theme::BACKGROUND_LIGHT, Color::WHITE);
+    env.set(druid::theme::CURSOR_COLOR, Color::BLACK);
+}
 
 // declares a new struct, MyTheme.
 loadable_theme!(pub MyTheme {

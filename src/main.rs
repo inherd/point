@@ -116,6 +116,7 @@ pub fn main() {
 
     AppLauncher::with_window(main_window)
         .delegate(Delegate::default())
+        .configure_env(|env, _| theme::configure_env(env))
         .log_to_console()
         .launch(init_state)
         .expect("Failed to launch application");
