@@ -26,19 +26,16 @@ pub mod theme;
 const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
 
 fn navigation_bar() -> impl Widget<AppState> {
-    let label = Label::new(|data: &AppState, _: &Env| match &data.current_dir {
-        None => {
-            format!("")
+    let label = Label::new(|data: &AppState, _: &Env| {
+        if let Some(path) = &data.current_dir {
+            if let Some(p) = &data.current_file {
+                if let Ok(sub) = p.strip_prefix(path) {
+                    return format!("{}", sub.to_owned().display());
+                }
+            }
         }
-        Some(path) => match &data.current_file {
-            None => {
-                return data.title.clone();
-            }
-            Some(file) => {
-                let result = file.strip_prefix(path).unwrap();
-                format!("{}", result.to_owned().display())
-            }
-        },
+
+        format!("")
     });
 
     Flex::row()
