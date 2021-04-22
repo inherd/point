@@ -34,7 +34,7 @@ impl ProjectToolWindow {
                 )
                 .on_click(|ctx, data: &mut FileEntry, _env| {
                     if !data.is_dir {
-                        ctx.submit_command(print_command::OPEN_FILE.with(data.to_owned()));
+                        ctx.submit_command(print_command::SET_FILE.with(data.to_owned()));
                     }
                 });
             }));
