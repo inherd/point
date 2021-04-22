@@ -37,12 +37,21 @@ pub fn save_config(state: &AppState) {
 
 #[allow(unused_assignments)]
 pub fn read_config() -> AppState {
-    let path = config_path().expect("lost home issue");
-    let content = fs::read_to_string(path).expect("lost config _file");
     let mut app_state = AppState::default();
+    let path = config_path().expect("lost home issue");
+    let content;
+    match fs::read_to_string(&path) {
+        Ok(str) => {
+            content = str;
+        }
+        Err(_) => {
+            return app_state;
+        }
+    }
     match serde_json::from_str(&content) {
         Ok(state) => app_state = state,
         Err(_err) => {
+            let _ = fs::remove_file(&path);
             log::info!("error config: {}", content);
         }
     };
