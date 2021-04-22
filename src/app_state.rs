@@ -23,6 +23,18 @@ pub struct AppState {
     pub current_dir: Option<Arc<Path>>,
 }
 
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            title: "".to_string(),
+            workspace: Default::default(),
+            params: Default::default(),
+            entry: Default::default(),
+            current_file: None,
+            current_dir: None,
+        }
+    }
+}
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
@@ -134,4 +146,12 @@ impl Default for Workspace {
 #[derive(Serialize, Deserialize, Clone, Data, Lens)]
 pub struct Params {
     pub debug_layout: bool,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Self {
+            debug_layout: false,
+        }
+    }
 }
