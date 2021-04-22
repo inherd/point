@@ -37,6 +37,10 @@ impl AppState {
         self.current_file = path;
     }
 
+    pub fn text(&mut self) -> String {
+        return self.workspace.input_text.clone();
+    }
+
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
         let path = path.into().map(Into::into);
         if let Some(dir) = &path {

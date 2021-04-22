@@ -22,6 +22,7 @@ fn file_menu<T: Data>() -> MenuDesc<T> {
             )
             .hotkey(SysMods::Cmd, "o"),
         )
+        .append(platform_menus::mac::file::save())
         .append_separator()
         .append(platform_menus::mac::file::close())
 }
