@@ -17,9 +17,9 @@ pub struct AppState {
     pub params: Params,
     pub entry: FileEntry,
 
-    #[serde(skip_serializing, skip_deserializing)]
+    #[serde(default)]
     pub current_file: Option<Arc<Path>>,
-    #[serde(skip_serializing, skip_deserializing)]
+    #[serde(default)]
     pub current_dir: Option<Arc<Path>>,
 }
 
