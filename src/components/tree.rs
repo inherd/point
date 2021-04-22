@@ -109,9 +109,9 @@ impl Widget<bool> for Wedge {
 
     fn paint(&mut self, ctx: &mut PaintCtx, expanded: &bool, env: &Env) {
         let stroke_color = if ctx.is_hot() {
-            env.get(theme::FOREGROUND_LIGHT)
+            env.get(crate::theme::FOREGROUND_LIGHT)
         } else {
-            env.get(theme::FOREGROUND_DARK)
+            env.get(crate::theme::FOREGROUND_DARK)
         };
 
         // Paint the wedge
@@ -379,7 +379,7 @@ impl<T: TreeNode + Data + Default> Widget<T> for Tree<T> {
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &T, env: &Env) {
-        let background_color = env.get(theme::BACKGROUND_LIGHT);
+        let background_color = env.get(crate::theme::SIDEBAR_BACKGROUND);
         let clip_rect = ctx.size().to_rect();
         ctx.fill(clip_rect, &background_color);
         self.root_node.paint(ctx, data, env);

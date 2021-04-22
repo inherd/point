@@ -1,4 +1,4 @@
-use druid::widget::{Flex, Scroll, SizedBox};
+use druid::widget::{Flex, Label, Scroll, SizedBox};
 use druid::{
     BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
     UpdateCtx, Widget, WidgetExt,
@@ -27,13 +27,16 @@ impl ProjectToolWindow {
         if data.current_dir.is_some() {
             let scroll = Scroll::new(Tree::new(|t: &FileEntry| {
                 // todo: different for dir & file;
-                return IconButton::new(t.name.as_str()).on_click(
-                    |ctx, data: &mut FileEntry, _env| {
-                        if !data.is_dir {
-                            ctx.submit_command(print_command::OPEN_FILE.with(data.to_owned()));
-                        }
-                    },
-                );
+                return IconButton::from_label(
+                    Label::new(t.name.as_str())
+                        .with_text_color(crate::theme::BASIC_TEXT_COLOR)
+                        .with_text_size(crate::theme::BASIC_TEXT_SIZE),
+                )
+                .on_click(|ctx, data: &mut FileEntry, _env| {
+                    if !data.is_dir {
+                        ctx.submit_command(print_command::OPEN_FILE.with(data.to_owned()));
+                    }
+                });
             }));
             flex.add_child(scroll);
         }
