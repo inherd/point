@@ -1,14 +1,16 @@
 extern crate dirs;
 
-use crate::app_state::AppState;
-use serde_json::Error;
+use crate::app_state::{AppState, Workspace};
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
 
 pub fn save_config(state: &AppState) {
-    let result = serde_json::to_string(state);
+    let mut current_state = state.clone();
+    current_state.workspace = Workspace::default();
+
+    let result = serde_json::to_string(&current_state);
     match result {
         Ok(str) => {
             let path = config_path().expect("lost home issue");
@@ -22,7 +24,7 @@ pub fn save_config(state: &AppState) {
             let result = file.write_all(str.as_bytes());
 
             match result {
-                Ok(_) => log::info!("save file: {:?}", buf),
+                Ok(_) => log::info!("save file: {:?}", path),
                 Err(e) => log::info!("failed to write data: {}", { e }),
             }
         }
@@ -38,6 +40,6 @@ fn config_path() -> Option<PathBuf> {
     if !&base.exists() {
         let _ = fs::create_dir_all(&base);
     }
-    let config_path = base.join("print.yaml");
+    let config_path = base.join("print.json");
     Some(config_path)
 }

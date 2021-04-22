@@ -7,6 +7,7 @@ use druid::{Data, Lens};
 use std::fs::DirEntry;
 use std::{fs, io};
 
+use crate::support::directory;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens)]
@@ -35,10 +36,16 @@ impl AppState {
         self.workspace.input_text = string;
 
         self.current_file = path;
+        self.save_print_config();
     }
 
     pub fn text(&mut self) -> String {
         return self.workspace.input_text.clone();
+    }
+
+    // todo: add save project config
+    pub fn save_print_config(&mut self) {
+        directory::save_config(self);
     }
 
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
@@ -49,6 +56,7 @@ impl AppState {
         }
 
         self.current_dir = path;
+        self.save_print_config();
     }
 }
 
