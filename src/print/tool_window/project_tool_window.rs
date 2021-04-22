@@ -1,7 +1,7 @@
 use druid::widget::{Flex, Scroll, SizedBox};
 use druid::{
-    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
-    UpdateCtx, Widget, WidgetExt,
+    BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx,
+    PaintCtx, Size, UnitPoint, UpdateCtx, Widget, WidgetExt,
 };
 
 use crate::app_state::AppState;
@@ -22,7 +22,7 @@ impl ProjectToolWindow {
     }
 
     fn rebuild_inner(&mut self, data: &AppState) {
-        let mut flex = Flex::row();
+        let mut flex = Flex::column();
 
         if data.current_dir.is_some() {
             let scroll = Scroll::new(Tree::new(|t: &FileEntry| {
@@ -38,7 +38,10 @@ impl ProjectToolWindow {
             flex.add_child(scroll);
         }
 
-        let flex = flex.expand_height().lens(AppState::entry);
+        let flex = flex
+            .background(Color::BLACK)
+            .expand_height()
+            .lens(AppState::entry);
 
         if data.params.debug_layout {
             self.inner = flex.debug_paint_layout().boxed()
