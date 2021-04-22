@@ -23,25 +23,9 @@ impl AppDelegate<AppState> for Delegate {
             data.set_file(path);
             return Handled::Yes;
         } else if cmd.is(druid::commands::SAVE_FILE) {
-            let file_path = data.current_file.as_ref().unwrap();
-            let buf = file_path.to_path_buf();
-
-            let mut ifile = OpenOptions::new()
-                .read(true)
-                .write(true)
-                .create(true)
-                .open(&buf)
-                .expect("unable to open file");
-
-            let result = ifile.write_all(data.text().as_bytes());
-
-            match result {
-                Ok(_) => log::info!("save file: {:?}", buf),
-                Err(e) => log::info!("Failed to write data: {}", { e }),
-            }
-            return Handled::Yes;
+            return Delegate::save_file(data);
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
-            Delegate::open_file(ctx, data, info);
+            return Delegate::open_file(ctx, data, info);
         }
 
         Handled::No
@@ -70,5 +54,25 @@ impl Delegate {
 
         log::info!("under type: {:?}", info);
         return Handled::No;
+    }
+    fn save_file(data: &mut AppState) -> Handled {
+        let file_path = data.current_file.as_ref().unwrap();
+        let buf = file_path.to_path_buf();
+
+        let mut ifile = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&buf)
+            .expect("unable to open file");
+
+        let result = ifile.write_all(data.text().as_bytes());
+
+        match result {
+            Ok(_) => log::info!("save file: {:?}", buf),
+            Err(e) => log::info!("Failed to write data: {}", { e }),
+        }
+
+        return Handled::Yes;
     }
 }
