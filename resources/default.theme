@@ -1,10 +1,8 @@
 BACKGROUND_COLOR:                   #e7e7e7
 TOOL_WINDOW_COLOR:                  #fff
 
-SIDEBAR_BACKGROUND:                 #e7e7e7
+SIDEBAR_BACKGROUND:                 #fff
 SIDEBAR_EDGE_STROKE:                #c7c7c7
-
-GLYPH_LIST_BACKGROUND:              #f0f0f0
 
 BUTTON_LIGHT:                       #e7e7e7
 BUTTON_DARK:                        #b9b9b9

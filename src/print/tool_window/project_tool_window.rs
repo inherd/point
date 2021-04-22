@@ -1,7 +1,7 @@
 use druid::widget::{Flex, Scroll, SizedBox};
 use druid::{
-    BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx,
-    PaintCtx, Size, UnitPoint, UpdateCtx, Widget, WidgetExt,
+    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
+    UpdateCtx, Widget, WidgetExt,
 };
 
 use crate::app_state::AppState;
@@ -39,7 +39,7 @@ impl ProjectToolWindow {
         }
 
         let flex = flex
-            .background(Color::BLACK)
+            .background(crate::theme::SIDEBAR_BACKGROUND)
             .expand_height()
             .lens(AppState::entry);
 

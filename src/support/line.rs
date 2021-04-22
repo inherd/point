@@ -10,7 +10,7 @@ pub fn hline<T>() -> Painter<T> {
         let max_y = rect.height() - 0.5;
         let line = Line::new((0.0, max_y), (rect.width(), max_y));
 
-        // ctx.fill(rect, &env.get(theme::GLYPH_LIST_BACKGROUND));
+        // ctx.fill(rect, &env.get(theme::BACKGROUND));
         ctx.stroke(line, &env.get(theme::SIDEBAR_EDGE_STROKE), 1.0);
     })
 }
