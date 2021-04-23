@@ -22,7 +22,6 @@ impl EditView {
 
         flex.add_flex_child(
             TextBox::multiline()
-                .with_placeholder("Sample text")
                 .with_text_color(Color::BLACK)
                 .expand_width()
                 .expand_height()
