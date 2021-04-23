@@ -1,4 +1,4 @@
-use druid::{Color, Env, Key};
+use druid::{Color, Env, FontDescriptor, FontFamily, FontStyle, FontWeight, Key};
 
 pub const SIDEBAR_BACKGROUND: Key<Color> = Key::new("print.sidebar-background");
 pub const SIDEBAR_EDGE_STROKE: Key<Color> = Key::new("print.sidebar-edge-stroke");
@@ -18,6 +18,8 @@ pub const BORDERED_WIDGET_HEIGHT: Key<f64> = Key::new("print.theme.button-light-
 pub const BUTTON_BORDER_WIDTH: Key<f64> = Key::new("print.theme.button-border-width");
 pub const BASIC_TEXT_SIZE: Key<f64> = Key::new("print.theme.basic-font-size");
 
+pub const WRITING_FONT: Key<FontDescriptor> = Key::new("print.theme.writing");
+
 #[rustfmt::skip]
 pub fn configure_env(env: &mut Env) {
     env.set(druid::theme::BACKGROUND_LIGHT, Color::WHITE);
@@ -36,4 +38,10 @@ pub fn configure_env(env: &mut Env) {
     env.set(crate::theme::BORDERED_WIDGET_HEIGHT,   32.0);
     env.set(crate::theme::BUTTON_BORDER_WIDTH,    2.0);
     env.set(crate::theme::BASIC_TEXT_SIZE,   12.0);
+
+    let family = FontFamily::new_unchecked("Microsoft Yahei");
+    env.set(crate::theme::WRITING_FONT,   FontDescriptor::new(family)
+        .with_style(FontStyle::Regular)
+        .with_weight(FontWeight::LIGHT)
+        .with_size(15.0));
 }
