@@ -55,9 +55,14 @@ impl Delegate {
         log::info!("under type: {:?}", info);
         return Handled::No;
     }
+
     fn save_file(data: &mut AppState) -> Handled {
         let file_path = data.current_file.as_ref().unwrap();
         let buf = file_path.to_path_buf();
+
+        if data.workspace.input_text == data.workspace.origin_text {
+            return Handled::Yes;
+        }
 
         let mut ifile = OpenOptions::new()
             .read(true)

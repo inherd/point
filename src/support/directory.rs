@@ -21,7 +21,7 @@ pub fn save_config(state: &AppState) {
             let result = file.write_all(str.as_bytes());
 
             match result {
-                Ok(_) => log::info!("save file: {:?}", path),
+                Ok(_) => log::info!("save config: {:?}", path),
                 Err(e) => log::info!("failed to write data: {}", { e }),
             }
         }

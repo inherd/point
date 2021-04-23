@@ -151,6 +151,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct Workspace {
+    pub origin_text: String,
     pub input_text: String,
 }
 
@@ -159,6 +160,7 @@ impl Workspace {}
 impl Default for Workspace {
     fn default() -> Self {
         Workspace {
+            origin_text: "".to_string(),
             input_text: "".to_string(),
         }
     }
