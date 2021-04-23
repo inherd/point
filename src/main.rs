@@ -6,6 +6,7 @@ use app_state::AppState;
 use print::edit_view::EditView;
 pub use support::line;
 
+use crate::app_state::Workspace;
 use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::ProjectToolWindow;
@@ -22,11 +23,13 @@ pub mod support;
 pub mod theme;
 
 fn navigation_bar() -> impl Widget<AppState> {
+    let label = Label::new(|data: &Workspace, _env: &Env| return data.project.clone())
+        .with_text_color(Color::BLACK);
     Flex::row()
-        .with_child(Label::new("").with_text_color(Color::BLACK))
+        .with_child(label)
         .padding(10.0)
         .expand_width()
-        // .lens(AppState::project_name)
+        .lens(AppState::workspace)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }

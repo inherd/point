@@ -13,7 +13,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
     pub title: String,
-    pub project_name: String,
     pub workspace: Workspace,
     pub params: Params,
     pub entry: FileEntry,
@@ -28,7 +27,6 @@ impl Default for AppState {
     fn default() -> Self {
         Self {
             title: "".to_string(),
-            project_name: "".to_string(),
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
@@ -81,10 +79,10 @@ impl AppState {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
         if let Some(dir) = path.clone() {
             if let Some(name) = dir.file_name() {
-                self.project_name = format!("{}", name.to_str().unwrap());
+                self.workspace.project = format!("{}", name.to_str().unwrap());
             }
 
-            self.entry = path_to_tree(self.project_name.clone(), &dir);
+            self.entry = path_to_tree(self.workspace.project.clone(), &dir);
             log::info!("open dir: {:?}", dir);
         }
 
@@ -151,6 +149,7 @@ fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct Workspace {
+    pub project: String,
     pub origin_text: String,
     pub input_text: String,
 }
@@ -160,6 +159,7 @@ impl Workspace {}
 impl Default for Workspace {
     fn default() -> Self {
         Workspace {
+            project: "".to_string(),
             origin_text: "".to_string(),
             input_text: "".to_string(),
         }
