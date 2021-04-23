@@ -2,7 +2,7 @@ use crate::app_state::{AppState, Workspace};
 use crate::command::print_command;
 use crate::components::modal_host::ModalHost;
 use druid::widget::{Flex, Label};
-use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, Widget};
+use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, Widget, WidgetExt};
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
@@ -26,9 +26,10 @@ impl AppDelegate<AppState> for Delegate {
             return Handled::Yes;
         } else if cmd.is(druid::commands::SAVE_FILE) {
             return Delegate::save_file(data);
-        } else if cmd.is(druid::commands::SHOW_PREFERENCES) {
-            let modal_cmd = ModalHost::make_modal_command(Delegate::paint_preferences);
-            ctx.submit_command(modal_cmd);
+        } else if cmd.is(druid::commands::SHOW_ABOUT) {
+            let host = ModalHost::new(Delegate::paint_preferences());
+            host.lens(AppState::workspace);
+            // .controller(RootWindowController::default());
             return Handled::Yes;
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             return Delegate::open_file(ctx, data, info);
