@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
     pub title: String,
+    pub project_name: String,
     pub workspace: Workspace,
     pub params: Params,
     pub entry: FileEntry,
@@ -27,6 +28,7 @@ impl Default for AppState {
     fn default() -> Self {
         Self {
             title: "".to_string(),
+            project_name: "".to_string(),
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
@@ -76,9 +78,13 @@ impl AppState {
     }
 
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
-        let path = path.into().map(Into::into);
-        if let Some(dir) = &path {
-            self.entry = path_to_tree(self.title.clone(), dir);
+        let path: Option<Arc<Path>> = path.into().map(Into::into);
+        if let Some(dir) = path.clone() {
+            if let Some(name) = dir.file_name() {
+                self.project_name = format!("{}", name.to_str().unwrap());
+            }
+
+            self.entry = path_to_tree(self.project_name.clone(), &dir);
             log::info!("open dir: {:?}", dir);
         }
 

@@ -22,22 +22,11 @@ pub mod support;
 pub mod theme;
 
 fn navigation_bar() -> impl Widget<AppState> {
-    let label = Label::new(|data: &AppState, _: &Env| {
-        if let Some(path) = &data.current_dir {
-            if let Some(p) = &data.current_file {
-                if let Ok(sub) = p.strip_prefix(path) {
-                    return format!("{}", sub.to_owned().display());
-                }
-            }
-        }
-
-        format!("")
-    });
-
     Flex::row()
-        .with_child(label.with_text_color(Color::BLACK))
+        .with_child(Label::new("").with_text_color(Color::BLACK))
         .padding(10.0)
         .expand_width()
+        // .lens(AppState::project_name)
         .background(line::hline())
         .align_horizontal(UnitPoint::LEFT)
 }
