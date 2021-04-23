@@ -67,11 +67,11 @@ impl AppState {
 
     pub fn reinit_config(&mut self) {
         println!("init state: {:?}", self);
-        if let Some(path) = &self.current_file {
-            self.set_file(path.clone().to_path_buf());
+        if let Some(path) = self.current_file.clone() {
+            &self.set_file(path.to_path_buf());
         }
-        if let Some(path) = &self.current_dir {
-            self.set_dir(path.clone().to_path_buf());
+        if let Some(path) = self.current_dir.clone() {
+            &self.set_dir(path.to_path_buf());
         }
     }
 
