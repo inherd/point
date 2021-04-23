@@ -24,6 +24,8 @@ impl AppDelegate<AppState> for Delegate {
             return Handled::Yes;
         } else if cmd.is(druid::commands::SAVE_FILE) {
             return Delegate::save_file(data);
+        } else if cmd.is(druid::commands::SHOW_PREFERENCES) {
+            return Delegate::save_file(data);
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             return Delegate::open_file(ctx, data, info);
         }
