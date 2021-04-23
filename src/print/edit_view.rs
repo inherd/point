@@ -23,7 +23,7 @@ impl EditView {
         flex.add_flex_child(
             TextBox::multiline()
                 .with_text_color(Color::BLACK)
-                .with_font(crate::theme::WRITING_FONT)
+                // .with_font(crate::theme::WRITING_FONT)
                 .expand_width()
                 .expand_height()
                 .lens(Workspace::input_text)
