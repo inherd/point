@@ -7,9 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-druid = "0.7"
+druid = { git = "https://github.com/linebender/druid.git"}
+druid-shell = { git = "https://github.com/linebender/druid.git"}
+
+piet-common = { version = "=0.4.1", features = ["png"] }
+
 log = "0.4.8"
-druid-shell = "0.7.0"
 
 walkdir = "2"
 
@@ -25,8 +28,7 @@ serde_json = "1.0"
 # save config
 dirs = "3.0"
 
-[patch.crates-io]
-druid = { version = "0.7.0", git = "https://github.com/linebender/druid.git", rev = "31c39744" }
+
 
 [workspace]
 members = ["druid-theme-loader"]

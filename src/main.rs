@@ -83,12 +83,10 @@ pub fn main() {
     let mut init_state = directory::read_config();
     init_state.reinit_config();
 
-    let menu = menu::menus();
-
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
         .with_min_size((1024., 768.))
-        .menu(menu)
+        .menu(menu::make_menu)
         .title(title);
 
     AppLauncher::with_window(main_window)
