@@ -1272,7 +1272,6 @@ dependencies = [
  "dirs",
  "druid",
  "druid-shell 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "druid-theme-loader",
  "infer",
  "log",
  "serde",

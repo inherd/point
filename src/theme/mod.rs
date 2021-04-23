@@ -1,5 +1,4 @@
-use druid::{Color, Data, Env, Key, Widget};
-use druid_theme_loader::loadable_theme;
+use druid::{Color, Env, Key};
 
 pub const SIDEBAR_BACKGROUND: Key<Color> = Key::new("print.sidebar-background");
 pub const SIDEBAR_EDGE_STROKE: Key<Color> = Key::new("print.sidebar-edge-stroke");
@@ -19,30 +18,22 @@ pub const BORDERED_WIDGET_HEIGHT: Key<f64> = Key::new("print.theme.button-light-
 pub const BUTTON_BORDER_WIDTH: Key<f64> = Key::new("print.theme.button-border-width");
 pub const BASIC_TEXT_SIZE: Key<f64> = Key::new("print.theme.basic-font-size");
 
-include!(concat!(env!("OUT_DIR"), "/theme_path.rs"));
-
 #[rustfmt::skip]
 pub fn configure_env(env: &mut Env) {
     env.set(druid::theme::BACKGROUND_LIGHT, Color::WHITE);
     env.set(druid::theme::CURSOR_COLOR, Color::BLACK);
-}
 
-// declares a new struct, MyTheme.
-loadable_theme!(pub MyTheme {
-    SIDEBAR_BACKGROUND,
-    SIDEBAR_EDGE_STROKE,
-    BACKGROUND_COLOR,
-    TOOL_WINDOW_COLOR,
-    BUTTON_LIGHT,
-    BUTTON_DARK,
-    FOREGROUND_DARK,
-    FOREGROUND_LIGHT,
-    BASIC_TEXT_COLOR,
-    BORDERED_WIDGET_HEIGHT,
-    BUTTON_BORDER_WIDTH,
-    BASIC_TEXT_SIZE,
-});
-
-pub fn wrap_in_theme_loader<T: Data>(widget: impl Widget<T>) -> impl Widget<T> {
-    druid_theme_loader::ThemeLoader::new(THEME_FILE_PATH, MyTheme, widget)
+    env.set(crate::theme::SIDEBAR_BACKGROUND, Color::from_hex_str("#fff").unwrap());
+    env.set(crate::theme::BACKGROUND_COLOR,Color::from_hex_str("#e7e7e7").unwrap());
+    env.set(crate::theme::TOOL_WINDOW_COLOR,Color::from_hex_str("#fff").unwrap());
+    env.set(crate::theme::SIDEBAR_BACKGROUND,Color::from_hex_str("#fff").unwrap());
+    env.set(crate::theme::SIDEBAR_EDGE_STROKE,Color::from_hex_str("#c7c7c7").unwrap());
+    env.set(crate::theme::BUTTON_LIGHT,Color::from_hex_str("#e7e7e7").unwrap());
+    env.set(crate::theme::BUTTON_DARK,Color::from_hex_str("#b9b9b9").unwrap());
+    env.set(crate::theme::BASIC_TEXT_COLOR,Color::from_hex_str("#000").unwrap());
+    env.set(crate::theme::FOREGROUND_LIGHT,Color::from_hex_str("#fff").unwrap());
+    env.set(crate::theme::FOREGROUND_DARK,Color::from_hex_str("#000").unwrap());
+    env.set(crate::theme::BORDERED_WIDGET_HEIGHT,   32.0);
+    env.set(crate::theme::BUTTON_BORDER_WIDTH,    2.0);
+    env.set(crate::theme::BASIC_TEXT_SIZE,   12.0);
 }
