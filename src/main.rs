@@ -21,8 +21,6 @@ pub mod print;
 pub mod support;
 pub mod theme;
 
-const LIGHTER_GREY: Color = Color::rgb8(242, 242, 242);
-
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|data: &AppState, _: &Env| {
         if let Some(path) = &data.current_dir {
@@ -84,7 +82,7 @@ fn make_ui() -> impl Widget<AppState> {
         .with_flex_child(center(), 1.0)
         .with_child(bottom_tool_window())
         .with_child(status_bar())
-        .background(LIGHTER_GREY)
+        .background(crate::theme::BACKGROUND_COLOR)
 }
 
 pub fn main() {
