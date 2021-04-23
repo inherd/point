@@ -7,11 +7,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 pub fn save_config(state: &AppState) {
-    let mut current_state = state.clone();
-    current_state.workspace = Default::default();
-    current_state.entry = Default::default();
-
-    let result = serde_json::to_string(&current_state);
+    let result = serde_json::to_string(&state);
     match result {
         Ok(str) => {
             let path = config_path().expect("lost home issue");

@@ -89,13 +89,7 @@ pub fn main() {
     let title = "Print UI";
 
     let mut init_state = directory::read_config();
-    println!("init state: {:?}", init_state);
-    if let Some(path) = &init_state.current_file {
-        init_state.set_file(path.clone().to_path_buf());
-    }
-    if let Some(path) = &init_state.current_dir {
-        init_state.set_dir(path.clone().to_path_buf());
-    }
+    init_state.reinit_config();
 
     let menu = menu::menus();
 

@@ -48,7 +48,7 @@ impl AppState {
         self.workspace.input_text = string;
 
         self.current_file = path;
-        self.save_print_config();
+        self.save_global_config();
     }
 
     pub fn text(&mut self) -> String {
@@ -56,8 +56,23 @@ impl AppState {
     }
 
     // todo: add save project config
-    pub fn save_print_config(&mut self) {
-        directory::save_config(self);
+    pub fn save_global_config(&mut self) {
+        let mut current_state = self.clone();
+
+        current_state.workspace = Default::default();
+        current_state.entry = Default::default();
+
+        directory::save_config(&current_state);
+    }
+
+    pub fn reinit_config(&mut self) {
+        println!("init state: {:?}", self);
+        if let Some(path) = &self.current_file {
+            self.set_file(path.clone().to_path_buf());
+        }
+        if let Some(path) = &self.current_dir {
+            self.set_dir(path.clone().to_path_buf());
+        }
     }
 
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
@@ -68,7 +83,7 @@ impl AppState {
         }
 
         self.current_dir = path;
-        self.save_print_config();
+        self.save_global_config();
     }
 }
 
