@@ -44,8 +44,12 @@ pub fn read_config() -> AppState {
             return app_state;
         }
     }
+
     match serde_json::from_str(&content) {
-        Ok(state) => app_state = state,
+        Ok(state) => {
+            app_state = state;
+            app_state.watcher = AppState::create_watcher();
+        }
         Err(_err) => {
             let _ = fs::remove_file(&path);
             log::info!("error config: {}", content);

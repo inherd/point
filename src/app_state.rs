@@ -4,7 +4,7 @@ use std::sync::Arc;
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
-use notify::{Config, RecommendedWatcher, RecursiveMode, Result, Watcher};
+use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Result, Watcher};
 use std::fs::{DirEntry, File};
 use std::{fmt, fs, io};
 
@@ -21,7 +21,7 @@ pub struct AppState {
     pub entry: FileEntry,
 
     #[serde(default, skip_serializing, skip_deserializing)]
-    pub watcher: Option<FileWatcher>,
+    pub watcher: FileWatcher,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -34,7 +34,7 @@ pub struct AppState {
 
 #[derive(Lens)]
 pub struct FileWatcher {
-    pub watcher: RecommendedWatcher,
+    pub instance: Arc<RecommendedWatcher>,
 }
 
 impl fmt::Debug for FileWatcher {
@@ -46,7 +46,7 @@ impl fmt::Debug for FileWatcher {
 impl Clone for FileWatcher {
     fn clone(&self) -> Self {
         Self {
-            watcher: RecommendedWatcher::new_immediate(|_| {}).unwrap(),
+            instance: Arc::new(RecommendedWatcher::new_immediate(|_| {}).unwrap()),
         }
     }
 }
@@ -60,25 +60,28 @@ impl Data for FileWatcher {
 impl Default for FileWatcher {
     fn default() -> Self {
         Self {
-            watcher: RecommendedWatcher::new_immediate(|_| {}).unwrap(),
+            instance: Arc::new(RecommendedWatcher::new_immediate(|_| {}).unwrap()),
         }
     }
 }
 
 impl Default for AppState {
     fn default() -> Self {
+        let watcher = AppState::create_watcher();
+
         Self {
             title: "".to_string(),
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            watcher: Default::default(),
+            watcher,
             current_file: None,
             current_dir: None,
             last_dir: None,
         }
     }
 }
+
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
@@ -136,6 +139,7 @@ impl AppState {
         // rebuild tree
     }
 
+    #[allow(unused_must_use)]
     pub fn watch_dir(&mut self) -> Result<()> {
         // todo: make in watcher
         if let None = self.last_dir {
@@ -144,18 +148,14 @@ impl AppState {
 
         let current = self.current_dir.as_ref().unwrap();
         log::info!("watch dir: {:?}", current.display());
-        let mut watcher: RecommendedWatcher = Watcher::new_immediate(AppState::event_fn)?;
 
-        let _result = watcher.unwatch(self.last_dir.as_ref().unwrap());
-        watcher.configure(Config::PreciseEvents(true))?;
-        watcher.watch(current, RecursiveMode::Recursive)
-    }
+        Arc::get_mut(&mut self.watcher.instance)
+            .unwrap()
+            .unwatch(self.last_dir.as_ref().unwrap());
 
-    fn event_fn(res: Result<notify::Event>) {
-        match res {
-            Ok(event) => log::info!("event: {:?}", event),
-            Err(e) => log::info!("watch error: {:?}", e),
-        }
+        Arc::get_mut(&mut self.watcher.instance)
+            .unwrap()
+            .watch(current, RecursiveMode::Recursive)
     }
 
     pub fn reinit_config(&mut self) {
@@ -284,5 +284,27 @@ impl Default for Params {
         Self {
             debug_layout: false,
         }
+    }
+}
+
+impl AppState {
+    pub fn create_watcher() -> FileWatcher {
+        let mut watcher: RecommendedWatcher =
+            // To make sure that the config lives as long as the function
+            // we need to move the ownership of the config inside the function
+            // To learn more about move please read [Using move Closures with Threads](https://doc.rust-lang.org/book/ch16-01-threads.html?highlight=move#using-move-closures-with-threads)
+            Watcher::new_immediate(move |result: Result<Event>| {
+                let event = result.unwrap();
+                println!("event: {:?}", event);
+            }).expect("error");
+
+        watcher
+            .configure(Config::PreciseEvents(true))
+            .expect("init watcher failure");
+
+        let watcher = FileWatcher {
+            instance: Arc::new(watcher),
+        };
+        watcher
     }
 }
