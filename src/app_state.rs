@@ -129,7 +129,11 @@ impl AppState {
 
 fn is_hidden(entry: &DirEntry) -> bool {
     if !entry.path().is_dir() {
-        return false;
+        return entry
+            .file_name()
+            .to_str()
+            .map(|s| s == ".DS_Store")
+            .unwrap_or(false);
     }
 
     entry
