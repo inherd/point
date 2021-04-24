@@ -24,7 +24,7 @@
 use regex::Regex;
 use unicode_segmentation::UnicodeSegmentation;
 
-pub fn count(content: String) -> usize {
+pub fn count(content: &String) -> usize {
     let mut word_count = 0;
     let mut line_count = 0;
     let mut blank_lines_count = 0;

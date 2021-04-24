@@ -1,7 +1,6 @@
 use crate::app_state::{AppState, Workspace};
 use crate::command::print_command;
 use crate::components::modal_host::ModalHost;
-use crate::text_count;
 use druid::widget::{Flex, Label};
 use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, Widget, WidgetExt};
 use std::fs::OpenOptions;
@@ -71,8 +70,6 @@ impl Delegate {
         if data.workspace.input_text == data.workspace.origin_text {
             return Handled::Yes;
         }
-
-        data.workspace.char_count = text_count::count(data.workspace.input_text.clone());
 
         let mut ifile = OpenOptions::new()
             .read(true)

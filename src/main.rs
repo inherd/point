@@ -36,9 +36,10 @@ fn navigation_bar() -> impl Widget<AppState> {
 }
 
 fn status_bar() -> impl Widget<AppState> {
-    let label =
-        Label::new(|data: &Workspace, _env: &Env| return data.char_count.clone().to_string())
-            .with_text_color(Color::BLACK);
+    let label = Label::new(|data: &Workspace, _env: &Env| {
+        return text_count::count(&data.input_text).to_string();
+    })
+    .with_text_color(Color::BLACK);
 
     Flex::row()
         .with_default_spacer()
