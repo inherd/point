@@ -3,6 +3,7 @@ use crate::command::print_command;
 use crate::components::modal_host::ModalHost;
 use druid::widget::{Flex, Label};
 use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, Widget, WidgetExt};
+use regex::Regex;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
@@ -72,12 +73,7 @@ impl Delegate {
             return Handled::Yes;
         }
 
-        let g = data
-            .workspace
-            .input_text
-            .graphemes(true)
-            .collect::<Vec<&str>>();
-        data.workspace.char_count = g.len();
+        data.workspace.char_count = count_text(data.workspace.input_text.clone());
 
         let mut ifile = OpenOptions::new()
             .read(true)
@@ -103,4 +99,52 @@ impl Delegate {
 
         return flex;
     }
+}
+
+pub fn count_text(content: String) -> usize {
+    let mut word_count = 0;
+    let mut line_count = 0;
+    let mut blank_lines_count = 0;
+
+    // regex to remove unnecessary whitespace inside markdown file
+    // see VS Code documentation: https://vscode-docs.readthedocs.io/en/stable/extensions/example-word-count/
+    let whitespace_re = Regex::new(
+        r"(?x)
+      (< ([^>]+)<)
+      -
+      ^\s\s*
+      -
+      \s\s*$
+      ",
+    )
+    .unwrap();
+    // match multiple spaces and change to single space
+    let multiple_spaces_re = Regex::new(r"\s+").unwrap();
+    // match links and files in grammar "[](...)"
+    let link_re = Regex::new(r"\]\((.*?)\)").unwrap();
+
+    // process document
+    for line in content.lines() {
+        let clean_line = String::from(line.trim());
+
+        if !clean_line.is_empty() {
+            // remove whitespace
+            let clean_line = replace_whitespace(&clean_line, "", &whitespace_re);
+            let clean_line = multiple_spaces_re.replace_all(&clean_line, " ");
+            let clean_line = link_re.replace_all(&clean_line, "]");
+
+            // split words using unicode standards
+            let words: Vec<&str> = clean_line.unicode_words().collect();
+            word_count = word_count + words.len();
+        } else {
+            blank_lines_count = blank_lines_count + 1;
+        }
+    }
+
+    word_count
+}
+
+// replace whitespace according to regex pattern
+fn replace_whitespace(input: &str, placeholder: &str, re: &Regex) -> String {
+    re.replace_all(input, placeholder).into()
 }
