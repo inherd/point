@@ -29,6 +29,8 @@ Todos for spike:
  - [x] interactive with system api
  - [ ] code editor
     - [ ] code highlight
+    - [ ] auto save file
+    - [ ] count chars length
  - [ ] toolbar for run tasks
      - [ ] run
      - [ ] debug
