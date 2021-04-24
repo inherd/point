@@ -65,6 +65,10 @@ impl AppState {
         directory::save_config(&current_state);
     }
 
+    pub fn reload_dir(&mut self) {
+        // rebuild tree
+    }
+
     pub fn reinit_config(&mut self) {
         println!("init state: {:?}", self);
         if let Some(path) = self.current_file.clone() {
