@@ -5,11 +5,12 @@ use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
 use notify::{Config, RecommendedWatcher, RecursiveMode, Result, Watcher};
-use std::fs::DirEntry;
+use std::fs::{DirEntry, File};
 use std::{fs, io};
 
 use crate::support::directory;
 use serde::{Deserialize, Serialize};
+use std::io::Read;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -43,14 +44,17 @@ impl Default for AppState {
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
-        let string = match fs::read_to_string(path.as_ref().unwrap()) {
-            Ok(str) => str,
-            Err(_) => {
-                return;
-            }
+
+        let mut file_content: Vec<u8> = Vec::new();
+        let mut file = File::open(&path.as_ref().unwrap()).expect("Unable to open file");
+        if let Err(err) = file.read_to_end(&mut file_content) {
+            log::error!("open file error: {:?}", err);
+            return;
         };
 
-        self.workspace.input_text = string;
+        let out = String::from_utf8_lossy(&*file_content);
+
+        self.workspace.input_text = out.to_string();
         self.workspace.current_file = Arc::new(path.clone().unwrap().to_path_buf());
 
         self.current_file = path;
