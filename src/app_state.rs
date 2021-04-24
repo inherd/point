@@ -96,6 +96,10 @@ impl AppState {
 
     pub fn watch_dir(&mut self) -> Result<()> {
         // todo: make in watcher
+        if let None = self.last_dir {
+            return Ok(());
+        }
+
         let current = self.current_dir.as_ref().unwrap();
         log::info!("watch dir: {:?}", current.display());
         let mut watcher: RecommendedWatcher = Watcher::new_immediate(|res| match res {

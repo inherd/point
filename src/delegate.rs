@@ -26,6 +26,9 @@ impl AppDelegate<AppState> for Delegate {
             return Handled::Yes;
         } else if cmd.is(druid::commands::SAVE_FILE) {
             return Delegate::save_file(data);
+        } else if cmd.is(print_command::RELOAD_DIR) {
+            data.set_dir(data.current_dir.as_ref().unwrap().to_path_buf());
+            return Handled::Yes;
         } else if cmd.is(druid::commands::SHOW_ABOUT) {
             let host = ModalHost::new(Delegate::paint_preferences());
             host.lens(AppState::workspace);
@@ -64,7 +67,14 @@ impl Delegate {
     }
 
     fn save_file(data: &mut AppState) -> Handled {
-        let file_path = data.current_file.as_ref().unwrap();
+        let file_path;
+        match &data.current_file {
+            None => return Handled::Yes,
+            Some(path) => {
+                file_path = path;
+            }
+        };
+
         let buf = file_path.to_path_buf();
 
         if data.workspace.input_text == data.workspace.origin_text {

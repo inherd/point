@@ -1,7 +1,7 @@
 use druid::widget::{Flex, Label, Scroll, SizedBox};
 use druid::{
-    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
-    UpdateCtx, Widget, WidgetExt,
+    BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx,
+    LocalizedString, Menu, MenuItem, MouseEvent, PaintCtx, Size, UpdateCtx, Widget, WidgetExt,
 };
 
 use crate::app_state::AppState;
@@ -52,11 +52,33 @@ impl ProjectToolWindow {
             self.inner = flex.boxed();
         }
     }
+
+    fn send_mouse(
+        &mut self,
+        ctx: &mut EventCtx,
+        _data: &mut AppState,
+        _env: &Env,
+        mouse_event: &MouseEvent,
+    ) {
+        if !mouse_event.button.is_right() {
+            return;
+        }
+        let menu: Menu<AppState> = Menu::empty().entry(
+            MenuItem::new(LocalizedString::new("menu-item-reload").with_placeholder("Reload"))
+                .command(print_command::RELOAD_DIR),
+        );
+
+        ctx.show_context_menu(menu, mouse_event.window_pos);
+    }
 }
 
 #[allow(unused_variables)]
 impl Widget<AppState> for ProjectToolWindow {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
+        match event {
+            Event::MouseDown(m) => self.send_mouse(ctx, data, env, m),
+            _ => {}
+        }
         self.inner.event(ctx, event, data, env)
     }
 
