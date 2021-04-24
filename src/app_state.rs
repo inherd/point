@@ -4,6 +4,7 @@ use std::sync::Arc;
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
+use notify::{RecommendedWatcher, RecursiveMode, Result, Watcher};
 use std::fs::DirEntry;
 use std::{fs, io};
 
@@ -21,6 +22,9 @@ pub struct AppState {
     pub current_file: Option<Arc<Path>>,
     #[serde(default)]
     pub current_dir: Option<Arc<Path>>,
+
+    #[serde(default)]
+    pub last_dir: Option<Arc<Path>>,
 }
 
 impl Default for AppState {
@@ -32,6 +36,7 @@ impl Default for AppState {
             entry: Default::default(),
             current_file: None,
             current_dir: None,
+            last_dir: None,
         }
     }
 }
@@ -64,7 +69,10 @@ impl AppState {
             log::info!("open dir: {:?}", dir);
         }
 
+        self.last_dir = self.current_dir.clone();
         self.current_dir = path;
+
+        let _result = self.watch_dir();
         self.save_global_config();
     }
 
@@ -84,6 +92,19 @@ impl AppState {
 
     pub fn reload_dir(&mut self) {
         // rebuild tree
+    }
+
+    pub fn watch_dir(&mut self) -> Result<()> {
+        // todo: make in watcher
+        let current = self.current_dir.as_ref().unwrap();
+        log::info!("watch dir: {:?}", current.display());
+        let mut watcher: RecommendedWatcher = Watcher::new_immediate(|res| match res {
+            Ok(event) => println!("event: {:?}", event),
+            Err(e) => println!("watch error: {:?}", e),
+        })?;
+
+        let _result = watcher.unwatch(self.last_dir.as_ref().unwrap());
+        watcher.watch(current, RecursiveMode::Recursive)
     }
 
     pub fn reinit_config(&mut self) {
