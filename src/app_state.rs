@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use crate::model::file_tree::FileEntry;
 
@@ -12,6 +12,7 @@ use crate::support::directory;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Formatter};
 use std::io::Read;
+use std::rc::Rc;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -85,22 +86,19 @@ impl Default for AppState {
 
 impl AppState {
     pub fn init_watcher(&mut self) {
+        let config = Arc::new(Mutex::new(self.workspace.clone()));
+        let cloned_config = Arc::clone(&config);
+
         let mut watcher: RecommendedWatcher =
             Watcher::new_immediate(move |result: Result<Event>| {
                 let event = result.unwrap();
                 println!("{:?}", event);
-                // match event.kind {
-                //     EventKind::Any => {}
-                //     EventKind::Access(_) => {}
-                //     EventKind::Create(_) => {
-                //         self.reload_dir();
-                //     }
-                //     EventKind::Modify(_) => {}
-                //     EventKind::Remove(_) => {
-                //         self.reload_dir();
-                //     }
-                //     EventKind::Other => {}
-                // };
+                match event.kind {
+                    EventKind::Create(_) => {
+                        // println!("{:?}", cloned_config.lock().unwrap());
+                    }
+                    _ => {}
+                };
             })
             .expect("error");
 
