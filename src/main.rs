@@ -24,7 +24,7 @@ pub mod text_count;
 pub mod theme;
 
 fn navigation_bar() -> impl Widget<AppState> {
-    let label = Label::new(|data: &Workspace, _env: &Env| return data.project.clone())
+    let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
         .with_text_color(Color::BLACK);
     Flex::row()
         .with_child(label)

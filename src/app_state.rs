@@ -37,7 +37,7 @@ impl Default for AppState {
 }
 impl AppState {
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
-        let path = path.into().map(Into::into);
+        let path: Option<Arc<Path>> = path.into().map(Into::into);
         let string = match fs::read_to_string(path.as_ref().unwrap()) {
             Ok(str) => str,
             Err(_) => {
@@ -46,8 +46,25 @@ impl AppState {
         };
 
         self.workspace.input_text = string;
+        self.workspace.current_file = Arc::new(path.clone().unwrap().to_path_buf());
 
         self.current_file = path;
+        self.save_global_config();
+    }
+
+    pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
+        let path: Option<Arc<Path>> = path.into().map(Into::into);
+        if let Some(dir) = path.clone() {
+            if let Some(name) = dir.file_name() {
+                self.workspace.project = format!("{}", name.to_str().unwrap());
+                self.workspace.dir = Arc::new(dir.clone().to_path_buf());
+            }
+
+            self.entry = path_to_tree(self.workspace.project.clone(), &dir);
+            log::info!("open dir: {:?}", dir);
+        }
+
+        self.current_dir = path;
         self.save_global_config();
     }
 
@@ -77,21 +94,6 @@ impl AppState {
         if let Some(path) = self.current_dir.clone() {
             &self.set_dir(path.to_path_buf());
         }
-    }
-
-    pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
-        let path: Option<Arc<Path>> = path.into().map(Into::into);
-        if let Some(dir) = path.clone() {
-            if let Some(name) = dir.file_name() {
-                self.workspace.project = format!("{}", name.to_str().unwrap());
-            }
-
-            self.entry = path_to_tree(self.workspace.project.clone(), &dir);
-            log::info!("open dir: {:?}", dir);
-        }
-
-        self.current_dir = path;
-        self.save_global_config();
     }
 }
 
@@ -157,9 +159,31 @@ pub struct Workspace {
     pub origin_text: String,
     pub input_text: String,
     pub char_count: usize,
+
+    #[serde(default)]
+    pub dir: Arc<PathBuf>,
+
+    #[serde(default)]
+    current_file: Arc<PathBuf>,
 }
 
-impl Workspace {}
+impl Workspace {
+    pub fn relative_path(&self) -> String {
+        match self.current_file.strip_prefix(&*self.dir) {
+            Ok(path) => {
+                let mut paths: Vec<String> = vec![];
+                for sub in path.iter() {
+                    paths.push(sub.to_str().unwrap().to_string())
+                }
+                if paths.len() == 0 {
+                    return self.project.to_string();
+                }
+                format!("{} > {}", self.project, paths.join(" > "))
+            }
+            Err(_) => self.project.to_string(),
+        }
+    }
+}
 
 impl Default for Workspace {
     fn default() -> Self {
@@ -168,6 +192,8 @@ impl Default for Workspace {
             origin_text: "".to_string(),
             input_text: "".to_string(),
             char_count: 0,
+            dir: Default::default(),
+            current_file: Default::default(),
         }
     }
 }
