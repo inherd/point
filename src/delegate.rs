@@ -6,6 +6,7 @@ use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, W
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
+use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug, Default)]
 pub struct Delegate;
@@ -70,6 +71,13 @@ impl Delegate {
         if data.workspace.input_text == data.workspace.origin_text {
             return Handled::Yes;
         }
+
+        let g = data
+            .workspace
+            .input_text
+            .graphemes(true)
+            .collect::<Vec<&str>>();
+        data.workspace.char_count = g.len();
 
         let mut ifile = OpenOptions::new()
             .read(true)

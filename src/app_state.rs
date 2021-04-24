@@ -156,6 +156,7 @@ pub struct Workspace {
     pub project: String,
     pub origin_text: String,
     pub input_text: String,
+    pub char_count: usize,
 }
 
 impl Workspace {}
@@ -166,6 +167,7 @@ impl Default for Workspace {
             project: "".to_string(),
             origin_text: "".to_string(),
             input_text: "".to_string(),
+            char_count: 0,
         }
     }
 }

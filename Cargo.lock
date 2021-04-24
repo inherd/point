@@ -1513,6 +1513,7 @@ dependencies = [
  "piet-common 0.4.1",
  "serde",
  "serde_json",
+ "unicode-segmentation",
  "walkdir",
 ]
 

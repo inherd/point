@@ -21,6 +21,8 @@ infer = "0.3"
 
 #druid-theme-loader = { version = "0.1.0", path = "druid-theme-loader", features = ["notify"] }
 
+# unicode count size
+unicode-segmentation = "1.7.1"
 
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
