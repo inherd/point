@@ -86,9 +86,6 @@ impl Default for AppState {
 impl AppState {
     pub fn init_watcher(&mut self) {
         let mut watcher: RecommendedWatcher =
-            // To make sure that the config lives as long as the function
-            // we need to move the ownership of the config inside the function
-            // To learn more about move please read [Using move Closures with Threads](https://doc.rust-lang.org/book/ch16-01-threads.html?highlight=move#using-move-closures-with-threads)
             Watcher::new_immediate(move |result: Result<Event>| {
                 let event = result.unwrap();
                 println!("{:?}", event);
@@ -104,7 +101,8 @@ impl AppState {
                 //     }
                 //     EventKind::Other => {}
                 // };
-            }).expect("error");
+            })
+            .expect("error");
 
         watcher
             .configure(Config::PreciseEvents(true))
