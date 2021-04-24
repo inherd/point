@@ -20,6 +20,7 @@ pub mod menu;
 pub mod model;
 pub mod print;
 pub mod support;
+pub mod text_count;
 pub mod theme;
 
 fn navigation_bar() -> impl Widget<AppState> {
