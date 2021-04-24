@@ -108,11 +108,7 @@ impl Widget<bool> for Wedge {
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, expanded: &bool, env: &Env) {
-        let stroke_color = if ctx.is_hot() {
-            env.get(crate::theme::FOREGROUND_LIGHT)
-        } else {
-            env.get(crate::theme::FOREGROUND_DARK)
-        };
+        let stroke_color = env.get(crate::theme::FOREGROUND_DARK);
 
         // Paint the wedge
         let mut path = BezPath::new();
@@ -259,7 +255,7 @@ impl<T: TreeNode + Data + Default> Widget<T> for TreeNodeWidget<T> {
             env,
         );
         self.wedge
-            .set_origin(ctx, &self.expanded, env, Point::ORIGIN);
+            .set_origin(ctx, &self.expanded, env, Point::new(1.0, 1.0));
 
         // Immediately on the right, the node widget
         let widget_size = self.widget.layout(
