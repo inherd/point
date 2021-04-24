@@ -44,7 +44,6 @@ impl EditView {
         }
     }
 
-    // todo: make menus
     fn send_mouse(
         &mut self,
         ctx: &mut EventCtx,
@@ -52,9 +51,13 @@ impl EditView {
         _env: &Env,
         mouse_event: &MouseEvent,
     ) {
-        let menu: Menu<AppState> = Menu::empty().entry(MenuItem::new(
-            LocalizedString::new("menu-item-add-guide").with_placeholder("Search"),
-        ));
+        let menu: Menu<AppState> = Menu::empty()
+            .entry(MenuItem::new(
+                LocalizedString::new("menu-item-search").with_placeholder("Search"),
+            ))
+            .entry(MenuItem::new(
+                LocalizedString::new("menu-item-google-scholar").with_placeholder("Google Scholar"),
+            ));
 
         ctx.show_context_menu(menu, mouse_event.window_pos);
     }
