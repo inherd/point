@@ -23,6 +23,7 @@ Todos for spike:
      - [ ] top
      - [ ] left
      - [ ] right
+ - [ ] context menu
  - [x] tree file view
  - [x] display code
  - [x] interactive with system api
