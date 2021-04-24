@@ -11,6 +11,7 @@ use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::ProjectToolWindow;
 use crate::support::directory;
+use notify::event::Event as NotifyEvent;
 
 pub mod app_state;
 pub mod command;
@@ -94,6 +95,19 @@ pub fn main() {
         .with_min_size((1024., 768.))
         .menu(menu::make_menu)
         .title(title);
+    //
+    // let mut watcher: RecommendedWatcher =
+    //     Watcher::new_immediate(move |result: Result<NotifyEvent, Error>| {
+    //         let event = result.unwrap();
+    //         println!("new event {:?}", event);
+    //     })
+    //     .expect("");
+    //
+    // init_state.watcher = watcher;
+    // watcher
+    //     .configure(Config::PreciseEvents(true))
+    //     .expect("config");
+    // watcher.watch("/Users/fdhuang/write/phodal.com/", RecursiveMode::Recursive);
 
     AppLauncher::with_window(main_window)
         .delegate(Delegate::default())
