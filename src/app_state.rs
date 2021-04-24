@@ -4,7 +4,7 @@ use std::sync::Arc;
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
-use notify::{RecommendedWatcher, RecursiveMode, Result, Watcher};
+use notify::{Config, RecommendedWatcher, RecursiveMode, Result, Watcher};
 use std::fs::DirEntry;
 use std::{fs, io};
 
@@ -102,13 +102,18 @@ impl AppState {
 
         let current = self.current_dir.as_ref().unwrap();
         log::info!("watch dir: {:?}", current.display());
-        let mut watcher: RecommendedWatcher = Watcher::new_immediate(|res| match res {
-            Ok(event) => println!("event: {:?}", event),
-            Err(e) => println!("watch error: {:?}", e),
-        })?;
+        let mut watcher: RecommendedWatcher = Watcher::new_immediate(AppState::event_fn)?;
 
         let _result = watcher.unwatch(self.last_dir.as_ref().unwrap());
+        watcher.configure(Config::PreciseEvents(true))?;
         watcher.watch(current, RecursiveMode::Recursive)
+    }
+
+    fn event_fn(res: Result<notify::Event>) {
+        match res {
+            Ok(event) => log::info!("event: {:?}", event),
+            Err(e) => log::info!("watch error: {:?}", e),
+        }
     }
 
     pub fn reinit_config(&mut self) {
