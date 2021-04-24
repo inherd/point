@@ -4,7 +4,7 @@ use std::sync::Arc;
 use crate::model::file_tree::FileEntry;
 
 use druid::{Data, Lens};
-use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Result, Watcher};
+use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Result, Watcher};
 use std::fs::{DirEntry, File};
 use std::{fmt, fs, io};
 
@@ -67,22 +67,56 @@ impl Default for FileWatcher {
 
 impl Default for AppState {
     fn default() -> Self {
-        let watcher = AppState::create_watcher();
-
-        Self {
+        let mut state = Self {
             title: "".to_string(),
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            watcher,
+            watcher: Default::default(),
             current_file: None,
             current_dir: None,
             last_dir: None,
-        }
+        };
+
+        state.init_watcher();
+        state
     }
 }
 
 impl AppState {
+    pub fn init_watcher(&mut self) {
+        let mut watcher: RecommendedWatcher =
+            // To make sure that the config lives as long as the function
+            // we need to move the ownership of the config inside the function
+            // To learn more about move please read [Using move Closures with Threads](https://doc.rust-lang.org/book/ch16-01-threads.html?highlight=move#using-move-closures-with-threads)
+            Watcher::new_immediate(move |result: Result<Event>| {
+                let event = result.unwrap();
+                println!("{:?}", event);
+                // match event.kind {
+                //     EventKind::Any => {}
+                //     EventKind::Access(_) => {}
+                //     EventKind::Create(_) => {
+                //         self.reload_dir();
+                //     }
+                //     EventKind::Modify(_) => {}
+                //     EventKind::Remove(_) => {
+                //         self.reload_dir();
+                //     }
+                //     EventKind::Other => {}
+                // };
+            }).expect("error");
+
+        watcher
+            .configure(Config::PreciseEvents(true))
+            .expect("init watcher failure");
+
+        let watcher = FileWatcher {
+            instance: Arc::new(watcher),
+        };
+
+        self.watcher = watcher;
+    }
+
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
 
@@ -100,6 +134,13 @@ impl AppState {
 
         self.current_file = path;
         self.save_global_config();
+    }
+
+    pub fn reload_dir(&mut self) {
+        self.entry = path_to_tree(
+            self.workspace.project.clone(),
+            &self.current_dir.as_ref().unwrap(),
+        );
     }
 
     pub fn set_dir(&mut self, path: impl Into<Option<PathBuf>>) {
@@ -135,11 +176,6 @@ impl AppState {
         directory::save_config(&current_state);
     }
 
-    pub fn reload_dir(&mut self) {
-        // rebuild tree
-    }
-
-    #[allow(unused_must_use)]
     pub fn watch_dir(&mut self) -> Result<()> {
         // todo: make in watcher
         if let None = self.last_dir {
@@ -149,13 +185,10 @@ impl AppState {
         let current = self.current_dir.as_ref().unwrap();
         log::info!("watch dir: {:?}", current.display());
 
-        Arc::get_mut(&mut self.watcher.instance)
-            .unwrap()
-            .unwatch(self.last_dir.as_ref().unwrap());
+        let watcher = Arc::get_mut(&mut self.watcher.instance).expect("get watcher failure");
 
-        Arc::get_mut(&mut self.watcher.instance)
-            .unwrap()
-            .watch(current, RecursiveMode::Recursive)
+        watcher.unwatch(self.last_dir.as_ref().unwrap());
+        watcher.watch(current, RecursiveMode::Recursive)
     }
 
     pub fn reinit_config(&mut self) {
@@ -284,27 +317,5 @@ impl Default for Params {
         Self {
             debug_layout: false,
         }
-    }
-}
-
-impl AppState {
-    pub fn create_watcher() -> FileWatcher {
-        let mut watcher: RecommendedWatcher =
-            // To make sure that the config lives as long as the function
-            // we need to move the ownership of the config inside the function
-            // To learn more about move please read [Using move Closures with Threads](https://doc.rust-lang.org/book/ch16-01-threads.html?highlight=move#using-move-closures-with-threads)
-            Watcher::new_immediate(move |result: Result<Event>| {
-                let event = result.unwrap();
-                println!("event: {:?}", event);
-            }).expect("error");
-
-        watcher
-            .configure(Config::PreciseEvents(true))
-            .expect("init watcher failure");
-
-        let watcher = FileWatcher {
-            instance: Arc::new(watcher),
-        };
-        watcher
     }
 }
