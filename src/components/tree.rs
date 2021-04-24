@@ -118,20 +118,20 @@ impl Widget<bool> for Wedge {
         let mut path = BezPath::new();
         if *expanded {
             // expanded: 'V' shape
-            path.move_to((5.0, 7.0));
-            path.line_to((9.0, 13.0));
+            path.move_to((3.0, 7.0));
+            path.line_to((8.0, 13.0));
             path.line_to((13.0, 7.0));
         } else {
             // collapsed: '>' shape
-            path.move_to((7.0, 5.0));
-            path.line_to((13.0, 9.0));
+            path.move_to((7.0, 3.0));
+            path.line_to((13.0, 8.0));
             path.line_to((7.0, 13.0));
         }
         let style = StrokeStyle::new()
             .line_cap(LineCap::Round)
             .line_join(LineJoin::Round);
 
-        ctx.stroke_styled(path, &stroke_color, 2.5, &style);
+        ctx.stroke_styled(path, &stroke_color, 1.0, &style);
     }
 }
 
