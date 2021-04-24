@@ -51,6 +51,9 @@ impl EditView {
         _env: &Env,
         mouse_event: &MouseEvent,
     ) {
+        if !mouse_event.button.is_right() {
+            return;
+        }
         let menu: Menu<AppState> = Menu::empty()
             .entry(MenuItem::new(
                 LocalizedString::new("menu-item-search").with_placeholder("Search"),
@@ -58,6 +61,8 @@ impl EditView {
             .entry(MenuItem::new(
                 LocalizedString::new("menu-item-google-scholar").with_placeholder("Google Scholar"),
             ));
+
+        log::info!("mouse down: {:?}", mouse_event);
 
         ctx.show_context_menu(menu, mouse_event.window_pos);
     }
