@@ -11,7 +11,6 @@ use crate::components::icon_button::IconButton;
 use crate::delegate::Delegate;
 use crate::print::ProjectToolWindow;
 use crate::support::directory;
-use notify::event::Event as NotifyEvent;
 
 pub mod app_state;
 pub mod command;
