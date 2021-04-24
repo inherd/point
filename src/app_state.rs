@@ -6,10 +6,11 @@ use crate::model::file_tree::FileEntry;
 use druid::{Data, Lens};
 use notify::{Config, RecommendedWatcher, RecursiveMode, Result, Watcher};
 use std::fs::{DirEntry, File};
-use std::{fs, io};
+use std::{fmt, fs, io};
 
 use crate::support::directory;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Debug, Formatter};
 use std::io::Read;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
@@ -19,7 +20,9 @@ pub struct AppState {
     pub params: Params,
     pub entry: FileEntry,
 
-    // #[serde(skip_serializing, skip_deserializing)]
+    #[serde(default, skip_serializing, skip_deserializing)]
+    pub watcher: Option<FileWatcher>,
+
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
     #[serde(default)]
@@ -29,6 +32,39 @@ pub struct AppState {
     pub last_dir: Option<Arc<Path>>,
 }
 
+#[derive(Lens)]
+pub struct FileWatcher {
+    pub watcher: RecommendedWatcher,
+}
+
+impl fmt::Debug for FileWatcher {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str("")
+    }
+}
+
+impl Clone for FileWatcher {
+    fn clone(&self) -> Self {
+        Self {
+            watcher: RecommendedWatcher::new_immediate(|_| {}).unwrap(),
+        }
+    }
+}
+
+impl Data for FileWatcher {
+    fn same(&self, _other: &Self) -> bool {
+        return true;
+    }
+}
+
+impl Default for FileWatcher {
+    fn default() -> Self {
+        Self {
+            watcher: RecommendedWatcher::new_immediate(|_| {}).unwrap(),
+        }
+    }
+}
+
 impl Default for AppState {
     fn default() -> Self {
         Self {
@@ -36,6 +72,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
+            watcher: Default::default(),
             current_file: None,
             current_dir: None,
             last_dir: None,
