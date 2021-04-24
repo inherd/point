@@ -31,6 +31,7 @@ Todos for spike:
     - [ ] code highlight
     - [ ] auto save file
     - [ ] count chars length
+    - [ ] undo
  - [ ] toolbar for run tasks
      - [ ] run
      - [ ] debug
