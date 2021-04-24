@@ -1,7 +1,8 @@
 use druid::widget::{Flex, SizedBox, TextBox};
 use druid::{
     BoxConstraints, Color, Data, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx,
-    PaintCtx, Size, UpdateCtx, Widget, WidgetExt, WidgetId,
+    LocalizedString, Menu, MenuItem, MouseEvent, PaintCtx, Size, UpdateCtx, Widget, WidgetExt,
+    WidgetId,
 };
 
 use crate::app_state::{AppState, Workspace};
@@ -42,10 +43,29 @@ impl EditView {
             self.inner = flex.boxed()
         }
     }
+
+    // todo: make menus
+    fn send_mouse(
+        &mut self,
+        ctx: &mut EventCtx,
+        _data: &mut AppState,
+        _env: &Env,
+        mouse_event: &MouseEvent,
+    ) {
+        let menu: Menu<AppState> = Menu::empty().entry(MenuItem::new(
+            LocalizedString::new("menu-item-add-guide").with_placeholder("Search"),
+        ));
+
+        ctx.show_context_menu(menu, mouse_event.window_pos);
+    }
 }
 
 impl Widget<AppState> for EditView {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
+        match event {
+            Event::MouseDown(m) => self.send_mouse(ctx, data, env, m),
+            _ => {}
+        }
         self.inner.event(ctx, event, data, env)
     }
 
