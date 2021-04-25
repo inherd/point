@@ -1,5 +1,5 @@
+use crate::app_command::print_command;
 use crate::app_state::{AppState, Workspace};
-use crate::command::print_command;
 use crate::components::modal_host::ModalHost;
 use druid::widget::{Flex, Label};
 use druid::{AppDelegate, Command, DelegateCtx, Env, FileInfo, Handled, Target, Widget, WidgetExt};

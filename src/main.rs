@@ -4,23 +4,24 @@ use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
 
 use app_state::AppState;
 use print::edit_view::EditView;
+use print::menu;
 pub use support::line;
 
+use crate::app_delegate::Delegate;
 use crate::app_state::Workspace;
 use crate::components::icon_button::IconButton;
-use crate::delegate::Delegate;
 use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
+use self::print::bar_support::text_count;
+
+pub mod app_command;
+pub mod app_delegate;
 pub mod app_state;
-pub mod command;
 pub mod components;
-pub mod delegate;
-pub mod menu;
 pub mod model;
 pub mod print;
 pub mod support;
-pub mod text_count;
 pub mod theme;
 
 fn navigation_bar() -> impl Widget<AppState> {

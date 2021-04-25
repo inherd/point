@@ -4,8 +4,8 @@ use druid::{
     LocalizedString, Menu, MenuItem, MouseEvent, PaintCtx, Size, UpdateCtx, Widget, WidgetExt,
 };
 
+use crate::app_command::print_command;
 use crate::app_state::AppState;
-use crate::command::print_command;
 use crate::components::icon_button::IconButton;
 use crate::components::tree::Tree;
 use crate::model::file_tree::FileEntry;
