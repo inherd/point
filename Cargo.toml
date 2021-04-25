@@ -49,4 +49,4 @@ git = "https://github.com/xi-editor/xi-editor"
 features = ["chrome_trace_event"]
 
 [workspace]
-members = ["druid-theme-loader", "print-linecache"]
+members = ["druid-theme-loader"]
