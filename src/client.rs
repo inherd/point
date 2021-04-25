@@ -100,105 +100,97 @@ impl Client {
         let (frontend_sender, frontend_receiver) =
             MainContext::channel::<RpcOperations>(Priority::default());
 
-        thread::spawn(
-            clone!(@weak client.pending_requests as pending_requests => @default-panic, move || {
-                let mut buf = String::new();
-                while receiver.read_line(&mut buf).is_ok() {
-                    // let msg = Message::decode(&buf).unwrap();
-                    let msg = match Message::decode(&buf) {
-                        Ok(message) => message,
-                        Err(_) => Message::Notification(Notification {
-                            method: "".to_string(),
-                            params: Default::default(),
-                        }),
-                    };
-                    trace!("Received message from xi: {:?}", msg);
-                    match msg {
-                        Message::Request(res) => {
-                            let Request { method, params, id } = res;
-                            let operation = match method.as_str() {
-                                "measure_width" => {
-                                        RpcOperations::MeasureWidth((id, from_value::<MeasureWidth>(params).unwrap()))
-                                    }
-                                _ => {
-                                    unreachable!("Unknown method {}", method);
-                                }
-                            };
-                            frontend_sender.send(operation).unwrap();
-                        }
-                        Message::Response(res) => {
-                            let Response { id, result } = res;
-                            if let Some(cb) = pending_requests.lock().unwrap().remove(&id) {
-                                cb.call(result);
+        thread::spawn(move || {
+            let mut buf = String::new();
+            while receiver.read_line(&mut buf).is_ok() {
+                // let msg = Message::decode(&buf).unwrap();
+                let msg = match Message::decode(&buf) {
+                    Ok(message) => message,
+                    Err(_) => Message::Notification(Notification {
+                        method: "".to_string(),
+                        params: Default::default(),
+                    }),
+                };
+                trace!("Received message from xi: {:?}", msg);
+                match msg {
+                    Message::Request(res) => {
+                        let Request { method, params, id } = res;
+                        let operation = match method.as_str() {
+                            "measure_width" => RpcOperations::MeasureWidth((
+                                id,
+                                from_value::<MeasureWidth>(params).unwrap(),
+                            )),
+                            _ => {
+                                unreachable!("Unknown method {}", method);
                             }
-                        }
-                        Message::Notification(res) => {
-                            let Notification { method, params } = res;
-                            let mut error = false;
-                                 let operation = match method.as_str() {
-                                "update" => {
-                                    RpcOperations::Update(from_value::<Update>(params).unwrap())
-                                }
-                                "scroll_to" => {
-                                    RpcOperations::ScrollTo(from_value::<ScrollTo>(params).unwrap())
-                                }
-                                "def_style" => {
-                                    RpcOperations::DefStyle(from_value::<Style>(params).unwrap())
-                                }
-                                "available_plugins" => {
-                                    RpcOperations::AvailablePlugins(from_value::<AvailablePlugins>(params).unwrap())
-                                }
-                                "plugin_started" => {
-                                    RpcOperations::PluginStarted(from_value::<PluginStarted>(params).unwrap())
-                                }
-                                "plugin_stopped" => {
-                                    RpcOperations::PluginStopped(from_value::<PluginStopped>(params).unwrap())
-                                }
-                                "update_cmds" => {
-                                    RpcOperations::UpdateCmds(from_value::<UpdateCmds>(params).unwrap())
-                                }
-                                "config_changed" => {
-                                    RpcOperations::ConfigChanged(from_value::<ConfigChanged>(params).unwrap())
-                                }
-                                "theme_changed" => {
-                                    RpcOperations::ThemeChanged(from_value::<ThemeChanged>(params).unwrap())
-                                }
-                                "alert" => {
-                                    RpcOperations::Alert(from_value::<Alert>(params).unwrap())
-                                }
-                                "available_themes" => {
-                                    RpcOperations::AvailableThemes(from_value::<AvailableThemes>(params).unwrap())
-                                }
-                                "find_status" => {
-                                    RpcOperations::FindStatus(from_value::<FindStatus>(params).unwrap())
-                                }
-                                "replace_status" => {
-                                    RpcOperations::ReplaceStatus(from_value::<ReplaceStatus>(params).unwrap())
-                                }
-                                "available_languages" => {
-                                    RpcOperations::AvailableLanguages(from_value::<AvailableLanguages>(params).unwrap())
-                                }
-                                "language_changed" => {
-                                    RpcOperations::LanguageChanged(from_value::<LanguageChanged>(params).unwrap())
-                                }
-                                _ => {
-                                    error = true;
-                                    RpcOperations::None
-                                    // unreachable!("Unknown method {}", method)
-                                },
-                            };
-                            if !error {
-                                frontend_sender.send(operation).unwrap();
-                            }
+                        };
+                        frontend_sender.send(operation).unwrap();
+                    }
+                    Message::Response(res) => {
+                        let Response { id, result } = res;
+                        if let Some(cb) = pending_requests.lock().unwrap().remove(&id) {
+                            cb.call(result);
                         }
                     }
-
-                    buf.clear();
+                    Message::Notification(res) => {
+                        let Notification { method, params } = res;
+                        let mut error = false;
+                        let operation = Client::handle_notification(method, params, error);
+                        if !error {
+                            frontend_sender.send(operation).unwrap();
+                        }
+                    }
                 }
-            }),
-        );
+
+                buf.clear();
+            }
+        });
 
         (client, frontend_receiver)
+    }
+
+    fn handle_notification(method: String, params: Value, mut error: bool) -> RpcOperations {
+        let operation = match method.as_str() {
+            "update" => RpcOperations::Update(from_value::<Update>(params).unwrap()),
+            "scroll_to" => RpcOperations::ScrollTo(from_value::<ScrollTo>(params).unwrap()),
+            "def_style" => RpcOperations::DefStyle(from_value::<Style>(params).unwrap()),
+            "available_plugins" => {
+                RpcOperations::AvailablePlugins(from_value::<AvailablePlugins>(params).unwrap())
+            }
+            "plugin_started" => {
+                RpcOperations::PluginStarted(from_value::<PluginStarted>(params).unwrap())
+            }
+            "plugin_stopped" => {
+                RpcOperations::PluginStopped(from_value::<PluginStopped>(params).unwrap())
+            }
+            "update_cmds" => RpcOperations::UpdateCmds(from_value::<UpdateCmds>(params).unwrap()),
+            "config_changed" => {
+                RpcOperations::ConfigChanged(from_value::<ConfigChanged>(params).unwrap())
+            }
+            "theme_changed" => {
+                RpcOperations::ThemeChanged(from_value::<ThemeChanged>(params).unwrap())
+            }
+            "alert" => RpcOperations::Alert(from_value::<Alert>(params).unwrap()),
+            "available_themes" => {
+                RpcOperations::AvailableThemes(from_value::<AvailableThemes>(params).unwrap())
+            }
+            "find_status" => RpcOperations::FindStatus(from_value::<FindStatus>(params).unwrap()),
+            "replace_status" => {
+                RpcOperations::ReplaceStatus(from_value::<ReplaceStatus>(params).unwrap())
+            }
+            "available_languages" => {
+                RpcOperations::AvailableLanguages(from_value::<AvailableLanguages>(params).unwrap())
+            }
+            "language_changed" => {
+                RpcOperations::LanguageChanged(from_value::<LanguageChanged>(params).unwrap())
+            }
+            _ => {
+                error = true;
+                RpcOperations::None
+                // unreachable!("Unknown method {}", method)
+            }
+        };
+        operation
     }
 
     fn start_xi_thread() -> (XiReceiver, XiSender) {
