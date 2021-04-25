@@ -82,12 +82,18 @@ impl Client {
                     Message::Response(res) => {
                         let Response { id, result } = res;
                         println!("{:?}", result);
+                        //
+                        // if let Some(cb) = client.pending_requests.lock().unwrap().remove(&id) {
+                        //     cb.call(result);
+                        // }
                     }
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
                         println!("{:?}, {:?}", method, params);
                     }
                 }
+
+                buf.clear();
             }
         });
 
