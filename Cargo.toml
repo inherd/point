@@ -36,10 +36,10 @@ dirs = "3.0"
 crossbeam-channel = "0.4.0"
 
 # todo: upgrade to 0.4.0
-pipe = "0.3"
+pipe = "0.4"
 
 # for message clone and threads safe
-#glib = "0.10.3"
+glib = "0.10.3"
 
 [dependencies.xi-core-lib]
 branch = "master"
