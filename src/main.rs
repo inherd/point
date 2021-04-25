@@ -44,6 +44,8 @@ pub use crate::structs::{
     PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
     StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
 };
+use std::io::BufRead;
+use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -112,19 +114,9 @@ pub fn main() {
     init_state.reinit_config();
 
     let client = Client::new();
+
     init_state.client = client;
-
     init_state.client.client_started(None, None);
-
-    // let main_context = MainContext::default();
-    //
-    // event_rx.attach(
-    //     Some(&main_context),
-    //     clone!(@strong init_state => @default-panic, move |ev| {
-    //             // init_state.handle_event(ev);
-    //             Continue(true)
-    //     }),
-    // );
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))

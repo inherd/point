@@ -32,8 +32,8 @@ impl<F: FnOnce(Result<Value, Value>) + Send> Callback for F {
 }
 
 pub struct Client {
-    sender: XiSender,
-    receiver: XiReceiver,
+    pub sender: XiSender,
+    pub receiver: XiReceiver,
 }
 
 impl fmt::Debug for Client {
@@ -84,7 +84,7 @@ pub enum RpcOperations {
 
 impl Client {
     pub fn new() -> Rc<Client> {
-        let (mut receiver, sender) = Client::start_xi_thread();
+        let (receiver, sender) = Client::start_xi_thread();
         let client = Rc::new(Client { sender, receiver });
 
         client
