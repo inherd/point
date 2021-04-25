@@ -1,6 +1,7 @@
+use crate::errors::DecodeError;
 use crate::message::{Message, Notification, Request, Response};
 use druid::Data;
-use glib::clone;
+use glib::{clone, MainContext, Priority, Receiver};
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{to_vec, Value};
 use std::cell::Cell;
@@ -61,8 +62,14 @@ impl Default for Client {
     }
 }
 
+#[derive(Debug)]
+pub enum RpcOperations {
+    Error,
+    None,
+}
+
 impl Client {
-    pub fn new() -> Rc<Client> {
+    pub fn new() -> (Rc<Client>, Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
         let client = Rc::new(Client {
             sender,
@@ -70,16 +77,33 @@ impl Client {
             current_request_id: Cell::new(0),
         });
 
+        let (frontend_sender, frontend_receiver) =
+            MainContext::channel::<RpcOperations>(Priority::default());
+
         thread::spawn(
             clone!(@weak client.pending_requests as pending_requests => @default-panic, move || {
                 let mut buf = String::new();
                 while receiver.read_line(&mut buf).is_ok() {
-                    let msg = Message::decode(&buf).unwrap();
+                    // let msg = Message::decode(&buf).unwrap();
+                    let msg = match Message::decode(&buf) {
+                        Ok(message) => message,
+                        Err(_) => Message::Notification(Notification {
+                            method: "".to_string(),
+                            params: Default::default(),
+                        }),
+                    };
                     trace!("Received message from xi: {:?}", msg);
                     match msg {
                         Message::Request(res) => {
                             let Request { method, params, id } = res;
+                            let operation = match method.as_str() {
+                                "measure_width" => RpcOperations::None,
+                                _ => {
+                                    unreachable!("Unknown method {}", method);
+                                }
+                            };
                             println!("{:?}, {:?}", method, params);
+                            frontend_sender.send(operation).unwrap();
                         }
                         Message::Response(res) => {
                             let Response { id, result } = res;
@@ -89,7 +113,21 @@ impl Client {
                         }
                         Message::Notification(res) => {
                             let Notification { method, params } = res;
-                            println!("{:?}, {:?}", method, params);
+                            let mut error = false;
+                            let operation = match method.as_str() {
+                                "measure_width" => RpcOperations::None,
+                                "available_languages" => RpcOperations::None,
+                                "available_themes" => RpcOperations::None,
+                                _ => {
+                                    // unreachable!("Unknown method {}", method);
+                                    println!("Unknown method {}", method);
+                                    error = true;
+                                    RpcOperations::Error
+                                }
+                            };
+                            if !error {
+                                frontend_sender.send(operation).unwrap();
+                            }
                         }
                     }
 
@@ -98,7 +136,7 @@ impl Client {
             }),
         );
 
-        client
+        (client, frontend_receiver)
     }
 
     fn start_xi_thread() -> (XiReceiver, XiSender) {

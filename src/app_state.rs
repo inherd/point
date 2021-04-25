@@ -38,7 +38,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            client: Client::new(),
+            client: Client::new().0,
             current_file: None,
             current_dir: None,
             last_dir: None,

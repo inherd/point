@@ -104,7 +104,7 @@ pub fn main() {
     init_state.reinit_config();
 
     let client = Client::new();
-    init_state.client = client;
+    init_state.client = client.0;
 
     init_state.client.client_started(None, None);
 
