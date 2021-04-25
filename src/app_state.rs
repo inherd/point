@@ -1,12 +1,10 @@
-use std::fmt;
-use std::fmt::{Debug, Formatter};
+use std::fmt::Debug;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use druid::{Data, Lens};
-use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Result, Watcher};
 use serde::{Deserialize, Serialize};
 
 use crate::model::file_tree::FileEntry;
@@ -19,9 +17,6 @@ pub struct AppState {
     pub params: Params,
     pub entry: FileEntry,
 
-    #[serde(default, skip_serializing, skip_deserializing)]
-    pub watcher: FileWatcher,
-
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
     #[serde(default)]
@@ -31,86 +26,21 @@ pub struct AppState {
     pub last_dir: Option<Arc<Path>>,
 }
 
-#[derive(Lens)]
-pub struct FileWatcher {
-    pub instance: Arc<RecommendedWatcher>,
-}
-
-impl fmt::Debug for FileWatcher {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_str("")
-    }
-}
-
-impl Clone for FileWatcher {
-    fn clone(&self) -> Self {
-        Self {
-            instance: Arc::new(RecommendedWatcher::new_immediate(|_| {}).unwrap()),
-        }
-    }
-}
-
-impl Data for FileWatcher {
-    fn same(&self, _other: &Self) -> bool {
-        return true;
-    }
-}
-
-impl Default for FileWatcher {
-    fn default() -> Self {
-        Self {
-            instance: Arc::new(RecommendedWatcher::new_immediate(|_| {}).unwrap()),
-        }
-    }
-}
-
 impl Default for AppState {
     fn default() -> Self {
-        let mut state = Self {
+        Self {
             title: "".to_string(),
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            watcher: Default::default(),
             current_file: None,
             current_dir: None,
             last_dir: None,
-        };
-
-        state.init_watcher();
-        state
+        }
     }
 }
 
 impl AppState {
-    pub fn init_watcher(&mut self) {
-        let config = Arc::new(Mutex::new(self.workspace.clone()));
-        let _cloned_config = Arc::clone(&config);
-
-        let mut watcher: RecommendedWatcher =
-            Watcher::new_immediate(move |result: Result<Event>| {
-                let event = result.unwrap();
-                println!("{:?}", event);
-                match event.kind {
-                    EventKind::Create(_) => {
-                        // println!("{:?}", cloned_config.lock().unwrap());
-                    }
-                    _ => {}
-                };
-            })
-            .expect("error");
-
-        watcher
-            .configure(Config::PreciseEvents(true))
-            .expect("init watcher failure");
-
-        let watcher = FileWatcher {
-            instance: Arc::new(watcher),
-        };
-
-        self.watcher = watcher;
-    }
-
     pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
 
@@ -152,7 +82,6 @@ impl AppState {
         self.last_dir = self.current_dir.clone();
         self.current_dir = path;
 
-        let _result = self.watch_dir();
         self.save_global_config();
     }
 
@@ -168,21 +97,6 @@ impl AppState {
         current_state.entry = Default::default();
 
         directory::save_config(&current_state);
-    }
-
-    pub fn watch_dir(&mut self) -> Result<()> {
-        // todo: make in watcher
-        if let None = self.last_dir {
-            return Ok(());
-        }
-
-        let current = self.current_dir.as_ref().unwrap();
-        log::info!("watch dir: {:?}", current.display());
-
-        let watcher = Arc::get_mut(&mut self.watcher.instance).expect("get watcher failure");
-
-        let _result = watcher.unwatch(self.last_dir.as_ref().unwrap());
-        watcher.watch(current, RecursiveMode::Recursive)
     }
 
     pub fn reinit_config(&mut self) {

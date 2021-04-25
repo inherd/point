@@ -48,7 +48,6 @@ pub fn read_config() -> AppState {
     match serde_json::from_str(&content) {
         Ok(state) => {
             app_state = state;
-            app_state.init_watcher();
         }
         Err(_err) => {
             let _ = fs::remove_file(&path);
