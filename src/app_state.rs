@@ -12,7 +12,6 @@ use crate::support::directory;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Formatter};
 use std::io::Read;
-use std::rc::Rc;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -87,7 +86,7 @@ impl Default for AppState {
 impl AppState {
     pub fn init_watcher(&mut self) {
         let config = Arc::new(Mutex::new(self.workspace.clone()));
-        let cloned_config = Arc::clone(&config);
+        let _cloned_config = Arc::clone(&config);
 
         let mut watcher: RecommendedWatcher =
             Watcher::new_immediate(move |result: Result<Event>| {
@@ -183,7 +182,7 @@ impl AppState {
 
         let watcher = Arc::get_mut(&mut self.watcher.instance).expect("get watcher failure");
 
-        watcher.unwatch(self.last_dir.as_ref().unwrap());
+        let _result = watcher.unwatch(self.last_dir.as_ref().unwrap());
         watcher.watch(current, RecursiveMode::Recursive)
     }
 
