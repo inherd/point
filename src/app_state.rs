@@ -7,7 +7,7 @@ use std::sync::Arc;
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
-use crate::client::Client;
+use crate::client::{Client, RpcOperations};
 use crate::model::file_tree::FileEntry;
 use crate::support::directory;
 use std::rc::Rc;
@@ -112,6 +112,19 @@ impl AppState {
         }
         if let Some(path) = self.current_dir.clone() {
             &self.set_dir(path.to_path_buf());
+        }
+    }
+
+    pub fn handle_event(&self, op: RpcOperations) {
+        trace!("Handling msg: {:?}", op);
+        match op {
+            RpcOperations::AvailableThemes(themes) => {
+                println!("themes: {:?}", themes);
+                self.client
+                    .send_notification("set_theme", &json!({ "theme_name": "demo" }));
+            }
+            RpcOperations::AvailableLanguages(langs) => {}
+            _ => {}
         }
     }
 }

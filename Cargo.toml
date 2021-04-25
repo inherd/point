@@ -41,6 +41,8 @@ pipe = "0.4"
 # for message clone and threads safe
 glib = "0.10.3"
 
+syntect = "3"
+
 [dependencies.xi-core-lib]
 branch = "master"
 git = "https://github.com/xi-editor/xi-editor"

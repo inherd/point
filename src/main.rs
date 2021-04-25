@@ -23,7 +23,9 @@ use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
-use crate::client::Client;
+use crate::client::{Client, RpcOperations};
+use glib::clone;
+use glib::{Continue, MainContext};
 
 pub mod app_command;
 pub mod app_delegate;
@@ -34,8 +36,16 @@ pub mod errors;
 pub mod message;
 pub mod model;
 pub mod print;
+pub mod structs;
 pub mod support;
 pub mod theme;
+
+pub use crate::structs::{
+    Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, ConfigChanges,
+    FindStatus, LanguageChanged, Line, MeasureWidth, ModifySelection, Operation, OperationType,
+    PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
+    StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
+};
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -103,10 +113,20 @@ pub fn main() {
     let mut init_state: AppState = directory::read_config();
     init_state.reinit_config();
 
-    let client = Client::new();
-    init_state.client = client.0;
+    let (client, event_rx) = Client::new();
+    init_state.client = client;
 
     init_state.client.client_started(None, None);
+
+    let main_context = MainContext::default();
+
+    event_rx.attach(
+        Some(&main_context),
+        clone!(@strong init_state => @default-panic, move |ev| {
+                init_state.handle_event(ev);
+                Continue(true)
+        }),
+    );
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
