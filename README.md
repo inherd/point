@@ -28,6 +28,7 @@ Todos for spike:
  - [x] display code
  - [x] interactive with system api
  - [ ] code editor
+    - [ ] use xi-editor as core
     - [ ] code highlight
     - [ ] auto save file
     - [ ] count chars length
