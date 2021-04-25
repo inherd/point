@@ -1,17 +1,16 @@
+use std::fmt;
+use std::fmt::{Debug, Formatter};
+use std::fs::File;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use crate::model::file_tree::FileEntry;
-
 use druid::{Data, Lens};
 use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Result, Watcher};
-use std::fs::{DirEntry, File};
-use std::{fmt, fs, io};
-
-use crate::support::directory;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Debug, Formatter};
-use std::io::Read;
+
+use crate::model::file_tree::FileEntry;
+use crate::support::directory;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -132,7 +131,7 @@ impl AppState {
     }
 
     pub fn reload_dir(&mut self) {
-        self.entry = path_to_tree(
+        self.entry = FileEntry::from_dir(
             self.workspace.project.clone(),
             &self.current_dir.as_ref().unwrap(),
         );
@@ -146,7 +145,7 @@ impl AppState {
                 self.workspace.dir = Arc::new(dir.clone().to_path_buf());
             }
 
-            self.entry = path_to_tree(self.workspace.project.clone(), &dir);
+            self.entry = FileEntry::from_dir(self.workspace.project.clone(), &dir);
             log::info!("open dir: {:?}", dir);
         }
 
@@ -195,66 +194,6 @@ impl AppState {
             &self.set_dir(path.to_path_buf());
         }
     }
-}
-
-fn is_hidden(entry: &DirEntry) -> bool {
-    if !entry.path().is_dir() {
-        return entry
-            .file_name()
-            .to_str()
-            .map(|s| s == ".DS_Store")
-            .unwrap_or(false);
-    }
-
-    entry
-        .file_name()
-        .to_str()
-        .map(|s| s.starts_with("."))
-        .unwrap_or(false)
-}
-
-pub fn path_to_tree(title: String, dir: &Arc<Path>) -> FileEntry {
-    let mut root = FileEntry::new(title);
-
-    let _result = visit_dirs(dir, 0, &mut root, dir);
-
-    root
-}
-
-fn visit_dirs(dir: &Path, depth: usize, node: &mut FileEntry, base_dir: &Path) -> io::Result<()> {
-    if dir.is_dir() {
-        let entry_set = fs::read_dir(dir)?; // contains DirEntry
-        let mut entries = entry_set
-            .filter_map(|v| match v {
-                Ok(dir) => {
-                    if is_hidden(&dir) {
-                        return None;
-                    }
-                    Some(dir)
-                }
-                Err(_) => None,
-            })
-            .collect::<Vec<_>>();
-
-        entries.sort_by(|a, b| a.path().file_name().cmp(&b.path().file_name()));
-
-        for (_index, entry) in entries.iter().enumerate() {
-            let path = entry.path();
-
-            if path.is_dir() {
-                let depth = depth + 1;
-                let relative_path = path.strip_prefix(base_dir).unwrap();
-                let entry = &mut FileEntry::new(format!("{}", relative_path.display()));
-                entry.is_dir = true;
-                visit_dirs(&path, depth, entry, base_dir)?;
-                node.children.push(entry.to_owned());
-            } else {
-                let entry1 = FileEntry::from_path(path);
-                node.children.push(entry1);
-            }
-        }
-    }
-    Ok(())
 }
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
