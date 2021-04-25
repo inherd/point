@@ -1,5 +1,6 @@
 use crate::message::{Message, Notification, Request, Response};
 use druid::Data;
+use glib::clone;
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{to_vec, Value};
 use std::cell::Cell;
@@ -69,33 +70,33 @@ impl Client {
             current_request_id: Cell::new(0),
         });
 
-        thread::spawn(move || {
-            let mut buf = String::new();
-            while receiver.read_line(&mut buf).is_ok() {
-                let msg = Message::decode(&buf).unwrap();
-                trace!("Received message from xi: {:?}", msg);
-                match msg {
-                    Message::Request(res) => {
-                        let Request { method, params, id } = res;
-                        println!("{:?}, {:?}", method, params);
+        thread::spawn(
+            clone!(@weak client.pending_requests as pending_requests => @default-panic, move || {
+                let mut buf = String::new();
+                while receiver.read_line(&mut buf).is_ok() {
+                    let msg = Message::decode(&buf).unwrap();
+                    trace!("Received message from xi: {:?}", msg);
+                    match msg {
+                        Message::Request(res) => {
+                            let Request { method, params, id } = res;
+                            println!("{:?}, {:?}", method, params);
+                        }
+                        Message::Response(res) => {
+                            let Response { id, result } = res;
+                            if let Some(cb) = pending_requests.lock().unwrap().remove(&id) {
+                                cb.call(result);
+                            }
+                        }
+                        Message::Notification(res) => {
+                            let Notification { method, params } = res;
+                            println!("{:?}, {:?}", method, params);
+                        }
                     }
-                    Message::Response(res) => {
-                        let Response { id, result } = res;
-                        println!("{:?}", result);
-                        //
-                        // if let Some(cb) = client.pending_requests.lock().unwrap().remove(&id) {
-                        //     cb.call(result);
-                        // }
-                    }
-                    Message::Notification(res) => {
-                        let Notification { method, params } = res;
-                        println!("{:?}, {:?}", method, params);
-                    }
-                }
 
-                buf.clear();
-            }
-        });
+                    buf.clear();
+                }
+            }),
+        );
 
         client
     }

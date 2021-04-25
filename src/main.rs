@@ -30,7 +30,7 @@ pub mod app_delegate;
 pub mod app_state;
 pub mod client;
 pub mod components;
-mod errors;
+pub mod errors;
 pub mod message;
 pub mod model;
 pub mod print;
