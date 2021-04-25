@@ -35,9 +35,6 @@ dirs = "3.0"
 # path watch
 crossbeam-channel = "0.4.0"
 
-[features]
-tracing = ["xi-trace"]
-
 [dependencies.xi-core-lib]
 branch = "master"
 git = "https://github.com/xi-editor/xi-editor"
@@ -50,7 +47,6 @@ git = "https://github.com/xi-editor/xi-editor"
 branch = "master"
 git = "https://github.com/xi-editor/xi-editor"
 features = ["chrome_trace_event"]
-optional = true
 
 [workspace]
 members = ["druid-theme-loader"]
