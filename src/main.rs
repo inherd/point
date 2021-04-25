@@ -24,8 +24,6 @@ use crate::support::directory;
 
 use self::print::bar_support::text_count;
 use crate::client::{Client, RpcOperations};
-use glib::clone;
-use glib::{Continue, MainContext};
 
 pub mod app_command;
 pub mod app_delegate;
@@ -113,7 +111,7 @@ pub fn main() {
     let mut init_state: AppState = directory::read_config();
     init_state.reinit_config();
 
-    let (client, event_rx) = Client::new();
+    let client = Client::new();
     init_state.client = client;
 
     init_state.client.client_started(None, None);

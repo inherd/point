@@ -6,7 +6,6 @@ use crate::structs::{
     ThemeChanged, Update, UpdateCmds,
 };
 use druid::Data;
-use glib::{clone, MainContext, Priority, Receiver};
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{self, from_value, json, to_vec, Value};
 use std::cell::Cell;
@@ -34,13 +33,12 @@ impl<F: FnOnce(Result<Value, Value>) + Send> Callback for F {
 
 pub struct Client {
     sender: XiSender,
-    pending_requests: Arc<Mutex<HashMap<u64, Box<dyn Callback>>>>,
-    current_request_id: Cell<u64>,
+    receiver: XiReceiver,
 }
 
 impl fmt::Debug for Client {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_str(format!("current_request_id: {:?}", self.current_request_id).as_str())
+        f.write_str("")
     }
 }
 
@@ -58,12 +56,8 @@ impl Data for Client {
 
 impl Default for Client {
     fn default() -> Self {
-        let (mut _receiver, sender) = Client::start_xi_thread();
-        Client {
-            sender,
-            pending_requests: Arc::new(Mutex::new(HashMap::new())),
-            current_request_id: Cell::new(0),
-        }
+        let (mut receiver, sender) = Client::start_xi_thread();
+        Client { sender, receiver }
     }
 }
 
@@ -89,63 +83,11 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> (Rc<Client>, Receiver<RpcOperations>) {
+    pub fn new() -> Rc<Client> {
         let (mut receiver, sender) = Client::start_xi_thread();
-        let client = Rc::new(Client {
-            sender,
-            pending_requests: Arc::new(Mutex::new(HashMap::new())),
-            current_request_id: Cell::new(0),
-        });
+        let client = Rc::new(Client { sender, receiver });
 
-        let (frontend_sender, frontend_receiver) =
-            MainContext::channel::<RpcOperations>(Priority::default());
-
-        thread::spawn(move || {
-            let mut buf = String::new();
-            while receiver.read_line(&mut buf).is_ok() {
-                // let msg = Message::decode(&buf).unwrap();
-                let msg = match Message::decode(&buf) {
-                    Ok(message) => message,
-                    Err(_) => Message::Notification(Notification {
-                        method: "".to_string(),
-                        params: Default::default(),
-                    }),
-                };
-                trace!("Received message from xi: {:?}", msg);
-                match msg {
-                    Message::Request(res) => {
-                        let Request { method, params, id } = res;
-                        let operation = match method.as_str() {
-                            "measure_width" => RpcOperations::MeasureWidth((
-                                id,
-                                from_value::<MeasureWidth>(params).unwrap(),
-                            )),
-                            _ => {
-                                unreachable!("Unknown method {}", method);
-                            }
-                        };
-                        frontend_sender.send(operation).unwrap();
-                    }
-                    Message::Response(res) => {
-                        let Response { id, result } = res;
-                        if let Some(cb) = pending_requests.lock().unwrap().remove(&id) {
-                            cb.call(result);
-                        }
-                    }
-                    Message::Notification(res) => {
-                        let Notification { method, params } = res;
-                        let operation = Client::handle_notification(method, params);
-                        if !error {
-                            frontend_sender.send(operation).unwrap();
-                        }
-                    }
-                }
-
-                buf.clear();
-            }
-        });
-
-        (client, frontend_receiver)
+        client
     }
 
     fn handle_notification(method: String, params: Value) -> RpcOperations {
