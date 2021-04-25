@@ -33,7 +33,6 @@ impl<F: FnOnce(Result<Value, Value>) + Send> Callback for F {
 
 pub struct Client {
     pub sender: XiSender,
-    pub receiver: XiReceiver,
 }
 
 impl fmt::Debug for Client {
@@ -57,7 +56,9 @@ impl Data for Client {
 impl Default for Client {
     fn default() -> Self {
         let (mut receiver, sender) = Client::start_xi_thread();
-        Client { sender, receiver }
+        let mut client = Client { sender };
+
+        client
     }
 }
 
@@ -84,13 +85,27 @@ pub enum RpcOperations {
 
 impl Client {
     pub fn new() -> Rc<Client> {
-        let (receiver, sender) = Client::start_xi_thread();
-        let client = Rc::new(Client { sender, receiver });
+        let (mut receiver, sender) = Client::start_xi_thread();
+        let client = Rc::new(Client { sender });
+
+        thread::spawn(move || {
+            let mut buf = String::new();
+            while receiver.read_line(&mut buf).is_ok() {
+                let msg = Message::decode(&buf).unwrap();
+                trace!("Received message from xi: {:?}", msg);
+                match msg {
+                    Message::Request(res) => {}
+                    Message::Response(_) => {}
+                    Message::Notification(_) => {}
+                }
+                // Client::handle_notification()
+            }
+        });
 
         client
     }
 
-    fn handle_notification(method: String, params: Value) -> RpcOperations {
+    pub fn handle_notification(method: String, params: Value) -> RpcOperations {
         match method.as_str() {
             "update" => RpcOperations::Update(from_value::<Update>(params).unwrap()),
             "scroll_to" => RpcOperations::ScrollTo(from_value::<ScrollTo>(params).unwrap()),
