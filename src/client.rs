@@ -182,6 +182,7 @@ impl Client {
                                     RpcOperations::LanguageChanged(from_value::<LanguageChanged>(params).unwrap())
                                 }
                                 _ => {
+                                    error = true;
                                     RpcOperations::None
                                     // unreachable!("Unknown method {}", method)
                                 },
