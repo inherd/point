@@ -1743,6 +1743,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
+name = "pipe"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcd11e042e056991b5df9c0c5ae6bd0cce219b74294c40f65b89f40f7030106c"
+dependencies = [
+ "crossbeam-channel 0.4.4",
+]
+
+[[package]]
 name = "pkg-config"
 version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1785,6 +1794,7 @@ dependencies = [
  "infer",
  "log",
  "piet-common 0.4.1",
+ "pipe",
  "regex",
  "serde",
  "serde_json",

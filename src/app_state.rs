@@ -7,8 +7,10 @@ use std::sync::Arc;
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
+use crate::client::Client;
 use crate::model::file_tree::FileEntry;
 use crate::support::directory;
+use std::rc::Rc;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -16,6 +18,9 @@ pub struct AppState {
     pub workspace: Workspace,
     pub params: Params,
     pub entry: FileEntry,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub client: Rc<Client>,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -33,6 +38,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
+            client: Client::new(),
             current_file: None,
             current_dir: None,
             last_dir: None,

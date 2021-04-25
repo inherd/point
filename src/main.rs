@@ -23,13 +23,15 @@ use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
-use xi_rpc::RpcLoop;
+use crate::client::Client;
 
 pub mod app_command;
 pub mod app_delegate;
 pub mod app_state;
+pub mod client;
 pub mod components;
-pub mod core;
+mod errors;
+pub mod message;
 pub mod model;
 pub mod print;
 pub mod support;
@@ -98,18 +100,13 @@ fn make_ui() -> impl Widget<AppState> {
 pub fn main() {
     let title = "Print UI";
 
-    let mut init_state = directory::read_config();
+    let mut init_state: AppState = directory::read_config();
     init_state.reinit_config();
 
-    xi_trace::enable_tracing();
-    if xi_trace::is_enabled() {
-        log::info!("tracing started")
-    }
+    let client = Client::new();
+    init_state.client = client;
 
-    let (client_to_core_writer, core_to_client_reader, client_to_client_writer) =
-        core::start_xi_core();
-    let mut front_event_loop = RpcLoop::new(client_to_core_writer);
-    let raw_peer = front_event_loop.get_raw_peer();
+    init_state.client.client_started(None, None);
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
