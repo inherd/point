@@ -134,8 +134,7 @@ impl Client {
                     }
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
-                        let mut error = false;
-                        let operation = Client::handle_notification(method, params, error);
+                        let operation = Client::handle_notification(method, params);
                         if !error {
                             frontend_sender.send(operation).unwrap();
                         }
@@ -149,8 +148,8 @@ impl Client {
         (client, frontend_receiver)
     }
 
-    fn handle_notification(method: String, params: Value, mut error: bool) -> RpcOperations {
-        let operation = match method.as_str() {
+    fn handle_notification(method: String, params: Value) -> RpcOperations {
+        match method.as_str() {
             "update" => RpcOperations::Update(from_value::<Update>(params).unwrap()),
             "scroll_to" => RpcOperations::ScrollTo(from_value::<ScrollTo>(params).unwrap()),
             "def_style" => RpcOperations::DefStyle(from_value::<Style>(params).unwrap()),
@@ -185,12 +184,10 @@ impl Client {
                 RpcOperations::LanguageChanged(from_value::<LanguageChanged>(params).unwrap())
             }
             _ => {
-                error = true;
                 RpcOperations::None
                 // unreachable!("Unknown method {}", method)
             }
-        };
-        operation
+        }
     }
 
     fn start_xi_thread() -> (XiReceiver, XiSender) {
