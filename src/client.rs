@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
 use std::rc::Rc;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Receiver};
 use std::sync::{Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
@@ -56,8 +56,8 @@ impl Data for Client {
 
 impl Default for Client {
     fn default() -> Self {
-        let (mut receiver, sender) = Client::start_xi_thread();
-        let mut client = Client { sender };
+        let (mut _receiver, sender) = Client::start_xi_thread();
+        let client = Client { sender };
 
         client
     }
@@ -85,9 +85,11 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> Rc<Client> {
+    pub fn new() -> (Rc<Client>, Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
         let client = Rc::new(Client { sender });
+
+        let (rpc_sender, rpc_receiver) = channel();
 
         thread::spawn(move || {
             let mut buf = String::new();
@@ -117,7 +119,7 @@ impl Client {
                                 unreachable!("Unknown method {}", method);
                             }
                         };
-                        // sender.lock().unwrap().send(operation.).unwrap();
+                        rpc_sender.send(operation).unwrap();
                     }
                     Message::Response(res) => {
                         let Response { id, result } = res;
@@ -125,15 +127,14 @@ impl Client {
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
                         let operation = Client::handle_notification(method, params);
-                        // sender.lock().unwrap().send(operation).unwrap();
+                        println!("{:?}", operation);
+                        rpc_sender.send(operation).unwrap();
                     }
                 }
             }
         });
 
-        client.client_started(None, None);
-
-        client
+        (client, rpc_receiver)
     }
 
     pub fn handle_notification(method: String, params: Value) -> RpcOperations {

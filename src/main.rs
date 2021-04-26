@@ -45,6 +45,8 @@ pub use crate::structs::{
     StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
 };
 use std::io::BufRead;
+use std::sync::mpsc::RecvError;
+use std::thread;
 use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
@@ -113,10 +115,18 @@ pub fn main() {
     let mut init_state: AppState = directory::read_config();
     init_state.reinit_config();
 
-    let client = Client::new();
-
+    let (client, rpc_receiver) = Client::new();
     init_state.client = client;
     init_state.client.client_started(None, None);
+
+    thread::spawn(move || match rpc_receiver.recv() {
+        Ok(operations) => {
+            println!("{:?}", operations);
+        }
+        Err(err) => {
+            println!("{:?}", err);
+        }
+    });
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
