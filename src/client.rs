@@ -94,6 +94,9 @@ impl Client {
         thread::spawn(move || {
             let mut buf = String::new();
             while receiver.read_line(&mut buf).is_ok() {
+                if buf.len() == 0 {
+                    return;
+                }
                 let msg = match Message::decode(&buf) {
                     Ok(x) => x,
                     Err(err) => {
@@ -122,7 +125,6 @@ impl Client {
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
                         let operation = Client::handle_notification(method, params);
-                        println!("{:?}", operation);
                         rpc_sender.send(operation).unwrap();
                     }
                 }

@@ -120,9 +120,15 @@ pub fn main() {
     init_state.client.client_started(None, None);
 
     thread::spawn(move || match rpc_receiver.recv() {
-        Ok(operations) => {
-            println!("{:?}", operations);
-        }
+        Ok(operations) => match operations {
+            RpcOperations::AvailableThemes(themes) => {
+                println!("themes: {:?}", themes);
+            }
+            RpcOperations::AvailableLanguages(langs) => {
+                println!("langs: {:?}", langs);
+            }
+            _ => {}
+        },
         Err(err) => {
             println!("{:?}", err);
         }
