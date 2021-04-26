@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
@@ -20,7 +20,7 @@ pub struct AppState {
     pub entry: FileEntry,
 
     #[serde(skip_serializing, skip_deserializing)]
-    pub client: Rc<Client>,
+    pub client: Arc<Mutex<Client>>,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -38,7 +38,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            client: Client::new().0,
+            client: Arc::new(Mutex::new(Default::default())),
             current_file: None,
             current_dir: None,
             last_dir: None,
@@ -121,6 +121,8 @@ impl AppState {
             RpcOperations::AvailableThemes(themes) => {
                 println!("themes: {:?}", themes);
                 self.client
+                    .lock()
+                    .unwrap()
                     .send_notification("set_theme", &json!({ "theme_name": "demo" }));
             }
             RpcOperations::AvailableLanguages(langs) => {}

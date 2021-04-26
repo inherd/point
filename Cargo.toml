@@ -39,6 +39,8 @@ glib = "0.10"
 
 syntect = "3"
 
+crossbeam-channel = ""
+
 [dependencies.xi-core-lib]
 branch = "master"
 git = "https://github.com/xi-editor/xi-editor"

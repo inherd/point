@@ -46,6 +46,7 @@ pub use crate::structs::{
 };
 use std::io::BufRead;
 use std::sync::mpsc::RecvError;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use xi_rpc::RpcLoop;
 
@@ -116,15 +117,20 @@ pub fn main() {
     init_state.reinit_config();
 
     let (client, rpc_receiver) = Client::new();
-    init_state.client = client.clone();
-    init_state.client.client_started(None, None);
 
-    thread::spawn(glib::clone!(@strong init_state => @default-panic, move || {
-        match rpc_receiver.recv() {
-            Ok(operations) => init_state.handle_event(operations),
-            Err(err) => {}
+    let state = Arc::new(Mutex::new(client));
+    let state_clone = state.clone();
+
+    init_state.client = state;
+    init_state.client.lock().unwrap().client_started(None, None);
+
+    thread::spawn(move || match rpc_receiver.recv() {
+        Ok(operations) => {
+            let guard = state_clone.lock().unwrap();
+            guard.send_notification("", &json!({}));
         }
-    }));
+        Err(err) => {}
+    });
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))

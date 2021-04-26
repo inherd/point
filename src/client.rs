@@ -5,6 +5,7 @@ use crate::structs::{
     LanguageChanged, MeasureWidth, PluginStarted, PluginStopped, ReplaceStatus, ScrollTo, Style,
     ThemeChanged, Update, UpdateCmds,
 };
+use crossbeam_channel::unbounded;
 use druid::Data;
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{self, from_value, json, to_vec, Value};
@@ -85,11 +86,11 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> (Rc<Client>, Receiver<RpcOperations>) {
+    pub fn new() -> (Client, crossbeam_channel::Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
-        let client = Rc::new(Client { sender });
+        let client = Client { sender };
 
-        let (rpc_sender, rpc_receiver) = channel();
+        let (rpc_sender, rpc_receiver) = unbounded();
 
         thread::spawn(move || {
             let mut buf = String::new();
