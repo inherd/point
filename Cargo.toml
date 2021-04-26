@@ -35,7 +35,11 @@ dirs = "3.0"
 # todo: upgrade to 0.4.0
 pipe = "0.3"
 
+glib = "0.10"
+
 syntect = "3"
+
+crossbeam-channel = ""
 
 [dependencies.xi-core-lib]
 branch = "master"
