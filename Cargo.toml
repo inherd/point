@@ -32,11 +32,8 @@ serde_json = "1.0"
 # save config
 dirs = "3.0"
 
-# path watch
-crossbeam-channel = "0.4.0"
-
 # todo: upgrade to 0.4.0
-pipe = "0.4"
+pipe = "0.3"
 
 syntect = "3"
 
