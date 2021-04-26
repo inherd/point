@@ -113,24 +113,22 @@ fn make_ui() -> impl Widget<AppState> {
 pub fn main() {
     let title = "Print UI";
 
-    let mut init_state: AppState = directory::read_config();
-    init_state.reinit_config();
-
     let (client, rpc_receiver) = Client::new();
 
-    let state = Arc::new(Mutex::new(client));
+    let state = Arc::new(Mutex::new(directory::read_config()));
     let state_clone = state.clone();
 
-    init_state.core = state;
-    init_state.core.lock().unwrap().client_started(None, None);
+    client.client_started(None, None);
 
     thread::spawn(move || match rpc_receiver.recv() {
         Ok(operations) => {
-            let guard = state_clone.lock().unwrap();
-            guard.send_notification("", &json!({}));
+            state_clone.lock().unwrap().handle_event(operations);
         }
         Err(err) => {}
     });
+
+    let mut init_state: AppState = state.lock().unwrap().to_owned();
+    init_state.reinit_config();
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))

@@ -119,7 +119,6 @@ impl AppState {
         trace!("Handling msg: {:?}", op);
         match op {
             RpcOperations::AvailableThemes(themes) => {
-                println!("themes: {:?}", themes);
                 self.core
                     .lock()
                     .unwrap()
