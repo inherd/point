@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
 use std::rc::Rc;
+use std::sync::mpsc::channel;
 use std::sync::{Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
@@ -91,16 +92,46 @@ impl Client {
         thread::spawn(move || {
             let mut buf = String::new();
             while receiver.read_line(&mut buf).is_ok() {
-                let msg = Message::decode(&buf).unwrap();
+                let msg = match Message::decode(&buf) {
+                    Ok(x) => x,
+                    Err(err) => {
+                        println!("buf: {}", buf);
+                        println!("error: {:?}", err);
+                        Message::Notification(Notification {
+                            method: "".to_string(),
+                            params: Default::default(),
+                        });
+                        continue;
+                    }
+                };
                 trace!("Received message from xi: {:?}", msg);
                 match msg {
-                    Message::Request(res) => {}
-                    Message::Response(_) => {}
-                    Message::Notification(_) => {}
+                    Message::Request(res) => {
+                        let Request { method, params, id } = res;
+                        let operation = match method.as_str() {
+                            "measure_width" => RpcOperations::MeasureWidth((
+                                id,
+                                from_value::<MeasureWidth>(params).unwrap(),
+                            )),
+                            _ => {
+                                unreachable!("Unknown method {}", method);
+                            }
+                        };
+                        // sender.lock().unwrap().send(operation.).unwrap();
+                    }
+                    Message::Response(res) => {
+                        let Response { id, result } = res;
+                    }
+                    Message::Notification(res) => {
+                        let Notification { method, params } = res;
+                        let operation = Client::handle_notification(method, params);
+                        // sender.lock().unwrap().send(operation).unwrap();
+                    }
                 }
-                // Client::handle_notification()
             }
         });
+
+        client.client_started(None, None);
 
         client
     }
