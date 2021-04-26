@@ -4,6 +4,7 @@
 
 Todos for spike:
 
+ - [ ] refactor app_state;
  - [ ] IDEA like layout
     - [x] basic layout structure
     - [x] flex layout spike
