@@ -116,26 +116,15 @@ pub fn main() {
     init_state.reinit_config();
 
     let (client, rpc_receiver) = Client::new();
-    init_state.client = client;
+    init_state.client = client.clone();
     init_state.client.client_started(None, None);
 
-    thread::spawn(move || {
+    thread::spawn(glib::clone!(@strong init_state => @default-panic, move || {
         match rpc_receiver.recv() {
-            Ok(operations) => match operations {
-                RpcOperations::AvailableThemes(themes) => {
-                    println!("themes: {:?}", themes);
-                }
-                RpcOperations::AvailableLanguages(langs) => {
-                    println!("langs: {:?}", langs);
-                }
-                _ => {}
-            },
-            Err(err) => {
-                println!("{:?}", err);
-            }
+            Ok(operations) => init_state.handle_event(operations),
+            Err(err) => {}
         }
-        // cache for format
-    });
+    }));
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
