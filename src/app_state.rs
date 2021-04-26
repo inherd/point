@@ -7,10 +7,11 @@ use std::sync::Arc;
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, RpcOperations};
+use crate::client::RpcOperations;
 use crate::model::file_tree::FileEntry;
 use crate::support::directory;
-use std::rc::Rc;
+use serde_json::Value;
+use xi_rpc::{RemoteError, RpcCall, RpcCtx};
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -19,9 +20,9 @@ pub struct AppState {
     pub params: Params,
     pub entry: FileEntry,
 
-    #[serde(skip_serializing, skip_deserializing)]
-    pub client: Rc<Client>,
+    pub editor_event: EditorEvent,
 
+    // #[serde(skip_serializing, skip_deserializing)]
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
     #[serde(default)]
@@ -38,7 +39,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            client: Client::new().0,
+            editor_event: Default::default(),
             current_file: None,
             current_dir: None,
             last_dir: None,
@@ -114,18 +115,34 @@ impl AppState {
             &self.set_dir(path.to_path_buf());
         }
     }
+}
 
-    pub fn handle_event(&self, op: RpcOperations) {
-        trace!("Handling msg: {:?}", op);
-        match op {
-            RpcOperations::AvailableThemes(themes) => {
-                println!("themes: {:?}", themes);
-                self.client
-                    .send_notification("set_theme", &json!({ "theme_name": "demo" }));
-            }
-            RpcOperations::AvailableLanguages(langs) => {}
-            _ => {}
-        }
+#[derive(Serialize, Deserialize, Clone, Data, Lens, Debug, Copy)]
+pub struct EditorEvent {}
+
+impl Default for EditorEvent {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
+impl xi_rpc::Handler for EditorEvent {
+    type Notification = RpcCall;
+    type Request = RpcCall;
+
+    fn handle_notification(&mut self, ctx: &RpcCtx, rpc: Self::Notification) {
+        debug!("handle notification: {}", rpc.method.as_str());
+        match rpc.method.as_str() {
+            "available_languages" => debug!("{}", &rpc.method),
+            "available_themes" => debug!("{}", &rpc.method),
+            "available_plugins" => debug!("{}", &rpc.method),
+            _ => warn!("unhandled notif \"{}\" -> {}", &rpc.method, &rpc.params),
+        };
+    }
+
+    fn handle_request(&mut self, _ctx: &RpcCtx, rpc: Self::Request) -> Result<Value, RemoteError> {
+        info!("[request] {} -> {:#?}", rpc.method, rpc.params);
+        Ok(json!({}))
     }
 }
 
