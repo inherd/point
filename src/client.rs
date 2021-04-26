@@ -56,8 +56,8 @@ impl Data for Client {
 
 impl Default for Client {
     fn default() -> Self {
-        let (mut _receiver, sender) = Client::start_xi_thread();
-        let client = Client { sender };
+        let (mut _receiver, to_core_tx) = Client::start_xi_thread();
+        let client = Client { sender: to_core_tx };
 
         client
     }
@@ -98,12 +98,7 @@ impl Client {
                     Ok(x) => x,
                     Err(err) => {
                         println!("buf: {}", buf);
-                        println!("error: {:?}", err);
-                        Message::Notification(Notification {
-                            method: "".to_string(),
-                            params: Default::default(),
-                        });
-                        continue;
+                        panic!("{:?}", err);
                     }
                 };
                 trace!("Received message from xi: {:?}", msg);
