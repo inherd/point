@@ -7,20 +7,17 @@ use std::sync::Arc;
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, RpcOperations};
+use crate::client::RpcOperations;
 use crate::model::file_tree::FileEntry;
 use crate::support::directory;
-use std::rc::Rc;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
+// #[serde(skip_serializing, skip_deserializing)]
 pub struct AppState {
     pub title: String,
     pub workspace: Workspace,
     pub params: Params,
     pub entry: FileEntry,
-
-    #[serde(skip_serializing, skip_deserializing)]
-    pub client: Rc<Client>,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -38,7 +35,6 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            client: Client::new().0,
             current_file: None,
             current_dir: None,
             last_dir: None,
@@ -118,12 +114,8 @@ impl AppState {
     pub fn handle_event(&self, op: RpcOperations) {
         trace!("Handling msg: {:?}", op);
         match op {
-            RpcOperations::AvailableThemes(themes) => {
-                println!("themes: {:?}", themes);
-                self.client
-                    .send_notification("set_theme", &json!({ "theme_name": "demo" }));
-            }
-            RpcOperations::AvailableLanguages(langs) => {}
+            RpcOperations::AvailableThemes(_themes) => {}
+            RpcOperations::AvailableLanguages(_langs) => {}
             _ => {}
         }
     }
