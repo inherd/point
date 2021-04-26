@@ -20,7 +20,7 @@ pub struct AppState {
     pub entry: FileEntry,
 
     #[serde(skip_serializing, skip_deserializing)]
-    pub client: Arc<Mutex<Client>>,
+    pub core: Arc<Mutex<Client>>,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -38,7 +38,7 @@ impl Default for AppState {
             workspace: Default::default(),
             params: Default::default(),
             entry: Default::default(),
-            client: Arc::new(Mutex::new(Default::default())),
+            core: Arc::new(Mutex::new(Default::default())),
             current_file: None,
             current_dir: None,
             last_dir: None,
@@ -120,7 +120,7 @@ impl AppState {
         match op {
             RpcOperations::AvailableThemes(themes) => {
                 println!("themes: {:?}", themes);
-                self.client
+                self.core
                     .lock()
                     .unwrap()
                     .send_notification("set_theme", &json!({ "theme_name": "demo" }));

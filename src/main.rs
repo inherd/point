@@ -121,8 +121,8 @@ pub fn main() {
     let state = Arc::new(Mutex::new(client));
     let state_clone = state.clone();
 
-    init_state.client = state;
-    init_state.client.lock().unwrap().client_started(None, None);
+    init_state.core = state;
+    init_state.core.lock().unwrap().client_started(None, None);
 
     thread::spawn(move || match rpc_receiver.recv() {
         Ok(operations) => {
