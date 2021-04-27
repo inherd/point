@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::client::{Client, RpcOperations};
 use crate::model::file_tree::FileEntry;
 use crate::support::directory;
-use std::rc::Rc;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {

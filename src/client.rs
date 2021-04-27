@@ -1,4 +1,3 @@
-use crate::errors::DecodeError;
 use crate::message::{Message, Notification, Request, Response};
 use crate::structs::{
     Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, FindStatus,
@@ -13,9 +12,7 @@ use std::cell::Cell;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
-use std::rc::Rc;
-use std::sync::mpsc::{channel, Receiver, SendError};
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
 use xi_rpc::RpcLoop;
@@ -52,7 +49,7 @@ impl Clone for Client {
 }
 
 impl Data for Client {
-    fn same(&self, other: &Self) -> bool {
+    fn same(&self, _other: &Self) -> bool {
         return true;
     }
 }
