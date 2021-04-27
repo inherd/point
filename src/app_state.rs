@@ -115,7 +115,7 @@ impl AppState {
     }
 
     pub fn handle_event(&self, op: RpcOperations) {
-        let core = self.core.lock().unwrap();
+        let mut core = self.core.lock().unwrap();
         match op {
             RpcOperations::AvailableThemes(_themes) => {
                 core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));

@@ -158,7 +158,11 @@ impl Client {
         (from_core_rx, to_core_tx)
     }
 
-    pub fn client_started(&self, config_dir: Option<&String>, client_extras_dir: Option<&String>) {
+    pub fn client_started(
+        &mut self,
+        config_dir: Option<&String>,
+        client_extras_dir: Option<&String>,
+    ) {
         self.send_notification(
             "client_started",
             &json!({
@@ -168,16 +172,16 @@ impl Client {
         );
     }
 
-    pub fn send_notification(&self, method: &str, params: &Value) {
+    pub fn send_notification(&mut self, method: &str, params: &Value) {
         let cmd = json!({
             "method": method,
             "params": params,
         });
-        let mut sender = self.sender.clone();
+
         println!("Xi-CORE <-- {}", cmd);
-        sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
-        sender.write_all(b"\n").unwrap();
-        sender.flush().unwrap();
+        self.sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
+        self.sender.write_all(b"\n").unwrap();
+        self.sender.flush().unwrap();
     }
 
     pub fn handle_notification(method: String, params: Value) -> RpcOperations {
