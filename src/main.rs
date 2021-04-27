@@ -17,12 +17,13 @@ use print::menu;
 pub use support::line;
 
 use crate::app_delegate::Delegate;
-use crate::app_state::{EditorEvent, Workspace};
+use crate::app_state::Workspace;
 use crate::components::icon_button::IconButton;
 use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
+use crate::client::{Client, RpcOperations};
 
 pub mod app_command;
 pub mod app_delegate;
@@ -43,8 +44,11 @@ pub use crate::structs::{
     PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
     StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
 };
+use std::io::BufRead;
+use std::sync::mpsc::RecvError;
+use std::sync::{Arc, Mutex};
 use std::thread;
-use xi_rpc::{Peer, RpcLoop};
+use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -109,25 +113,22 @@ fn make_ui() -> impl Widget<AppState> {
 pub fn main() {
     let title = "Print UI";
 
-    let mut init_state: AppState = directory::read_config();
-    init_state.reinit_config();
+    let (client, rpc_receiver) = Client::new();
 
-    let (client_to_core_writer, core_to_client_reader, client_to_client_writer) =
-        client::start_xi_core();
-    let mut front_event_loop = RpcLoop::new(client_to_core_writer);
+    let state = Arc::new(Mutex::new(directory::read_config()));
+    let state_clone = state.clone();
 
-    let raw_peer = front_event_loop.get_raw_peer();
-    raw_peer.send_rpc_notification("client_started", &json!({ "config_dir": "", }));
+    client.client_started(None, None);
 
-    let mut editor_event = EditorEvent::default();
-
-    thread::spawn(move || {
-        front_event_loop
-            .mainloop(|| core_to_client_reader, &mut editor_event)
-            .unwrap();
+    thread::spawn(move || match rpc_receiver.recv() {
+        Ok(operations) => {
+            state_clone.lock().unwrap().handle_event(operations);
+        }
+        Err(err) => {}
     });
 
-    init_state.editor_event = editor_event;
+    let mut init_state: AppState = state.lock().unwrap().to_owned();
+    init_state.reinit_config();
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
