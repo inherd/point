@@ -60,7 +60,7 @@ impl AppState {
 
         self.workspace.input_text = out.to_string();
         let buf = path.clone().unwrap().to_path_buf();
-        self.workspace.current_file = Arc::new(buf);
+        self.workspace.current_file = Arc::new(buf.clone());
 
         let file_path = buf.display().to_string();
         self.core
