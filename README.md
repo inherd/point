@@ -35,6 +35,8 @@ Todos for spike:
     - [ ] auto save file
     - [ ] count chars length
     - [ ] undo
+ - [ ] plugin system
+    - [ ] use xi-editor plugins
  - [ ] toolbar for run tasks
      - [ ] run
      - [ ] debug
