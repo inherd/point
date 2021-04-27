@@ -59,9 +59,10 @@ impl AppState {
         let out = String::from_utf8_lossy(&*file_content);
 
         self.workspace.input_text = out.to_string();
-        self.workspace.current_file = Arc::new(path.clone().unwrap().to_path_buf());
+        let buf = path.clone().unwrap().to_path_buf();
+        self.workspace.current_file = Arc::new(buf);
 
-        let file_path = path.clone().unwrap().to_path_buf().display().to_string();
+        let file_path = buf.display().to_string();
         self.core
             .lock()
             .unwrap()
