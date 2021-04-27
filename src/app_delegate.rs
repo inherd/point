@@ -22,7 +22,7 @@ impl AppDelegate<AppState> for Delegate {
         if let Some(info) = cmd.get(print_command::SET_FILE) {
             let path = PathBuf::from(info.path.as_str());
             log::info!("open file: {:?}", path.display());
-            data.set_file(path);
+            data.open_file(path);
             return Handled::Yes;
         } else if cmd.is(druid::commands::SAVE_FILE) {
             return Delegate::save_file(data);
@@ -56,7 +56,7 @@ impl Delegate {
                     data.set_dir(Some(parent.to_owned()));
                 }
 
-                data.set_file(info.path().to_owned());
+                data.open_file(info.path().to_owned());
                 ctx.submit_command(print_command::OPEN);
                 return Handled::Yes;
             }

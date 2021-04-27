@@ -184,6 +184,44 @@ impl Client {
         self.sender.flush().unwrap();
     }
 
+    pub fn new_view<F>(&mut self, file_path: Option<&String>, callback: F)
+    where
+        F: FnOnce(Result<Value, Value>) + Send + 'static,
+    {
+        self.send_request(
+            "new_view",
+            &json!({
+                "file_path": file_path,
+            }),
+            callback,
+        );
+    }
+
+    /// Calls the callback with the result (from a different thread).
+    fn send_request<F>(&mut self, method: &str, params: &Value, callback: F)
+    where
+        F: FnOnce(Result<Value, Value>) + Send + 'static,
+    {
+        let cmd = json!({
+            "method": method,
+            "params": params,
+            "id": self.current_request_id,
+        });
+        let id = { self.current_request_id.get() };
+        debug!(
+            "Xi-CORE <-- {{\"id\"={}, \"method\": {}, \"params\":{}}}",
+            id, method, params
+        );
+        self.sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
+        self.sender.write_all(b"\n").unwrap();
+        self.sender.flush().unwrap();
+        self.pending_requests
+            .lock()
+            .unwrap()
+            .insert(id, Box::new(callback));
+        self.current_request_id.set(id + 1);
+    }
+
     pub fn handle_notification(method: String, params: Value) -> RpcOperations {
         match method.as_str() {
             "update" => RpcOperations::Update(from_value::<Update>(params).unwrap()),

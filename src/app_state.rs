@@ -46,7 +46,7 @@ impl Default for AppState {
 }
 
 impl AppState {
-    pub fn set_file(&mut self, path: impl Into<Option<PathBuf>>) {
+    pub fn open_file(&mut self, path: impl Into<Option<PathBuf>>) {
         let path: Option<Arc<Path>> = path.into().map(Into::into);
 
         let mut file_content: Vec<u8> = Vec::new();
@@ -60,6 +60,14 @@ impl AppState {
 
         self.workspace.input_text = out.to_string();
         self.workspace.current_file = Arc::new(path.clone().unwrap().to_path_buf());
+
+        let file_path = path.clone().unwrap().to_path_buf().display().to_string();
+        self.core
+            .lock()
+            .unwrap()
+            .new_view(Some(&file_path), move |res| {
+                println!("{:?}", res);
+            });
 
         self.current_file = path;
         self.save_global_config();
@@ -107,7 +115,7 @@ impl AppState {
     pub fn setup_workspace(&mut self) {
         println!("init state: {:?}", self);
         if let Some(path) = self.current_file.clone() {
-            &self.set_file(path.to_path_buf());
+            &self.open_file(path.to_path_buf());
         }
         if let Some(path) = self.current_dir.clone() {
             &self.set_dir(path.to_path_buf());
