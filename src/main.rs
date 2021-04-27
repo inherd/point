@@ -122,6 +122,8 @@ pub fn main() {
     let state_clone = state.clone();
 
     let mut init_state: AppState = state.lock().unwrap().to_owned();
+
+    client.client_started(None, None);
     init_state.core = Arc::new(Mutex::new(client));
     init_state.setup_workspace();
 
@@ -141,11 +143,11 @@ pub fn main() {
         .client_started(None, None);
 
     thread::spawn(move || {
-        while rpc_receiver.recv().is_ok() {
-            println!("rpc_receiver");
+        loop {
             match rpc_receiver.recv() {
                 Ok(operations) => {
-                    state_clone.lock().unwrap().handle_event(operations);
+                    debug!("operations: {:?}", operations);
+                    // state_clone.lock().unwrap().handle_event(operations);
                 }
                 Err(err) => {
                     println!("{:?}", err);
