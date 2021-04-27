@@ -5,7 +5,6 @@ use crate::structs::{
     LanguageChanged, MeasureWidth, PluginStarted, PluginStopped, ReplaceStatus, ScrollTo, Style,
     ThemeChanged, Update, UpdateCmds,
 };
-use crossbeam_channel::unbounded;
 use druid::Data;
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{self, from_value, json, to_vec, Value};
@@ -15,7 +14,7 @@ use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
 use std::rc::Rc;
 use std::sync::mpsc::{channel, Receiver};
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
 use xi_rpc::RpcLoop;
@@ -86,11 +85,11 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> (Client, crossbeam_channel::Receiver<RpcOperations>) {
+    pub fn new() -> (Client, Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
         let client = Client { sender };
 
-        let (rpc_sender, rpc_receiver) = unbounded();
+        let (rpc_sender, rpc_receiver) = mpsc::channel();
 
         thread::spawn(move || {
             let mut buf = String::new();
@@ -101,11 +100,11 @@ impl Client {
                 let msg = match Message::decode(&buf) {
                     Ok(x) => x,
                     Err(err) => {
-                        println!("buf: {}", buf);
+                        log::info!("buf: {}", buf);
                         panic!("{:?}", err);
                     }
                 };
-                trace!("Received message from xi: {:?}", msg);
+                log::info!("Received message from xi: {:?}", msg);
                 match msg {
                     Message::Request(res) => {
                         let Request { method, params, id } = res;

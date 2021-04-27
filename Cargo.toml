@@ -39,6 +39,7 @@ glib = "0.10"
 
 syntect = "3"
 
+# todo: move to crossbeam channel
 crossbeam-channel = ""
 
 [dependencies.xi-core-lib]
