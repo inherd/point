@@ -11,3 +11,4 @@ pub mod bar_support;
 pub mod color;
 pub mod edit_view;
 pub mod menu;
+pub mod tabs;

@@ -31,6 +31,7 @@ pub mod app_state;
 pub mod client;
 pub mod components;
 pub mod errors;
+pub mod file_manager;
 pub mod message;
 pub mod model;
 pub mod print;
