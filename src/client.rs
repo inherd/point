@@ -101,9 +101,6 @@ impl Client {
         thread::spawn(move || {
             let mut buf = String::new();
             while receiver.read_line(&mut buf).is_ok() {
-                if buf.len() == 0 {
-                    return;
-                }
                 let msg = match Message::decode(&buf) {
                     Ok(x) => x,
                     Err(err) => {
@@ -173,7 +170,7 @@ impl Client {
             "params": params,
         });
         let mut sender = self.sender.lock().unwrap();
-        debug!("Xi-CORE <-- {}", cmd);
+        println!("Xi-CORE <-- {}", cmd);
         sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
         sender.write_all(b"\n").unwrap();
         sender.flush().unwrap();
