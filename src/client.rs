@@ -134,7 +134,6 @@ impl Client {
                     }
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
-                        log::info!("notification - method: {}, params: {}", method, params);
                         let operation = Client::handle_notification(method, params);
                         if let Err(err) = rpc_sender.send(operation) {
                             log::error!("{}", err);
@@ -147,6 +146,37 @@ impl Client {
         });
 
         (client, rpc_receiver)
+    }
+
+    fn start_xi_thread() -> (XiReceiver, XiSender) {
+        let (to_core_rx, to_core_tx) = pipe();
+        let (from_core_rx, from_core_tx) = pipe();
+        let mut state = XiCore::new();
+        let mut rpc_looper = RpcLoop::new(from_core_tx);
+        thread::spawn(move || rpc_looper.mainloop(|| to_core_rx, &mut state));
+        (from_core_rx, Mutex::new(to_core_tx))
+    }
+
+    pub fn client_started(&self, config_dir: Option<&String>, client_extras_dir: Option<&String>) {
+        self.send_notification(
+            "client_started",
+            &json!({
+                "config_dir": config_dir,
+                "client_extras_dir": client_extras_dir,
+            }),
+        );
+    }
+
+    pub fn send_notification(&self, method: &str, params: &Value) {
+        let cmd = json!({
+            "method": method,
+            "params": params,
+        });
+        let mut sender = self.sender.lock().unwrap();
+        debug!("Xi-CORE <-- {}", cmd);
+        sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
+        sender.write_all(b"\n").unwrap();
+        sender.flush().unwrap();
     }
 
     pub fn handle_notification(method: String, params: Value) -> RpcOperations {
@@ -189,36 +219,5 @@ impl Client {
                 // unreachable!("Unknown method {}", method)
             }
         }
-    }
-
-    fn start_xi_thread() -> (XiReceiver, XiSender) {
-        let (to_core_rx, to_core_tx) = pipe();
-        let (from_core_rx, from_core_tx) = pipe();
-        let mut state = XiCore::new();
-        let mut rpc_looper = RpcLoop::new(from_core_tx);
-        thread::spawn(move || rpc_looper.mainloop(|| to_core_rx, &mut state));
-        (from_core_rx, Mutex::new(to_core_tx))
-    }
-
-    pub fn client_started(&self, config_dir: Option<&String>, client_extras_dir: Option<&String>) {
-        self.send_notification(
-            "client_started",
-            &json!({
-                "config_dir": config_dir,
-                "client_extras_dir": client_extras_dir,
-            }),
-        );
-    }
-
-    pub fn send_notification(&self, method: &str, params: &Value) {
-        let cmd = json!({
-            "method": method,
-            "params": params,
-        });
-        let mut sender = self.sender.lock().unwrap();
-        debug!("Xi-CORE <-- {}", cmd);
-        sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
-        sender.write_all(b"\n").unwrap();
-        sender.flush().unwrap();
     }
 }

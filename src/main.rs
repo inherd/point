@@ -46,6 +46,8 @@ pub use crate::structs::{
 };
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::thread::sleep;
+use std::time::Duration;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -117,12 +119,18 @@ pub fn main() {
 
     client.client_started(None, None);
 
-    thread::spawn(move || match rpc_receiver.recv() {
-        Ok(operations) => {
-            state_clone.lock().unwrap().handle_event(operations);
-        }
-        Err(err) => {
-            println!("{:?}", err);
+    sleep(Duration::from_millis(200));
+
+    thread::spawn(move || {
+        while rpc_receiver.recv().is_ok() {
+            match rpc_receiver.recv() {
+                Ok(operations) => {
+                    state_clone.lock().unwrap().handle_event(operations);
+                }
+                Err(err) => {
+                    println!("{:?}", err);
+                }
+            }
         }
     });
 
