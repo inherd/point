@@ -115,7 +115,6 @@ impl AppState {
     }
 
     pub fn handle_event(&self, op: RpcOperations) {
-        log::info!("Handling msg: {:?}", op);
         let core = self.core.lock().unwrap();
         match op {
             RpcOperations::AvailableThemes(_themes) => {

@@ -17,7 +17,7 @@ use std::{fmt, thread};
 use xi_core_lib::XiCore;
 use xi_rpc::RpcLoop;
 
-type XiSender = Mutex<PipeWriter>;
+type XiSender = PipeWriter;
 type XiReceiver = PipeReader;
 
 pub trait Callback: Send {
@@ -44,7 +44,11 @@ impl fmt::Debug for Client {
 
 impl Clone for Client {
     fn clone(&self) -> Self {
-        self.clone()
+        Self {
+            sender: self.sender.clone(),
+            pending_requests: self.pending_requests.clone(),
+            current_request_id: self.current_request_id.clone(),
+        }
     }
 }
 
@@ -151,7 +155,7 @@ impl Client {
         let mut state = XiCore::new();
         let mut rpc_looper = RpcLoop::new(from_core_tx);
         thread::spawn(move || rpc_looper.mainloop(|| to_core_rx, &mut state));
-        (from_core_rx, Mutex::new(to_core_tx))
+        (from_core_rx, to_core_tx)
     }
 
     pub fn client_started(&self, config_dir: Option<&String>, client_extras_dir: Option<&String>) {
@@ -169,7 +173,7 @@ impl Client {
             "method": method,
             "params": params,
         });
-        let mut sender = self.sender.lock().unwrap();
+        let mut sender = self.sender.clone();
         println!("Xi-CORE <-- {}", cmd);
         sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
         sender.write_all(b"\n").unwrap();

@@ -117,33 +117,32 @@ pub fn main() {
 
     let (client, rpc_receiver) = Client::new();
 
-    let state = Arc::new(Mutex::new(directory::read_config()));
-    let state_clone = state.clone();
-
-    let mut init_state: AppState = state.lock().unwrap().to_owned();
-
+    let mut init = directory::read_config();
     let client = Arc::new(Mutex::new(client));
     client.lock().unwrap().client_started(None, None);
 
-    init_state.core = client;
-    init_state.setup_workspace();
+    init.core = client;
+    init.setup_workspace();
 
-    let main_window = WindowDesc::new(make_ui())
-        .window_size((1024., 768.))
-        .with_min_size((1024., 768.))
-        .menu(menu::make_menu)
-        .title(title);
+    let state = Arc::new(Mutex::new(init));
+    let init_state = state.lock().unwrap().to_owned();
 
     thread::spawn(move || loop {
         match rpc_receiver.recv() {
             Ok(operations) => {
-                state_clone.lock().unwrap().handle_event(operations);
+                state.lock().unwrap().handle_event(operations);
             }
             Err(err) => {
                 error!("{:?}", err);
             }
         }
     });
+
+    let main_window = WindowDesc::new(make_ui())
+        .window_size((1024., 768.))
+        .with_min_size((1024., 768.))
+        .menu(menu::make_menu)
+        .title(title);
 
     AppLauncher::with_window(main_window)
         .delegate(Delegate::default())
