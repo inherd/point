@@ -5,6 +5,7 @@ use crate::structs::{
     LanguageChanged, MeasureWidth, PluginStarted, PluginStopped, ReplaceStatus, ScrollTo, Style,
     ThemeChanged, Update, UpdateCmds,
 };
+use crossbeam_channel::unbounded;
 use druid::Data;
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{self, from_value, json, to_vec, Value};
@@ -14,7 +15,7 @@ use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
 use std::rc::Rc;
 use std::sync::mpsc::{channel, Receiver};
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
 use xi_rpc::RpcLoop;
@@ -33,18 +34,20 @@ impl<F: FnOnce(Result<Value, Value>) + Send> Callback for F {
 }
 
 pub struct Client {
-    pub sender: XiSender,
+    sender: XiSender,
+    pending_requests: Arc<Mutex<HashMap<u64, Box<dyn Callback>>>>,
+    current_request_id: Cell<u64>,
 }
 
 impl fmt::Debug for Client {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_str("")
+        f.write_str(format!("current_request_id: {:?}", self.current_request_id).as_str())
     }
 }
 
 impl Clone for Client {
     fn clone(&self) -> Self {
-        todo!()
+        self.clone()
     }
 }
 
@@ -56,10 +59,12 @@ impl Data for Client {
 
 impl Default for Client {
     fn default() -> Self {
-        let (mut _receiver, to_core_tx) = Client::start_xi_thread();
-        let client = Client { sender: to_core_tx };
-
-        client
+        let (mut _receiver, sender) = Client::start_xi_thread();
+        Client {
+            sender,
+            pending_requests: Arc::new(Mutex::new(HashMap::new())),
+            current_request_id: Cell::new(0),
+        }
     }
 }
 
@@ -85,11 +90,16 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> (Client, Receiver<RpcOperations>) {
+    pub fn new() -> (Client, crossbeam_channel::Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
-        let client = Client { sender };
+        let client = Client {
+            sender,
+            pending_requests: Arc::new(Mutex::new(HashMap::new())),
+            current_request_id: Cell::new(0),
+        };
 
-        let (rpc_sender, rpc_receiver) = mpsc::channel();
+        let (rpc_sender, rpc_receiver) = unbounded();
+        let pending_requests = client.pending_requests.clone();
 
         thread::spawn(move || {
             let mut buf = String::new();
@@ -121,9 +131,13 @@ impl Client {
                     }
                     Message::Response(res) => {
                         let Response { id, result } = res;
+                        if let Some(cb) = pending_requests.lock().unwrap().remove(&id) {
+                            cb.call(result);
+                        }
                     }
                     Message::Notification(res) => {
                         let Notification { method, params } = res;
+                        log::info!("notification - method: {}, params: {}", method, params);
                         let operation = Client::handle_notification(method, params);
                         rpc_sender.send(operation).unwrap();
                     }
