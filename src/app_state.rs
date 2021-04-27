@@ -117,12 +117,10 @@ impl AppState {
 
     pub fn handle_event(&self, op: RpcOperations) {
         trace!("Handling msg: {:?}", op);
+        let core = self.core.lock().unwrap();
         match op {
             RpcOperations::AvailableThemes(themes) => {
-                self.core
-                    .lock()
-                    .unwrap()
-                    .send_notification("set_theme", &json!({ "theme_name": "demo" }));
+                core.send_notification("set_theme", &json!({ "theme_name": "demo" }));
             }
             RpcOperations::AvailableLanguages(langs) => {}
             _ => {}

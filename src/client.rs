@@ -129,6 +129,8 @@ impl Client {
                         rpc_sender.send(operation).unwrap();
                     }
                 }
+
+                buf.clear();
             }
         });
 

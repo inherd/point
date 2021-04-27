@@ -124,7 +124,9 @@ pub fn main() {
         Ok(operations) => {
             state_clone.lock().unwrap().handle_event(operations);
         }
-        Err(err) => {}
+        Err(err) => {
+            println!("{:?}", err);
+        }
     });
 
     let mut init_state: AppState = state.lock().unwrap().to_owned();
