@@ -23,7 +23,7 @@ use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
-use crate::client::{Client, RpcOperations};
+use crate::client::Client;
 
 pub mod app_command;
 pub mod app_delegate;
@@ -44,11 +44,8 @@ pub use crate::structs::{
     PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
     StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
 };
-use std::io::BufRead;
-use std::sync::mpsc::RecvError;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())

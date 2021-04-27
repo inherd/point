@@ -15,7 +15,7 @@ use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, Write};
 use std::rc::Rc;
 use std::sync::mpsc::{channel, Receiver};
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::{fmt, thread};
 use xi_core_lib::XiCore;
 use xi_rpc::RpcLoop;
@@ -90,7 +90,7 @@ pub enum RpcOperations {
 }
 
 impl Client {
-    pub fn new() -> (Client, crossbeam_channel::Receiver<RpcOperations>) {
+    pub fn new() -> (Client, Receiver<RpcOperations>) {
         let (mut receiver, sender) = Client::start_xi_thread();
         let client = Client {
             sender,
@@ -98,7 +98,7 @@ impl Client {
             current_request_id: Cell::new(0),
         };
 
-        let (rpc_sender, rpc_receiver) = unbounded();
+        let (rpc_sender, rpc_receiver) = mpsc::channel();
         let pending_requests = client.pending_requests.clone();
 
         thread::spawn(move || {

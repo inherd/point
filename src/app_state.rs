@@ -119,10 +119,10 @@ impl AppState {
         log::info!("Handling msg: {:?}", op);
         let core = self.core.lock().unwrap();
         match op {
-            RpcOperations::AvailableThemes(themes) => {
-                core.send_notification("set_theme", &json!({ "theme_name": "demo" }));
+            RpcOperations::AvailableThemes(_themes) => {
+                core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
             }
-            RpcOperations::AvailableLanguages(langs) => {}
+            RpcOperations::AvailableLanguages(_langs) => {}
             _ => {}
         }
     }
