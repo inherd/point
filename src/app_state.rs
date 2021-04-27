@@ -104,7 +104,7 @@ impl AppState {
         directory::save_config(&current_state);
     }
 
-    pub fn reinit_config(&mut self) {
+    pub fn setup_workspace(&mut self) {
         println!("init state: {:?}", self);
         if let Some(path) = self.current_file.clone() {
             &self.set_file(path.to_path_buf());

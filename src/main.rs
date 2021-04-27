@@ -46,8 +46,7 @@ pub use crate::structs::{
 };
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::thread::sleep;
-use std::time::Duration;
+use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -112,17 +111,38 @@ fn make_ui() -> impl Widget<AppState> {
 pub fn main() {
     let title = "Print UI";
 
+    xi_trace::enable_tracing();
+    if xi_trace::is_enabled() {
+        info!("tracing started")
+    }
+
     let (client, rpc_receiver) = Client::new();
 
     let state = Arc::new(Mutex::new(directory::read_config()));
     let state_clone = state.clone();
 
-    client.client_started(None, None);
+    let mut init_state: AppState = state.lock().unwrap().to_owned();
+    init_state.core = Arc::new(Mutex::new(client));
+    init_state.setup_workspace();
 
-    sleep(Duration::from_millis(200));
+    let main_window = WindowDesc::new(make_ui())
+        .window_size((1024., 768.))
+        .with_min_size((1024., 768.))
+        .menu(menu::make_menu)
+        .title(title);
+
+    // todo: review AppState with XiCore client processor
+    state_clone
+        .lock()
+        .unwrap()
+        .core
+        .lock()
+        .unwrap()
+        .client_started(None, None);
 
     thread::spawn(move || {
         while rpc_receiver.recv().is_ok() {
+            println!("rpc_receiver");
             match rpc_receiver.recv() {
                 Ok(operations) => {
                     state_clone.lock().unwrap().handle_event(operations);
@@ -133,15 +153,6 @@ pub fn main() {
             }
         }
     });
-
-    let mut init_state: AppState = state.lock().unwrap().to_owned();
-    init_state.reinit_config();
-
-    let main_window = WindowDesc::new(make_ui())
-        .window_size((1024., 768.))
-        .with_min_size((1024., 768.))
-        .menu(menu::make_menu)
-        .title(title);
 
     AppLauncher::with_window(main_window)
         .delegate(Delegate::default())
