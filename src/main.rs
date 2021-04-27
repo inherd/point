@@ -46,7 +46,6 @@ pub use crate::structs::{
 };
 use std::sync::{Arc, Mutex};
 use std::thread;
-use xi_rpc::RpcLoop;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())
@@ -123,8 +122,10 @@ pub fn main() {
 
     let mut init_state: AppState = state.lock().unwrap().to_owned();
 
-    client.client_started(None, None);
-    init_state.core = Arc::new(Mutex::new(client));
+    let client = Arc::new(Mutex::new(client));
+    client.lock().unwrap().client_started(None, None);
+
+    init_state.core = client;
     init_state.setup_workspace();
 
     let main_window = WindowDesc::new(make_ui())
@@ -133,25 +134,13 @@ pub fn main() {
         .menu(menu::make_menu)
         .title(title);
 
-    // todo: review AppState with XiCore client processor
-    state_clone
-        .lock()
-        .unwrap()
-        .core
-        .lock()
-        .unwrap()
-        .client_started(None, None);
-
-    thread::spawn(move || {
-        loop {
-            match rpc_receiver.recv() {
-                Ok(operations) => {
-                    debug!("operations: {:?}", operations);
-                    // state_clone.lock().unwrap().handle_event(operations);
-                }
-                Err(err) => {
-                    println!("{:?}", err);
-                }
+    thread::spawn(move || loop {
+        match rpc_receiver.recv() {
+            Ok(operations) => {
+                state_clone.lock().unwrap().handle_event(operations);
+            }
+            Err(err) => {
+                error!("{:?}", err);
             }
         }
     });
