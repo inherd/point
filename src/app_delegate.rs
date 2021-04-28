@@ -32,7 +32,6 @@ impl AppDelegate<AppState> for Delegate {
         } else if cmd.is(druid::commands::SHOW_ABOUT) {
             let host = ModalHost::new(Delegate::paint_preferences());
             host.lens(AppState::workspace);
-            // .controller(RootWindowController::default());
             return Handled::Yes;
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             return Delegate::open_file(ctx, data, info);
@@ -43,9 +42,9 @@ impl AppDelegate<AppState> for Delegate {
 }
 
 impl Delegate {
-    fn open_file(ctx: &mut DelegateCtx, data: &mut AppState, info: &FileInfo) -> Handled {
+    fn open_file(ctx: &mut DelegateCtx, state: &mut AppState, info: &FileInfo) -> Handled {
         if info.path().is_dir() {
-            data.set_dir(info.path().to_owned());
+            state.set_dir(info.path().to_owned());
             ctx.submit_command(print_command::OPEN);
             return Handled::Yes;
         }
@@ -53,10 +52,10 @@ impl Delegate {
         if let Ok(typ) = infer::get_from_path(info.path()) {
             if let Some(_file_type) = typ {
                 if let Some(parent) = info.path().parent() {
-                    data.set_dir(Some(parent.to_owned()));
+                    state.set_dir(Some(parent.to_owned()));
                 }
 
-                data.open_file(info.path().to_owned());
+                state.open_file(info.path().to_owned());
                 ctx.submit_command(print_command::OPEN);
                 return Handled::Yes;
             }
