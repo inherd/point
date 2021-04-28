@@ -12,7 +12,7 @@ use std::thread;
 
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
-use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
+use druid::{AppLauncher, Color, Target, UnitPoint, WindowDesc};
 
 use app_state::AppState;
 use print::edit_view::EditView;
@@ -33,6 +33,7 @@ use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
+use crate::app_command::print_command;
 
 pub mod app_command;
 pub mod app_delegate;
@@ -127,18 +128,6 @@ pub fn main() {
     let state = Arc::new(Mutex::new(init));
     let mut init_state = state.lock().unwrap().to_owned();
 
-    thread::spawn(move || loop {
-        match rpc_receiver.recv() {
-            Ok(operations) => {
-                state.lock().unwrap().handle_event(operations);
-            }
-            Err(err) => {
-                error!("error: {:?}", err);
-                panic!("{:?}", err);
-            }
-        }
-    });
-
     init_state.setup_workspace();
 
     let main_window = WindowDesc::new(make_ui())
@@ -147,7 +136,24 @@ pub fn main() {
         .menu(menu::make_menu)
         .title(title);
 
-    AppLauncher::with_window(main_window)
+    let launcher = AppLauncher::with_window(main_window);
+    let handler = launcher.get_external_handle();
+
+    thread::spawn(move || loop {
+        match rpc_receiver.recv() {
+            Ok(operations) => {
+                handler
+                    .submit_command(print_command::XI_EVENT, Box::new(operations), Target::Auto)
+                    .expect("Failed to send command");
+            }
+            Err(err) => {
+                error!("error: {:?}", err);
+                panic!("{:?}", err);
+            }
+        }
+    });
+
+    launcher
         .delegate(Delegate::default())
         .configure_env(|env, _| theme::configure_env(env))
         .log_to_console()

@@ -35,6 +35,8 @@ impl AppDelegate<AppState> for Delegate {
             return Handled::Yes;
         } else if let Some(info) = cmd.get(druid::commands::OPEN_FILE) {
             return Delegate::open_file(ctx, data, info);
+        } else if let Some(event) = cmd.get(print_command::XI_EVENT) {
+            println!("event: {:?}", event);
         }
 
         Handled::No
