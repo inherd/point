@@ -68,10 +68,16 @@ impl AppState {
         self.workspace.current_file = Arc::new(buf.clone());
 
         let file_path = buf.display().to_string();
+        let core_clone = self.core.clone();
         self.core
             .lock()
             .unwrap()
-            .new_view(Some(&file_path), move |_res| {});
+            .new_view(Some(&file_path), move |res| {
+                // if let Ok(val) = res {
+                // let id: Option<String> = serde_json::from_value(val).unwrap();
+                // core_clone.lock().unwrap().resize(id.unwrap(), 1024, 800);
+                // }
+            });
 
         self.current_file = path;
         self.save_global_config();
@@ -136,6 +142,7 @@ impl AppState {
                 // core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
             }
             RpcOperations::Update(update) => self.update(update),
+            RpcOperations::MeasureWidth((_id, _measure_width)) => {}
             _ => {}
         }
     }

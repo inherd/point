@@ -172,6 +172,20 @@ impl Client {
         );
     }
 
+    pub fn resize(&mut self, view_id: String, width: u32, height: u32) {
+        self.send_notification(
+            "resize",
+            &json!({
+                "method": "resize",
+                "view_id": view_id,
+                "params": {
+                    "width": width,
+                    "height": height,
+                }
+            }),
+        );
+    }
+
     pub fn send_notification(&mut self, method: &str, params: &Value) {
         let cmd = json!({
             "method": method,
