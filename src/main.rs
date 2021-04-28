@@ -123,10 +123,9 @@ pub fn main() {
     client.lock().unwrap().client_started(None, None);
 
     init.core = client;
-    init.setup_workspace();
 
     let state = Arc::new(Mutex::new(init));
-    let init_state = state.lock().unwrap().to_owned();
+    let mut init_state = state.lock().unwrap().to_owned();
 
     thread::spawn(move || loop {
         match rpc_receiver.recv() {
@@ -138,6 +137,8 @@ pub fn main() {
             }
         }
     });
+
+    init_state.setup_workspace();
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
