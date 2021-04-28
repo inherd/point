@@ -68,11 +68,10 @@ impl AppState {
         self.workspace.current_file = Arc::new(buf.clone());
 
         let file_path = buf.display().to_string();
-        let core_clone = self.core.clone();
         self.core
             .lock()
             .unwrap()
-            .new_view(Some(&file_path), move |res| {
+            .new_view(Some(&file_path), move |_res| {
                 // if let Ok(val) = res {
                 // let id: Option<String> = serde_json::from_value(val).unwrap();
                 // core_clone.lock().unwrap().resize(id.unwrap(), 1024, 800);
