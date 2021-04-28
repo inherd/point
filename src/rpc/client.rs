@@ -178,7 +178,7 @@ impl Client {
             "params": params,
         });
 
-        println!("Xi-CORE <-- {}", cmd);
+        info!("Xi-CORE <-- {}", cmd);
         self.sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
         self.sender.write_all(b"\n").unwrap();
         self.sender.flush().unwrap();
@@ -208,7 +208,7 @@ impl Client {
             "id": self.current_request_id,
         });
         let id = { self.current_request_id.get() };
-        debug!(
+        info!(
             "Xi-CORE <-- {{\"id\"={}, \"method\": {}, \"params\":{}}}",
             id, method, params
         );
