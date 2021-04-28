@@ -7,6 +7,9 @@ extern crate xi_trace;
 #[macro_use]
 extern crate log;
 
+use std::sync::{Arc, Mutex};
+use std::thread;
+
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
@@ -14,6 +17,13 @@ use druid::{AppLauncher, Color, UnitPoint, WindowDesc};
 use app_state::AppState;
 use print::edit_view::EditView;
 use print::menu;
+use rpc::client::Client;
+pub use rpc::structs::{
+    Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, ConfigChanges,
+    FindStatus, LanguageChanged, Line, MeasureWidth, ModifySelection, Operation, OperationType,
+    PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
+    StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
+};
 pub use support::line;
 
 use crate::app_delegate::Delegate;
@@ -23,30 +33,17 @@ use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
-use crate::client::Client;
 
 pub mod app_command;
 pub mod app_delegate;
 pub mod app_state;
-pub mod client;
 pub mod components;
-pub mod errors;
 pub mod file_manager;
-pub mod message;
 pub mod model;
 pub mod print;
-pub mod structs;
+pub mod rpc;
 pub mod support;
 pub mod theme;
-
-pub use crate::structs::{
-    Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, ConfigChanges,
-    FindStatus, LanguageChanged, Line, MeasureWidth, ModifySelection, Operation, OperationType,
-    PluginStarted, PluginStopped, Position, Query, ReplaceStatus, ScrollTo, Status, Style,
-    StyleDef, ThemeChanged, ThemeSettings, Update, UpdateCmds, ViewId,
-};
-use std::sync::{Arc, Mutex};
-use std::thread;
 
 fn navigation_bar() -> impl Widget<AppState> {
     let label = Label::new(|workspace: &Workspace, _env: &Env| workspace.relative_path())

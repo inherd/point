@@ -29,7 +29,7 @@ pub struct Operation {
     pub lines: Vec<Line>,
 }
 
-fn deserialize_operation_type<'de, D>(de: D) -> ::std::result::Result<OperationType, D::Error>
+fn deserialize_operation_type<'de, D>(de: D) -> std::prelude::v1::Result<OperationType, D::Error>
 where
     D: serde::Deserializer<'de>,
 {

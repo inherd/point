@@ -38,7 +38,7 @@ pub struct ReplaceStatus {
 mod test {
     #[test]
     fn test_findstatus() {
-        use crate::structs::findreplace::{FindStatus, Query};
+        use crate::rpc::structs::findreplace::{FindStatus, Query};
         use serde_json;
         use std::str::FromStr;
 
@@ -62,7 +62,7 @@ mod test {
 
     #[test]
     fn test_replacestatus() {
-        use crate::structs::findreplace::{ReplaceStatus, Status};
+        use crate::rpc::structs::findreplace::{ReplaceStatus, Status};
         use serde_json;
         use std::str::FromStr;
 

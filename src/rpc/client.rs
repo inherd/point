@@ -1,5 +1,5 @@
-use crate::message::{Message, Notification, Request, Response};
-use crate::structs::{
+use crate::rpc::message::{Message, Notification, Request, Response};
+use crate::rpc::structs::{
     Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, FindStatus,
     LanguageChanged, MeasureWidth, PluginStarted, PluginStopped, ReplaceStatus, ScrollTo, Style,
     ThemeChanged, Update, UpdateCmds,

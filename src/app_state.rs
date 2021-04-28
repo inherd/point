@@ -7,8 +7,8 @@ use std::sync::{Arc, Mutex};
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, RpcOperations};
 use crate::model::file_tree::FileEntry;
+use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
