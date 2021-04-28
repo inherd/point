@@ -11,14 +11,8 @@ use std::path::PathBuf;
 pub struct Delegate;
 
 impl AppDelegate<AppState> for Delegate {
-    fn command<'a>(
-        &mut self,
-        ctx: &mut DelegateCtx<'a>,
-        _target: Target,
-        cmd: &Command,
-        data: &mut AppState,
-        _env: &Env,
-    ) -> Handled {
+    #[rustfmt::skip]
+    fn command<'a>(&mut self, ctx: &mut DelegateCtx<'a>, _target: Target, cmd: &Command, data: &mut AppState, _env: &Env, ) -> Handled {
         if let Some(info) = cmd.get(print_command::SET_FILE) {
             let path = PathBuf::from(info.path.as_str());
             log::info!("open file: {:?}", path.display());

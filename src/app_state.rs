@@ -71,12 +71,7 @@ impl AppState {
         self.core
             .lock()
             .unwrap()
-            .new_view(Some(&file_path), move |_res| {
-                // if let Ok(val) = res {
-                // let id: Option<String> = serde_json::from_value(val).unwrap();
-                // core_clone.lock().unwrap().resize(id.unwrap(), 1024, 800);
-                // }
-            });
+            .new_view(Some(&file_path), move |_res| {});
 
         self.current_file = path;
         self.save_global_config();
@@ -130,7 +125,10 @@ impl AppState {
             &self.set_dir(path.to_path_buf());
         }
     }
+}
 
+// for xipart
+impl AppState {
     pub fn handle_event(&self, op: &RpcOperations) {
         let mut core = self.core.lock().unwrap();
         match op {
@@ -159,6 +157,14 @@ impl AppState {
                 OperationType::Insert => {}
             }
         }
+    }
+
+    pub fn resize(&self, size: druid::Size) {
+        self.core.lock().unwrap().resize(
+            "view-id-2".to_string(),
+            size.width as u32,
+            size.height as u32,
+        )
     }
 }
 
