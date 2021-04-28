@@ -139,6 +139,10 @@ impl AppState {
             }
             RpcOperations::AvailableLanguages(_langs) => {
                 // core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
+                core.send_notification(
+                    "set_language",
+                    &json!({ "view_id": "view-id-2", "language_id": "Markdown" }),
+                );
             }
             RpcOperations::Update(update) => self.update(update),
             RpcOperations::MeasureWidth((_id, _measure_width)) => {}
