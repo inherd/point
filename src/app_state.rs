@@ -131,20 +131,19 @@ impl AppState {
         }
     }
 
-    pub fn handle_event(&self, op: RpcOperations) {
+    pub fn handle_event(&self, op: &RpcOperations) {
         let mut core = self.core.lock().unwrap();
         match op {
             RpcOperations::AvailableThemes(_themes) => {
                 core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
             }
             RpcOperations::AvailableLanguages(_langs) => {
-                // core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
                 core.send_notification(
                     "set_language",
                     &json!({ "view_id": "view-id-2", "language_id": "Markdown" }),
                 );
             }
-            RpcOperations::Update(update) => self.update(update),
+            RpcOperations::Update(update) => self.update(update.clone()),
             RpcOperations::MeasureWidth((_id, _measure_width)) => {}
             _ => {}
         }
