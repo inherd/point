@@ -120,7 +120,10 @@ pub fn main() {
 
     let mut init = directory::read_config();
     let client = Arc::new(Mutex::new(client));
-    client.lock().unwrap().client_started(None, None);
+    client
+        .lock()
+        .unwrap()
+        .client_started(Some(&"config".to_string()), None);
 
     init.core = client;
 
