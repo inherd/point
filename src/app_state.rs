@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
+use crate::{OperationType, Update, ViewId};
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -28,6 +29,9 @@ pub struct AppState {
 
     #[serde(default)]
     pub last_dir: Option<Arc<Path>>,
+
+    #[serde(default)]
+    pub view_id: usize,
 }
 
 impl Default for AppState {
@@ -41,6 +45,7 @@ impl Default for AppState {
             current_file: None,
             current_dir: None,
             last_dir: None,
+            view_id: 0,
         }
     }
 }
@@ -67,7 +72,9 @@ impl AppState {
             .lock()
             .unwrap()
             .new_view(Some(&file_path), move |res| {
-                println!("{:?}", res);
+                let (view_id, _result): (ViewId, Option<String>) =
+                    serde_json::from_value(res.unwrap()).unwrap();
+                info!("view_id: {}", view_id.0);
             });
 
         self.current_file = path;
@@ -129,8 +136,23 @@ impl AppState {
             RpcOperations::AvailableThemes(_themes) => {
                 core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
             }
-            RpcOperations::AvailableLanguages(_langs) => {}
+            RpcOperations::AvailableLanguages(langs) => {
+                // core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
+            }
+            RpcOperations::Update(update) => self.update(update),
             _ => {}
+        }
+    }
+
+    fn update(&self, update: Update) {
+        for operation in update.operations {
+            match operation.operation_type {
+                OperationType::Copy_ => {}
+                OperationType::Skip => {}
+                OperationType::Invalidate => {}
+                OperationType::Update => {}
+                OperationType::Insert => {}
+            }
         }
     }
 }

@@ -133,7 +133,8 @@ pub fn main() {
                 state.lock().unwrap().handle_event(operations);
             }
             Err(err) => {
-                error!("{:?}", err);
+                error!("error: {:?}", err);
+                panic!("{:?}", err);
             }
         }
     });
