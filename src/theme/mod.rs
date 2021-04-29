@@ -45,3 +45,12 @@ pub fn configure_env(env: &mut Env) {
         .with_weight(FontWeight::LIGHT)
         .with_size(15.0));
 }
+
+pub fn from_xi_color(c: &syntect::highlighting::Color) -> druid::Color {
+    Color::rgba(
+        f64::from(c.r) / 255.0,
+        f64::from(c.g) / 255.0,
+        f64::from(c.b) / 255.0,
+        f64::from(c.a) / 255.0,
+    )
+}

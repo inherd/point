@@ -1,4 +1,5 @@
 use crate::app_state::AppState;
+use crate::theme;
 use druid::{
     BoxConstraints, Color, Env, Event, EventCtx, FontFamily, LayoutCtx, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget,
@@ -14,6 +15,7 @@ impl EditView {
     }
 }
 
+#[allow(dead_code)]
 const TOP_PAD: f64 = 6.0;
 const LEFT_PAD: f64 = 6.0;
 const LINE_SPACE: f64 = 17.0;
@@ -23,7 +25,7 @@ impl Widget<AppState> for EditView {
 
     #[rustfmt::skip]
     fn lifecycle(&mut self, _ctx: &mut LifeCycleCtx, _event: &LifeCycle, _data: &AppState, _env: &Env) {
-    //     
+    //
     }
 
     fn update(&mut self, _ctx: &mut UpdateCtx, _old_data: &AppState, _data: &AppState, _env: &Env) {
@@ -46,18 +48,24 @@ impl Widget<AppState> for EditView {
         let mut y: f64 = 0.0;
 
         let first_line: u64 = 0;
+        let _bg = data.theme.background;
         let last_line = data.workspace.line_cache.height();
         for _line_num in first_line..last_line {
             //
         }
+
+        let text_color = match &data.theme.foreground {
+            None => Color::BLACK,
+            Some(color) => theme::from_xi_color(color),
+        };
 
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
                 let text = ctx.text();
                 let layout = text
                     .new_text_layout(line.text.clone())
-                    .font(FontFamily::SERIF, 16.0)
-                    .text_color(Color::rgb8(128, 0, 0))
+                    .font(FontFamily::SERIF, 14.0)
+                    .text_color(text_color.clone())
                     .build()
                     .unwrap();
 
