@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex};
 use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
+use crate::linecache::LineCache;
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
@@ -232,7 +233,7 @@ pub struct Workspace {
     pub origin_text: String,
     pub input_text: String,
     pub char_count: usize,
-
+    // line_cache: Arc<Mutex<LineCache>>,
     #[serde(default)]
     pub dir: Arc<PathBuf>,
 

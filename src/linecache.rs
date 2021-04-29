@@ -2,7 +2,7 @@
 // Copyright (C) 2019-2020 Rasmus Thomsen <oss@cogitri.dev>
 // SPDX-License-Identifier: MIT
 
-use crate::{OperationType, StyleDef, Update};
+use crate::{rpc, OperationType, StyleDef, Update};
 use log::{error, trace};
 use std::cmp::min;
 
@@ -20,8 +20,8 @@ pub struct Line {
     pub line_num: Option<u64>,
 }
 
-impl From<tau_rpc::Line> for Line {
-    fn from(x: tau_rpc::Line) -> Self {
+impl From<rpc::Line> for Line {
+    fn from(x: rpc::Line) -> Self {
         Self {
             text: x.text,
             cursor: x.cursor,
