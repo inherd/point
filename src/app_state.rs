@@ -22,6 +22,7 @@ pub struct AppState {
 
     #[data(ignore)]
     pub theme: ThemeSettings,
+    pub theme_name: String,
 
     #[data(ignore)]
     pub themes: Vec<String>,
@@ -80,6 +81,7 @@ impl Default for AppState {
             title: "".to_string(),
             workspace: Default::default(),
             theme: Default::default(),
+            theme_name: "".to_string(),
             themes: vec![],
             params: Default::default(),
             entry: Default::default(),
@@ -223,6 +225,7 @@ impl AppState {
             }
             RpcOperations::ThemeChanged(theme) => {
                 self.theme = theme.theme.clone();
+                self.theme_name = theme.name.clone();
             }
             RpcOperations::MeasureWidth((_id, _measure_width)) => {
                 // core.width_measured(*id, 512, 1024);
