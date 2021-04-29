@@ -184,14 +184,16 @@ impl AppState {
 impl AppState {
     pub fn handle_event(&self, op: &RpcOperations) {
         let mut core = self.core.lock().unwrap();
+        let view = self.view.lock().unwrap();
         match op {
             RpcOperations::AvailableThemes(_themes) => {
                 core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
             }
+            RpcOperations::AvailablePlugins(_plugins) => {}
             RpcOperations::AvailableLanguages(_langs) => {
                 core.send_notification(
                     "set_language",
-                    &json!({ "view_id": "view-id-2", "language_id": "Markdown" }),
+                    &json!({ "view_id": view.focused.as_ref().unwrap(), "language_id": "Markdown" }),
                 );
             }
             RpcOperations::Update(update) => self.update(update.clone()),
