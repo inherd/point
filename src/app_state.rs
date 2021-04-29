@@ -13,6 +13,7 @@ use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
 use crate::{AvailableThemes, ThemeSettings};
+use log::*;
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]

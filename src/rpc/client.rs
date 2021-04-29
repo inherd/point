@@ -6,6 +6,7 @@ use crate::rpc::structs::{
 };
 use crossbeam_channel::unbounded;
 use druid::Data;
+use log::*;
 use pipe::{pipe, PipeReader, PipeWriter};
 use serde_json::{self, from_value, json, to_vec, Value};
 use std::cell::Cell;

@@ -1,11 +1,12 @@
+#[allow(unused_imports)]
+#[macro_use]
+extern crate log;
+
 #[macro_use]
 extern crate serde_json;
 extern crate xi_core_lib;
 extern crate xi_rpc;
 extern crate xi_trace;
-
-#[macro_use]
-extern crate log;
 
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -13,6 +14,7 @@ use std::thread;
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Target, UnitPoint, WindowDesc};
+use log::*;
 
 use app_state::AppState;
 use print::menu;
@@ -26,15 +28,15 @@ pub use rpc::structs::{
 };
 pub use support::line;
 
+use crate::app_command::print_command;
 use crate::app_delegate::Delegate;
 use crate::app_state::Workspace;
 use crate::components::icon_button::IconButton;
+use crate::print::edit_view::EditView;
 use crate::print::ProjectToolWindow;
 use crate::support::directory;
 
 use self::print::bar_support::text_count;
-use crate::app_command::print_command;
-use crate::print::edit_view::EditView;
 
 pub mod app_command;
 pub mod app_delegate;
@@ -116,12 +118,9 @@ const LINE_ENDING: &str = "\r\n";
 const LINE_ENDING: &str = "\n";
 
 pub fn main() {
-    let title = "Print UI";
+    env_logger::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    xi_trace::enable_tracing();
-    if xi_trace::is_enabled() {
-        info!("tracing started")
-    }
+    let title = "Print UI";
 
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
@@ -153,7 +152,7 @@ pub fn main() {
     client
         .lock()
         .unwrap()
-        .client_started(Some(&"config".to_string()), None);
+        .client_started(Some(&"config".to_string()), Some(&"xi".to_string()));
 
     client.lock().unwrap().modify_user_config_domain(
         "general",
@@ -179,7 +178,6 @@ pub fn main() {
     launcher
         .delegate(Delegate::default())
         .configure_env(|env, _| theme::configure_env(env))
-        .log_to_console()
         .launch(init_state)
         .expect("Failed to launch application");
 }
