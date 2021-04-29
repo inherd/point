@@ -11,7 +11,6 @@ use crate::linecache::LineCache;
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
-use crate::{OperationType, Update};
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
@@ -197,24 +196,18 @@ impl AppState {
                     &json!({ "view_id": view.focused.as_ref().unwrap(), "language_id": "Markdown" }),
                 );
             }
-            RpcOperations::PluginStarted(plugin) => {
+            RpcOperations::PluginStarted(_plugin) => {
                 // todo: migration plugin
             }
-            RpcOperations::Update(update) => self.update(update.clone()),
+            RpcOperations::Update(update) => {
+                self.workspace
+                    .line_cache
+                    .lock()
+                    .unwrap()
+                    .update(update.clone());
+            }
             RpcOperations::MeasureWidth((_id, _measure_width)) => {}
             _ => {}
-        }
-    }
-
-    fn update(&self, update: Update) {
-        for operation in update.operations {
-            match operation.operation_type {
-                OperationType::Copy_ => {}
-                OperationType::Skip => {}
-                OperationType::Invalidate => {}
-                OperationType::Update => {}
-                OperationType::Insert => {}
-            }
         }
     }
 
@@ -233,7 +226,10 @@ pub struct Workspace {
     pub origin_text: String,
     pub input_text: String,
     pub char_count: usize,
-    // line_cache: Arc<Mutex<LineCache>>,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    line_cache: Arc<Mutex<LineCache>>,
+
     #[serde(default)]
     pub dir: Arc<PathBuf>,
 
@@ -266,6 +262,7 @@ impl Default for Workspace {
             origin_text: "".to_string(),
             input_text: "".to_string(),
             char_count: 0,
+            line_cache: Arc::new(Mutex::new(Default::default())),
             dir: Default::default(),
             current_file: Default::default(),
         }
