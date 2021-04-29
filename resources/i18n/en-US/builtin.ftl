@@ -37,3 +37,7 @@ common-menu-copy = Copy
 common-menu-paste = Paste
 common-menu-undo = Undo
 common-menu-redo = Redo
+
+# common 'View' menu items
+common-menu-view-menu = View
+common-menu-themes-menu = Themes

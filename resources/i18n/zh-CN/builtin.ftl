@@ -37,3 +37,7 @@ common-menu-copy = 复制
 common-menu-paste = 粘贴
 common-menu-undo = 撤消
 common-menu-redo = 重做
+
+# common 'View' menu items
+common-menu-view-menu = View
+common-menu-themes-menu = Themes

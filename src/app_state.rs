@@ -4,14 +4,15 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use druid::{Data, Lens};
+use druid::{Data, DelegateCtx, Lens};
 use serde::{Deserialize, Serialize};
 
+use crate::app_command::print_command;
 use crate::linecache::LineCache;
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
-use crate::ThemeSettings;
+use crate::{AvailableThemes, ThemeSettings};
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
@@ -21,6 +22,10 @@ pub struct AppState {
 
     #[data(ignore)]
     pub theme: ThemeSettings,
+
+    #[data(ignore)]
+    pub themes: Vec<String>,
+
     pub params: Params,
     pub entry: FileEntry,
 
@@ -75,6 +80,7 @@ impl Default for AppState {
             title: "".to_string(),
             workspace: Default::default(),
             theme: Default::default(),
+            themes: vec![],
             params: Default::default(),
             entry: Default::default(),
             core: Arc::new(Mutex::new(Default::default())),
@@ -192,12 +198,13 @@ impl AppState {
 
 // for xipart
 impl AppState {
-    pub fn handle_event(&mut self, op: &RpcOperations) {
+    pub fn handle_event(&mut self, op: &RpcOperations, ctx: &mut DelegateCtx) {
         let mut core = self.core.lock().unwrap();
         let view = self.view.lock().unwrap();
         match op {
-            RpcOperations::AvailableThemes(_themes) => {
-                core.send_notification("set_theme", &json!({ "theme_name": "InspiredGitHub" }));
+            RpcOperations::AvailableThemes(themes) => {
+                ctx.submit_command(print_command::LIST_THEMES.with(themes.clone()));
+                core.send_notification("set_theme", &json!({ "theme_name": "Solarized (light)" }));
             }
             RpcOperations::AvailablePlugins(_plugins) => {}
             RpcOperations::AvailableLanguages(_langs) => {
@@ -222,6 +229,10 @@ impl AppState {
             }
             _ => {}
         }
+    }
+
+    pub fn set_themes(&mut self, themes: &AvailableThemes, _ctx: &mut DelegateCtx) {
+        self.themes = themes.themes.clone();
     }
 
     pub fn resize(&self, size: druid::Size) {

@@ -1,6 +1,7 @@
 pub mod print_command {
     use crate::model::file_tree::FileEntry;
     use crate::rpc::client::RpcOperations;
+    use crate::AvailableThemes;
     use druid::Selector;
 
     pub const REBUILD_MENUS: Selector = Selector::new("print.rebuild-menus");
@@ -10,4 +11,5 @@ pub mod print_command {
     pub const RELOAD_DIR: Selector = Selector::new("print.reload-dir");
 
     pub const XI_EVENT: Selector<RpcOperations> = Selector::new("print.xi-event");
+    pub const LIST_THEMES: Selector<AvailableThemes> = Selector::new("print.xi-themes");
 }
