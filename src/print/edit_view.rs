@@ -1,4 +1,3 @@
-use crate::app_command::print_command;
 use crate::app_state::AppState;
 use crate::theme;
 use druid::{
@@ -22,7 +21,7 @@ const LEFT_PAD: f64 = 6.0;
 const LINE_SPACE: f64 = 17.0;
 
 impl Widget<AppState> for EditView {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, _data: &mut AppState, _env: &Env) {}
+    fn event(&mut self, _ctx: &mut EventCtx, _event: &Event, _data: &mut AppState, _env: &Env) {}
 
     #[rustfmt::skip]
     fn lifecycle(&mut self, _ctx: &mut LifeCycleCtx, _event: &LifeCycle, _data: &AppState, _env: &Env) {
