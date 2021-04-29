@@ -231,7 +231,14 @@ impl AppState {
         }
     }
 
-    pub fn set_themes(&mut self, themes: &AvailableThemes, _ctx: &mut DelegateCtx) {
+    pub fn set_theme(&mut self, theme: &String) {
+        self.core
+            .lock()
+            .unwrap()
+            .send_notification("set_theme", &json!({ "theme_name": theme }));
+    }
+
+    pub fn update_themes_list(&mut self, themes: &AvailableThemes, _ctx: &mut DelegateCtx) {
         self.themes = themes.themes.clone();
     }
 

@@ -1,3 +1,4 @@
+use crate::app_command::print_command;
 use crate::app_state::AppState;
 use druid::{
     commands, platform_menus, Data, Env, FileDialogOptions, LocalizedString, Menu, MenuItem,
@@ -40,9 +41,8 @@ fn themes_menu(state: &AppState) -> Menu<AppState> {
         Menu::new(LocalizedString::new("common-menu-themes-menu"));
     for theme in &state.themes {
         let string = theme.clone();
-        themes_menu = themes_menu.entry(MenuItem::new(
-            string, // .with_arg("count", move |_: &State, _| i.into()),
-        ));
+        themes_menu = themes_menu
+            .entry(MenuItem::new(string.clone()).command(print_command::SET_THEME.with(string)));
     }
 
     themes_menu
