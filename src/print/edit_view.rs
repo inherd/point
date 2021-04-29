@@ -72,6 +72,19 @@ impl Widget<AppState> for EditView {
 
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
+                let mut end_index = 0u32;
+                for style in &line.styles {
+                    end_index = (end_index as i64 + (style.offset + style.length as i64)) as u32;
+                }
+
+                for style in line.styles.iter().rev() {
+                    let start_index = (u64::from(end_index) - style.length) as u32;
+                    let line_style = data.styles.get(&(style.style_id as usize));
+
+                    if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
+                        // foreground
+                    }
+                }
                 let text = ctx.text();
                 let layout = text
                     .new_text_layout(line.text.clone())

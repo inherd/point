@@ -12,7 +12,8 @@ use crate::linecache::LineCache;
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
-use crate::{AvailableThemes, ThemeSettings};
+use crate::theme::u32_from_color;
+use crate::{AvailableThemes, Style, ThemeSettings};
 use log::*;
 use std::collections::HashMap;
 
@@ -24,6 +25,10 @@ pub struct AppState {
     #[data(ignore)]
     pub theme: ThemeSettings,
     pub theme_name: String,
+
+    #[data(ignore)]
+    #[serde(skip_serializing, skip_deserializing)]
+    pub styles: HashMap<usize, Style>,
 
     #[data(ignore)]
     pub themes: Vec<String>,
@@ -83,6 +88,7 @@ impl Default for AppState {
             workspace: Default::default(),
             theme: Default::default(),
             theme_name: "".to_string(),
+            styles: Default::default(),
             themes: vec![],
             params: Default::default(),
             entry: Default::default(),
@@ -211,21 +217,33 @@ impl AppState {
                 if let Some(view_id) = view.focused.as_ref() {
                     core.send_notification(
                         "set_language",
-                        &json!({ "view_id": view_id, "language_id": "Markdown" }),
+                        &json!({ "view_id": view_id, "language_id": "JavaScript" }),
                     );
                 } else {
                     core.send_notification(
                         "set_language",
-                        &json!({ "view_id": "view-id-1", "language_id": "Markdown" }),
+                        &json!({ "view_id": "view-id-1", "language_id": "JavaScript" }),
                     );
                 }
             }
             RpcOperations::Update(update) => {
                 self.workspace.line_cache.update(update.clone());
             }
-            RpcOperations::ThemeChanged(theme) => {
-                self.theme = theme.theme.clone();
-                self.theme_name = theme.name.clone();
+            RpcOperations::ThemeChanged(param) => {
+                self.theme = param.theme.clone();
+                self.theme_name = param.name.clone();
+
+                let selection_style = Style {
+                    id: 0,
+                    fg_color: param.theme.selection_foreground.map(u32_from_color),
+                    bg_color: param.theme.selection.map(u32_from_color),
+                    weight: None,
+                    italic: None,
+                    underline: None,
+                };
+
+                // todo: update view;
+                self.styles.insert(0, selection_style);
             }
             RpcOperations::MeasureWidth((id, measure_width)) => {
                 info!("id: {:?}, width: {:?}", id, measure_width);
