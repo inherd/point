@@ -123,41 +123,13 @@ pub fn main() {
         info!("tracing started")
     }
 
-    let (client, rpc_receiver) = Client::new();
-
-    let mut init = directory::read_config();
-    let client = Arc::new(Mutex::new(client));
-    client
-        .lock()
-        .unwrap()
-        .client_started(Some(&"config".to_string()), None);
-
-    client.lock().unwrap().modify_user_config_domain(
-        "general",
-        &json!({
-            "tab_size": 4,
-            "autodetect_whitespace": 4,
-            "translate_tabs_to_spaces": true,
-            "font_face": "Inconsolata",
-            "font_size": 14.0,
-            "use_tab_stops": true,
-            "word_wrap": false,
-            "line_ending": LINE_ENDING,
-        }),
-    );
-
-    init.core = client;
-
-    let state = Arc::new(Mutex::new(init));
-    let mut init_state = state.lock().unwrap().to_owned();
-
-    init_state.setup_workspace();
-
     let main_window = WindowDesc::new(make_ui())
         .window_size((1024., 768.))
         .with_min_size((1024., 768.))
         .menu(menu::make_menu)
         .title(title);
+
+    let (client, rpc_receiver) = Client::new();
 
     let launcher = AppLauncher::with_window(main_window);
     let handler = launcher.get_external_handle();
@@ -175,6 +147,34 @@ pub fn main() {
             }
         }
     });
+
+    let mut init = directory::read_config();
+    let client = Arc::new(Mutex::new(client));
+    client
+        .lock()
+        .unwrap()
+        .client_started(Some(&"config".to_string()), None);
+
+    client.lock().unwrap().modify_user_config_domain(
+        "general",
+        &json!({
+            "tab_size": 4,
+            "autodetect_whitespace": true,
+            "translate_tabs_to_spaces": true,
+            "font_face": "Inconsolata",
+            "font_size": 14.0,
+            "use_tab_stops": true,
+            "word_wrap": false,
+            "line_ending": LINE_ENDING,
+        }),
+    );
+
+    init.core = client;
+
+    let state = Arc::new(Mutex::new(init));
+    let mut init_state = state.lock().unwrap().to_owned();
+
+    init_state.setup_workspace();
 
     launcher
         .delegate(Delegate::default())
