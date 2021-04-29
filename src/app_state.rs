@@ -213,6 +213,11 @@ impl AppState {
                         "set_language",
                         &json!({ "view_id": view_id, "language_id": "Markdown" }),
                     );
+                } else {
+                    core.send_notification(
+                        "set_language",
+                        &json!({ "view_id": "view-id-1", "language_id": "Markdown" }),
+                    );
                 }
             }
             RpcOperations::Update(update) => {
