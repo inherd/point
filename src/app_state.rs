@@ -182,7 +182,7 @@ impl AppState {
 
 // for xipart
 impl AppState {
-    pub fn handle_event(&self, op: &RpcOperations) {
+    pub fn handle_event(&mut self, op: &RpcOperations) {
         let mut core = self.core.lock().unwrap();
         let view = self.view.lock().unwrap();
         match op {
@@ -200,11 +200,7 @@ impl AppState {
                 // todo: migration plugin
             }
             RpcOperations::Update(update) => {
-                self.workspace
-                    .line_cache
-                    .lock()
-                    .unwrap()
-                    .update(update.clone());
+                self.workspace.line_cache.update(update.clone());
             }
             RpcOperations::MeasureWidth((_id, _measure_width)) => {}
             _ => {}
@@ -228,7 +224,7 @@ pub struct Workspace {
     pub char_count: usize,
 
     #[serde(skip_serializing, skip_deserializing)]
-    line_cache: Arc<Mutex<LineCache>>,
+    line_cache: LineCache,
 
     #[serde(default)]
     pub dir: Arc<PathBuf>,
@@ -262,7 +258,7 @@ impl Default for Workspace {
             origin_text: "".to_string(),
             input_text: "".to_string(),
             char_count: 0,
-            line_cache: Arc::new(Mutex::new(Default::default())),
+            line_cache: Default::default(),
             dir: Default::default(),
             current_file: Default::default(),
         }

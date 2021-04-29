@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use crate::{rpc, OperationType, StyleDef, Update};
+use druid::Data;
 use log::{error, trace};
 use std::cmp::min;
 
@@ -31,11 +32,24 @@ impl From<rpc::Line> for Line {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LineCache {
     pub n_invalid_before: u64,
     pub lines: Vec<Option<Line>>,
     pub n_invalid_after: u64,
+}
+
+impl Data for LineCache {
+    fn same(&self, other: &Self) -> bool {
+        self.n_invalid_after == self.n_invalid_after
+            && self.n_invalid_before == self.n_invalid_before
+            && self.lines.len() == self.lines.len()
+            && self.lines.iter().zip(other.lines.iter()).all(|(_a, _b)| {
+                // a.same(b)
+                // todo: add lost line
+                return true;
+            })
+    }
 }
 
 impl LineCache {
