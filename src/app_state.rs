@@ -115,10 +115,7 @@ impl AppState {
         let file_path = buf.display().to_string();
 
         self.req_new_view(file_path);
-        // let view = self.view.clone();
-        // if let Some(id) = view.lock().unwrap().focused.clone() {
-        //     self.core.lock().unwrap().resize(id, 512, 512);
-        // }
+        // self.core.lock().unwrap().resize(512, 512);
 
         self.current_file = path;
         self.save_global_config();
@@ -217,9 +214,6 @@ impl AppState {
                     );
                 }
             }
-            RpcOperations::PluginStarted(_plugin) => {
-                // todo: migration plugin
-            }
             RpcOperations::Update(update) => {
                 self.workspace.line_cache.update(update.clone());
             }
@@ -227,8 +221,8 @@ impl AppState {
                 self.theme = theme.theme.clone();
                 self.theme_name = theme.name.clone();
             }
-            RpcOperations::MeasureWidth((_id, _measure_width)) => {
-                // core.width_measured(*id, 512, 1024);
+            RpcOperations::MeasureWidth((id, measure_width)) => {
+                info!("id: {:?}, width: {:?}", id, measure_width);
             }
             _ => {}
         }
@@ -243,14 +237,6 @@ impl AppState {
 
     pub fn update_themes_list(&mut self, themes: &AvailableThemes, _ctx: &mut DelegateCtx) {
         self.themes = themes.themes.clone();
-    }
-
-    pub fn resize(&self, size: druid::Size) {
-        self.core.lock().unwrap().resize(
-            "view-id-2".to_string(),
-            size.width as u32,
-            size.height as u32,
-        )
     }
 }
 

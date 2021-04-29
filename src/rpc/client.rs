@@ -172,18 +172,24 @@ impl Client {
         );
     }
 
-    pub fn resize(&mut self, view_id: String, width: u32, height: u32) {
+    pub fn resize(&mut self, width: u32, height: u32) {
         self.send_notification(
             "resize",
             &json!({
-                "method": "resize",
-                "view_id": view_id,
-                "params": {
                     "width": width,
                     "height": height,
-                }
             }),
         );
+    }
+
+    pub fn modify_user_config_domain(&mut self, domain: &str, changes: &Value) {
+        self.send_notification(
+            "modify_user_config",
+            &json!({
+                "domain": domain,
+                "changes": changes,
+            }),
+        )
     }
 
     pub fn send_notification(&mut self, method: &str, params: &Value) {
@@ -222,10 +228,7 @@ impl Client {
             "id": self.current_request_id,
         });
         let id = { self.current_request_id.get() };
-        info!(
-            "Xi-CORE <-- {{\"id\"={}, \"method\": {}, \"params\":{}}}",
-            id, method, params
-        );
+        info!("Xi-CORE <-- {}", cmd.clone());
         self.sender.write_all(&to_vec(&cmd).unwrap()).unwrap();
         self.sender.write_all(b"\n").unwrap();
         self.sender.flush().unwrap();

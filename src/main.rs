@@ -110,6 +110,11 @@ fn make_ui() -> impl Widget<AppState> {
         .background(crate::theme::BACKGROUND_COLOR)
 }
 
+#[cfg(windows)]
+const LINE_ENDING: &str = "\r\n";
+#[cfg(not(windows))]
+const LINE_ENDING: &str = "\n";
+
 pub fn main() {
     let title = "Print UI";
 
@@ -126,6 +131,20 @@ pub fn main() {
         .lock()
         .unwrap()
         .client_started(Some(&"config".to_string()), None);
+
+    client.lock().unwrap().modify_user_config_domain(
+        "general",
+        &json!({
+            "tab_size": 4,
+            "autodetect_whitespace": 4,
+            "translate_tabs_to_spaces": true,
+            "font_face": "Inconsolata",
+            "font_size": 14.0,
+            "use_tab_stops": true,
+            "word_wrap": false,
+            "line_ending": LINE_ENDING,
+        }),
+    );
 
     init.core = client;
 
