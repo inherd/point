@@ -198,7 +198,7 @@ impl Client {
         self.sender.flush().unwrap();
     }
 
-    pub fn new_view<F>(&mut self, file_path: Option<&String>, callback: F)
+    pub fn new_view<F>(&mut self, file_path: String, callback: F)
     where
         F: FnOnce(Result<Value, Value>) + Send + 'static,
     {
