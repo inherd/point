@@ -224,7 +224,7 @@ pub struct Workspace {
     pub char_count: usize,
 
     #[serde(skip_serializing, skip_deserializing)]
-    line_cache: LineCache,
+    pub line_cache: LineCache,
 
     #[serde(default)]
     pub dir: Arc<PathBuf>,

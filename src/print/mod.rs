@@ -9,6 +9,7 @@ pub mod tool_bar;
 
 pub mod bar_support;
 pub mod color;
+pub mod edit_view;
 pub mod menu;
 pub mod tabs;
 pub mod text_edit_view;
