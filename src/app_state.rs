@@ -186,7 +186,7 @@ impl AppState {
     }
 
     pub fn setup_workspace(&mut self) {
-        println!("init state: {:?}", self);
+        info!("init state: {:?}", self);
         if let Some(path) = self.current_file.clone() {
             &self.open_file(path.to_path_buf());
         }
