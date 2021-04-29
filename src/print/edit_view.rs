@@ -1,9 +1,10 @@
 use crate::app_state::AppState;
-use crate::linecache::Line;
 use druid::{
-    BoxConstraints, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
-    UpdateCtx, Widget,
+    BoxConstraints, Color, Env, Event, EventCtx, FontFamily, LayoutCtx, LifeCycle, LifeCycleCtx,
+    PaintCtx, RenderContext, Size, UpdateCtx, Widget,
 };
+use druid_shell::piet::TextLayoutBuilder;
+use piet_common::Text;
 
 pub struct EditView {}
 
@@ -12,6 +13,10 @@ impl EditView {
         EditView {}
     }
 }
+
+const TOP_PAD: f64 = 6.0;
+const LEFT_PAD: f64 = 6.0;
+const LINE_SPACE: f64 = 17.0;
 
 impl Widget<AppState> for EditView {
     fn event(&mut self, _ctx: &mut EventCtx, _event: &Event, _data: &mut AppState, _env: &Env) {}
@@ -36,13 +41,22 @@ impl Widget<AppState> for EditView {
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, _env: &Env) {
+        let x0 = LEFT_PAD;
+        let mut y: f64 = 0.0;
         for line in &data.workspace.line_cache.lines {
-            match line {
-                None => {}
-                Some(line) => {
-                    println!("{:?}", line.text);
-                }
+            if let Some(line) = line {
+                let text = ctx.text();
+                let layout = text
+                    .new_text_layout(line.text.clone())
+                    .font(FontFamily::SERIF, 16.0)
+                    .text_color(Color::rgb8(128, 0, 0))
+                    .build()
+                    .unwrap();
+
+                ctx.draw_text(&layout, (x0, y));
             }
+
+            y += LINE_SPACE;
         }
     }
 }
