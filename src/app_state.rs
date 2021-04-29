@@ -11,12 +11,16 @@ use crate::linecache::LineCache;
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
+use crate::ThemeSettings;
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
     pub title: String,
     pub workspace: Workspace,
+
+    #[data(ignore)]
+    pub theme: ThemeSettings,
     pub params: Params,
     pub entry: FileEntry,
 
@@ -70,6 +74,7 @@ impl Default for AppState {
         Self {
             title: "".to_string(),
             workspace: Default::default(),
+            theme: Default::default(),
             params: Default::default(),
             entry: Default::default(),
             core: Arc::new(Mutex::new(Default::default())),
@@ -196,10 +201,12 @@ impl AppState {
             }
             RpcOperations::AvailablePlugins(_plugins) => {}
             RpcOperations::AvailableLanguages(_langs) => {
-                core.send_notification(
-                    "set_language",
-                    &json!({ "view_id": view.focused.as_ref().unwrap(), "language_id": "Markdown" }),
-                );
+                if let Some(view_id) = view.focused.as_ref() {
+                    core.send_notification(
+                        "set_language",
+                        &json!({ "view_id": view_id, "language_id": "Markdown" }),
+                    );
+                }
             }
             RpcOperations::PluginStarted(_plugin) => {
                 // todo: migration plugin
@@ -207,7 +214,10 @@ impl AppState {
             RpcOperations::Update(update) => {
                 self.workspace.line_cache.update(update.clone());
             }
-            RpcOperations::MeasureWidth((id, measure_width)) => {
+            RpcOperations::ThemeChanged(theme) => {
+                self.theme = theme.theme.clone();
+            }
+            RpcOperations::MeasureWidth((_id, _measure_width)) => {
                 // core.width_measured(*id, 512, 1024);
             }
             _ => {}

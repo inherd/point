@@ -11,7 +11,7 @@ pub struct AvailableThemes {
 
 pub type ThemeSettings = ::syntect::highlighting::ThemeSettings;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ThemeChanged {
     pub name: String,
     pub theme: ThemeSettings,

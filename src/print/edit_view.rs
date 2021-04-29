@@ -47,7 +47,7 @@ impl Widget<AppState> for EditView {
 
         let first_line: u64 = 0;
         let last_line = data.workspace.line_cache.height();
-        for line_num in first_line..last_line {
+        for _line_num in first_line..last_line {
             //
         }
 
