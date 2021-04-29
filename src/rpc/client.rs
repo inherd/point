@@ -88,7 +88,6 @@ pub enum RpcOperations {
     AvailableLanguages(AvailableLanguages),
     LanguageChanged(LanguageChanged),
     MeasureWidth((u64, MeasureWidth)),
-    None,
 }
 
 impl Client {
@@ -276,8 +275,7 @@ impl Client {
                 RpcOperations::LanguageChanged(from_value::<LanguageChanged>(params).unwrap())
             }
             _ => {
-                RpcOperations::None
-                // unreachable!("Unknown method {}", method)
+                unreachable!("Unknown method {}", method)
             }
         }
     }
