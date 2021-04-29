@@ -129,7 +129,6 @@ impl AppState {
                                 filename: Option::from(filename),
                             },
                         );
-
                         // self.
                     }
                 }

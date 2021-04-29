@@ -44,6 +44,13 @@ impl Widget<AppState> for EditView {
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, _env: &Env) {
         let x0 = LEFT_PAD;
         let mut y: f64 = 0.0;
+
+        let first_line: u64 = 0;
+        let last_line = data.workspace.line_cache.height();
+        for line_num in first_line..last_line {
+            //
+        }
+
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
                 let text = ctx.text();
