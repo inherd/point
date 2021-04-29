@@ -34,6 +34,7 @@ use crate::support::directory;
 
 use self::print::bar_support::text_count;
 use crate::app_command::print_command;
+use crate::print::edit_view::EditView;
 
 pub mod app_command;
 pub mod app_delegate;
@@ -92,6 +93,8 @@ fn center() -> impl Widget<AppState> {
         .with_child(ProjectToolWindow::new())
         .with_default_spacer()
         .with_flex_child(TextEditView::new().center(), 1.0)
+        .with_default_spacer()
+        .with_flex_child(EditView::new().center(), 1.0)
         .padding(1.0)
         .expand_height()
         .expand_width()

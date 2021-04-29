@@ -1,4 +1,5 @@
 use crate::app_state::AppState;
+use crate::linecache::Line;
 use druid::{
     BoxConstraints, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, Size,
     UpdateCtx, Widget,
@@ -34,7 +35,14 @@ impl Widget<AppState> for EditView {
         bc.constrain(Size::new(max_width, max_height))
     }
 
-    fn paint(&mut self, _ctx: &mut PaintCtx, _data: &AppState, _env: &Env) {
-        // &data.workspace.line_cache;
+    fn paint(&mut self, ctx: &mut PaintCtx, data: &AppState, _env: &Env) {
+        for line in &data.workspace.line_cache.lines {
+            match line {
+                None => {}
+                Some(line) => {
+                    println!("{:?}", line.text);
+                }
+            }
+        }
     }
 }
