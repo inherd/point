@@ -40,6 +40,7 @@ pub mod app_delegate;
 pub mod app_state;
 pub mod components;
 pub mod file_manager;
+pub mod linecache;
 pub mod model;
 pub mod print;
 pub mod rpc;
