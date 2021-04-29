@@ -15,8 +15,8 @@ use druid::widget::{Flex, Label, WidgetExt};
 use druid::{AppLauncher, Color, Target, UnitPoint, WindowDesc};
 
 use app_state::AppState;
-use print::edit_view::EditView;
 use print::menu;
+use print::text_edit_view::TextEditView;
 use rpc::client::Client;
 pub use rpc::structs::{
     Alert, AvailableLanguages, AvailablePlugins, AvailableThemes, ConfigChanged, ConfigChanges,
@@ -91,7 +91,7 @@ fn center() -> impl Widget<AppState> {
     Flex::row()
         .with_child(ProjectToolWindow::new())
         .with_default_spacer()
-        .with_flex_child(EditView::new().center(), 1.0)
+        .with_flex_child(TextEditView::new().center(), 1.0)
         .padding(1.0)
         .expand_height()
         .expand_width()

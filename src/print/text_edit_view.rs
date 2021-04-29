@@ -7,13 +7,13 @@ use druid::{
 
 use crate::app_state::{AppState, Workspace};
 
-pub struct EditView {
+pub struct TextEditView {
     inner: Box<dyn Widget<AppState>>,
 }
 
-impl EditView {
-    pub fn new() -> EditView {
-        EditView {
+impl TextEditView {
+    pub fn new() -> TextEditView {
+        TextEditView {
             inner: SizedBox::empty().boxed(),
         }
     }
@@ -68,7 +68,7 @@ impl EditView {
     }
 }
 
-impl Widget<AppState> for EditView {
+impl Widget<AppState> for TextEditView {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
         match event {
             Event::MouseDown(m) => self.send_mouse(ctx, data, env, m),
