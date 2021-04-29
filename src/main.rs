@@ -118,7 +118,7 @@ const LINE_ENDING: &str = "\r\n";
 const LINE_ENDING: &str = "\n";
 
 pub fn main() {
-    env_logger::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    setup_log();
 
     let title = "Print UI";
 
@@ -180,4 +180,17 @@ pub fn main() {
         .configure_env(|env, _| theme::configure_env(env))
         .launch(init_state)
         .expect("Failed to launch application");
+}
+
+fn setup_log() {
+    use tracing_subscriber::prelude::*;
+    let filter_layer = tracing_subscriber::filter::LevelFilter::DEBUG;
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        // Display target (eg "my_crate::some_mod::submod") with logs
+        .with_target(true);
+
+    tracing_subscriber::registry()
+        .with(filter_layer)
+        .with(fmt_layer)
+        .init();
 }
