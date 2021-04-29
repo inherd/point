@@ -196,6 +196,9 @@ impl AppState {
                     &json!({ "view_id": view.focused.as_ref().unwrap(), "language_id": "Markdown" }),
                 );
             }
+            RpcOperations::PluginStarted(plugin) => {
+                // todo: migration plugin
+            }
             RpcOperations::Update(update) => self.update(update.clone()),
             RpcOperations::MeasureWidth((_id, _measure_width)) => {}
             _ => {}
