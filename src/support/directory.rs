@@ -51,7 +51,7 @@ pub fn read_config() -> AppState {
         }
         Err(_err) => {
             let _ = fs::remove_file(&path);
-            log::info!("error config: {}", content);
+            log::error!("error config: {}", content);
         }
     };
     return app_state;
