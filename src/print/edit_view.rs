@@ -48,11 +48,19 @@ impl Widget<AppState> for EditView {
         let mut y: f64 = 0.0;
 
         let first_line: u64 = 0;
-        let _bg = data.theme.background;
         let last_line = data.workspace.line_cache.height();
         for _line_num in first_line..last_line {
             //
         }
+
+        let background = match &data.theme.background {
+            None => Color::WHITE,
+            Some(color) => theme::from_xi_color(color),
+        };
+
+        let size = ctx.size();
+        let rect = size.to_rect();
+        ctx.fill(rect, &background);
 
         let text_color = match &data.theme.foreground {
             None => Color::BLACK,
