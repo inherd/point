@@ -10,7 +10,8 @@ use serde::{Deserialize, Serialize};
 use crate::model::file_tree::FileEntry;
 use crate::rpc::client::{Client, RpcOperations};
 use crate::support::directory;
-use crate::{OperationType, Update};
+use crate::{OperationType, Update, ViewId};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
@@ -21,6 +22,8 @@ pub struct AppState {
 
     #[serde(skip_serializing, skip_deserializing)]
     pub core: Arc<Mutex<Client>>,
+    #[serde(skip_serializing, skip_deserializing)]
+    pub view: Arc<Mutex<ViewState>>,
 
     #[serde(default)]
     pub current_file: Option<Arc<Path>>,
@@ -34,6 +37,34 @@ pub struct AppState {
     pub view_id: usize,
 }
 
+#[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
+pub struct ViewInfo {
+    id: usize,
+    filename: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Lens, Debug)]
+pub struct ViewState {
+    focused: Option<ViewId>,
+    views: HashMap<ViewId, ViewInfo>,
+}
+
+impl Data for ViewState {
+    // todo: add others compare for data
+    fn same(&self, other: &Self) -> bool {
+        self.focused == other.focused && self.views.len() == other.views.len()
+    }
+}
+
+impl Default for ViewState {
+    fn default() -> Self {
+        ViewState {
+            focused: None,
+            views: Default::default(),
+        }
+    }
+}
+
 impl Default for AppState {
     fn default() -> Self {
         Self {
@@ -42,6 +73,7 @@ impl Default for AppState {
             params: Default::default(),
             entry: Default::default(),
             core: Arc::new(Mutex::new(Default::default())),
+            view: Arc::new(Mutex::new(Default::default())),
             current_file: None,
             current_dir: None,
             last_dir: None,
