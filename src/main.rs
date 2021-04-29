@@ -152,7 +152,7 @@ pub fn main() {
     client
         .lock()
         .unwrap()
-        .client_started(Some(&"config".to_string()), Some(&"xi".to_string()));
+        .client_started(Some(&"config".to_string()), Some(&"config".to_string()));
 
     client.lock().unwrap().modify_user_config_domain(
         "general",
