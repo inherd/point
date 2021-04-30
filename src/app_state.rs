@@ -51,12 +51,12 @@ pub struct AppState {
     #[serde(skip_serializing, skip_deserializing)]
     pub view_id: usize,
 
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub current_file: Option<Arc<Path>>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub current_dir: Option<Arc<Path>>,
 
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_dir: Option<Arc<Path>>,
 }
 

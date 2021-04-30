@@ -32,6 +32,11 @@ impl Widget<AppState> for EditView {
         if old_data.theme_name != data.theme_name {
             ctx.request_paint();
         }
+
+        // todo: remove out
+        if old_data.current_file != data.current_file {
+            ctx.request_paint();
+        }
     }
 
     fn layout(
