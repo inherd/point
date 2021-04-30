@@ -93,8 +93,7 @@ impl Widget<AppState> for EditView {
                 }
 
                 for (start, end, attr) in attrs {
-                    // layout.add(attr, start..end);
-                    // layout.default_attribute()
+                    // layout.range_attribute(start..end, attr);
                 }
 
                 ctx.draw_text(&layout.build().unwrap(), (x0, y));
