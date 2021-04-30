@@ -29,6 +29,15 @@ impl Widget<AppState> for EditView {
             Event::MouseMove(_mouse) => {
                 ctx.set_cursor(&Cursor::IBeam);
             }
+            Event::MouseUp(_) => {
+                if ctx.is_active() {
+                    ctx.set_active(false);
+                    ctx.request_paint();
+                }
+            }
+            Event::ImeStateChange => {
+                println!("ImeStateChange");
+            }
             _ => {}
         }
     }
