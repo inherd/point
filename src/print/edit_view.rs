@@ -77,13 +77,11 @@ impl Widget<AppState> for EditView {
                     .new_text_layout(line.text.clone())
                     .text_color(foreground.clone());
 
-                let mut end_index = 0usize;
-                for style in &line.styles {
-                    end_index = end_index + (style.offset as usize + style.length as usize);
-                }
+                let mut end_index = 0;
+                for style in line.styles.iter() {
+                    let start_index = end_index;
+                    end_index = start_index + style.length as usize;
 
-                for style in line.styles.iter().rev() {
-                    let start_index = end_index - style.length as usize;
                     let line_style = data.styles.get(&(style.style_id as usize));
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {

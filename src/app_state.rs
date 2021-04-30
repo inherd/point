@@ -229,6 +229,9 @@ impl AppState {
             RpcOperations::Update(update) => {
                 self.workspace.line_cache.update(update.clone());
             }
+            RpcOperations::DefStyle(params) => {
+                self.styles.insert(params.id as usize, params.clone());
+            }
             RpcOperations::ThemeChanged(param) => {
                 self.theme = param.theme.clone();
                 self.theme_name = param.name.clone();
