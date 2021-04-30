@@ -1,8 +1,8 @@
 use crate::app_state::AppState;
 use crate::theme;
 use druid::{
-    BoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
-    PaintCtx, RenderContext, Size, UpdateCtx, Widget,
+    BoxConstraints, Color, Cursor, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle,
+    LifeCycleCtx, PaintCtx, RenderContext, Size, UpdateCtx, Widget,
 };
 use druid_shell::piet::{FontStyle, TextAttribute, TextLayoutBuilder};
 use piet_common::Text;
@@ -21,7 +21,17 @@ const LEFT_PAD: f64 = 6.0;
 const LINE_SPACE: f64 = 17.0;
 
 impl Widget<AppState> for EditView {
-    fn event(&mut self, _ctx: &mut EventCtx, _event: &Event, _data: &mut AppState, _env: &Env) {}
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, _data: &mut AppState, _env: &Env) {
+        match event {
+            Event::MouseDown(_mouse) => {
+                ctx.set_active(true);
+            }
+            Event::MouseMove(_mouse) => {
+                ctx.set_cursor(&Cursor::IBeam);
+            }
+            _ => {}
+        }
+    }
 
     #[rustfmt::skip]
     fn lifecycle(&mut self, _ctx: &mut LifeCycleCtx, _event: &LifeCycle, _data: &AppState, _env: &Env) {
