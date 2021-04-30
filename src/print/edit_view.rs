@@ -1,7 +1,7 @@
 use crate::app_state::AppState;
 use crate::theme;
 use druid::{
-    CIBoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
+    BoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget,
 };
 use druid_shell::piet::{FontStyle, TextAttribute, TextLayoutBuilder};
