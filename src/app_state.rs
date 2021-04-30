@@ -27,6 +27,7 @@ pub struct AppState {
     #[data(ignore)]
     #[serde(skip_serializing, skip_deserializing)]
     pub theme: ThemeSettings,
+
     pub theme_name: String,
 
     #[data(ignore)]
@@ -259,6 +260,7 @@ impl AppState {
     }
 
     pub fn set_theme(&mut self, theme: &String) {
+        self.theme_name = theme.clone();
         self.core
             .lock()
             .unwrap()
