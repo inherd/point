@@ -81,19 +81,14 @@ impl Widget<AppState> for EditView {
                     end_index = end_index + (style.offset as usize + style.length as usize);
                 }
 
-                let mut attrs = vec![];
                 for style in line.styles.iter().rev() {
                     let start_index = end_index - style.length as usize;
                     let line_style = data.styles.get(&(style.style_id as usize));
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
-                        let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
-                        attrs.push((start_index, end_index, attr));
+                        // let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
+                        // layout.range_attribute(start_index..end_index, attr);
                     }
-                }
-
-                for (start, end, attr) in attrs {
-                    // layout.range_attribute(start..end, attr);
                 }
 
                 ctx.draw_text(&layout.build().unwrap(), (x0, y));
