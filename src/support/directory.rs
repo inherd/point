@@ -2,23 +2,19 @@ extern crate dirs;
 
 use crate::app_state::AppState;
 use std::fs;
-use std::fs::OpenOptions;
-use std::io::Write;
+use std::fs::File;
 use std::path::PathBuf;
 
 pub fn save_config(state: &AppState) {
-    let result = serde_json::to_string(&state);
+    let result = serde_json::to_string_pretty(&state);
     match result {
         Ok(str) => {
             let path = config_path().expect("lost home issue");
-            let mut file = OpenOptions::new()
-                .read(true)
-                .write(true)
-                .create(true)
-                .open(&path)
-                .expect("unable to open file");
+            if !path.exists() {
+                let _file = File::create(&path).unwrap();
+            }
 
-            let result = file.write_all(str.as_bytes());
+            let result = fs::write(&path, str);
 
             match result {
                 Ok(_) => log::info!("save config: {:?}", path),
@@ -50,7 +46,6 @@ pub fn read_config() -> AppState {
             app_state = state;
         }
         Err(_err) => {
-            let _ = fs::remove_file(&path);
             log::error!("error config: {}", content);
         }
     };

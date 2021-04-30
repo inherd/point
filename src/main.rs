@@ -154,12 +154,18 @@ pub fn main() {
         .unwrap()
         .client_started(Some(&"config".to_string()), Some(&"config".to_string()));
 
-    client.lock().unwrap().new_view("".to_string(), move |_| {});
+    if init.current_file.is_some() {
+        let file = init.current_file.clone().as_ref().unwrap().to_owned();
+        let path_str = format!("{}", file.display());
+        client.lock().unwrap().new_view(path_str, move |_| {});
+    }
 
-    client
-        .lock()
-        .unwrap()
-        .send_notification("set_theme", &json!({ "theme_name": "Solarized (light)" }));
+    if !init.theme_name.is_empty() {
+        client.lock().unwrap().send_notification(
+            "set_theme",
+            &json!({ "theme_name": init.theme_name.clone() }),
+        );
+    }
 
     client.lock().unwrap().modify_user_config_domain(
         "general",
