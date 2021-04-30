@@ -1,11 +1,10 @@
 use crate::app_state::AppState;
 use crate::theme;
-use druid::text::{Attribute, AttributeSpans, RichText};
 use druid::{
-    BoxConstraints, Color, Env, Event, EventCtx, FontFamily, LayoutCtx, LifeCycle, LifeCycleCtx,
-    PaintCtx, RenderContext, Size, TextLayout, UpdateCtx, Widget,
+    BoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
+    PaintCtx, RenderContext, Size, UpdateCtx, Widget,
 };
-use druid_shell::piet::{PietTextLayoutBuilder, TextAttribute, TextLayoutBuilder};
+use druid_shell::piet::{TextAttribute, TextLayoutBuilder};
 use piet_common::Text;
 
 pub struct EditView {}
@@ -66,11 +65,6 @@ impl Widget<AppState> for EditView {
         let rect = size.to_rect();
         ctx.fill(rect, &background);
 
-        let bg_color = match &data.theme.background {
-            None => Color::BLACK,
-            Some(color) => theme::from_xi_color(color),
-        };
-
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
                 let text = ctx.text();
@@ -87,6 +81,11 @@ impl Widget<AppState> for EditView {
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
                         let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
+                        layout = layout.range_attribute(start_index..end_index, attr);
+                    }
+
+                    if let Some(weight) = line_style.and_then(|s| s.weight) {
+                        let attr = TextAttribute::Weight(FontWeight::new(weight as u16));
                         layout = layout.range_attribute(start_index..end_index, attr);
                     }
                 }
