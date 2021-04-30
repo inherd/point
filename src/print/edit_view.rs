@@ -1,10 +1,10 @@
 use crate::app_state::AppState;
 use crate::theme;
 use druid::{
-    BoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
+    CIBoxConstraints, Color, Env, Event, EventCtx, FontWeight, LayoutCtx, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, UpdateCtx, Widget,
 };
-use druid_shell::piet::{TextAttribute, TextLayoutBuilder};
+use druid_shell::piet::{FontStyle, TextAttribute, TextLayoutBuilder};
 use piet_common::Text;
 
 pub struct EditView {}
@@ -92,6 +92,20 @@ impl Widget<AppState> for EditView {
                     if let Some(weight) = line_style.and_then(|s| s.weight) {
                         let attr = TextAttribute::Weight(FontWeight::new(weight as u16));
                         layout = layout.range_attribute(start_index..end_index, attr);
+                    }
+
+                    if let Some(italic) = line_style.and_then(|s| s.italic) {
+                        if italic {
+                            let attr = TextAttribute::Style(FontStyle::Italic);
+                            layout = layout.range_attribute(start_index..end_index, attr);
+                        }
+                    }
+
+                    if let Some(underline) = line_style.and_then(|s| s.underline) {
+                        if underline {
+                            let attr = TextAttribute::Underline(true);
+                            layout = layout.range_attribute(start_index..end_index, attr);
+                        }
                     }
                 }
 
