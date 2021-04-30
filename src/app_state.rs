@@ -122,7 +122,6 @@ impl AppState {
         let file_path = buf.display().to_string();
 
         self.req_new_view(file_path);
-        // self.core.lock().unwrap().resize(512, 512);
 
         self.current_file = path;
         self.save_global_config();
@@ -130,25 +129,23 @@ impl AppState {
 
     fn req_new_view(&self, filename: String) {
         let view = self.view.clone();
-        #[rustfmt::skip]
-        self.core.lock().unwrap().new_view(filename.clone()
-           , move |res| {
-                if let Ok(val) = res {
-                    let id: Option<String> = serde_json::from_value(val).unwrap();
-                    if let Some(view_id) = id {
-                        let mut state = view.lock().unwrap();
+        let mut core = self.core.lock().unwrap();
+        core.new_view(filename.clone(), move |res| {
+            if let Ok(val) = res {
+                let id: Option<String> = serde_json::from_value(val).unwrap();
+                if let Some(view_id) = id {
+                    let mut state = view.lock().unwrap();
 
-                        state.focused = Some(view_id.clone());
-                        state.views.insert(
-                            view_id.clone(),
-                            ViewState {
-                                id: 0,
-                                filename: Option::from(filename),
-                            },
-                        );
-                        // self.
-                    }
+                    state.focused = Some(view_id.clone());
+                    state.views.insert(
+                        view_id.clone(),
+                        ViewState {
+                            id: 0,
+                            filename: Option::from(filename),
+                        },
+                    );
                 }
+            }
         });
     }
 
