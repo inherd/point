@@ -1,8 +1,9 @@
 use crate::app_state::AppState;
 use crate::theme;
+use druid::text::{Attribute, AttributeSpans, RichText};
 use druid::{
     BoxConstraints, Color, Env, Event, EventCtx, FontFamily, LayoutCtx, LifeCycle, LifeCycleCtx,
-    PaintCtx, RenderContext, Size, UpdateCtx, Widget,
+    PaintCtx, RenderContext, Size, TextLayout, UpdateCtx, Widget,
 };
 use druid_shell::piet::TextLayoutBuilder;
 use piet_common::Text;
@@ -72,19 +73,23 @@ impl Widget<AppState> for EditView {
 
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
-                let mut end_index = 0u32;
+                let mut rich_text = RichText::new(line.text.as_str().into());
+
+                let mut end_index = 0usize;
                 for style in &line.styles {
-                    end_index = (end_index as i64 + (style.offset + style.length as i64)) as u32;
+                    end_index = end_index + (style.offset as usize + style.length as usize);
                 }
 
                 for style in line.styles.iter().rev() {
-                    let start_index = (u64::from(end_index) - style.length) as u32;
+                    let start_index = end_index - style.length as usize;
                     let line_style = data.styles.get(&(style.style_id as usize));
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
-                        // foreground
+                        let _attr = Attribute::text_color(theme::color_from_u32(foreground));
+                        // rich_text.with_attribute(start_index..end_index, attr);
                     }
                 }
+
                 let text = ctx.text();
                 let layout = text
                     .new_text_layout(line.text.clone())
