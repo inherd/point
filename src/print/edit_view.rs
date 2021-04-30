@@ -66,7 +66,7 @@ impl Widget<AppState> for EditView {
         let rect = size.to_rect();
         ctx.fill(rect, &background);
 
-        let text_color = match &data.theme.foreground {
+        let bg_color = match &data.theme.background {
             None => Color::BLACK,
             Some(color) => theme::from_xi_color(color),
         };
@@ -86,8 +86,8 @@ impl Widget<AppState> for EditView {
                     let line_style = data.styles.get(&(style.style_id as usize));
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
-                        // let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
-                        // layout.range_attribute(start_index..end_index, attr);
+                        let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
+                        layout = layout.range_attribute(start_index..end_index, attr);
                     }
                 }
 
