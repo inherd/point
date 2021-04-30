@@ -93,7 +93,7 @@ impl Widget<AppState> for EditView {
                 }
 
                 for (start, end, attr) in attrs {
-                    // layout.range_attribute(start..end, attr);
+                    // layout.add(attr, start..end);
                     // layout.default_attribute()
                 }
 
