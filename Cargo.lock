@@ -1933,6 +1933,7 @@ dependencies = [
  "dirs",
  "druid 0.7.0 (git+https://github.com/linebender/druid.git)",
  "druid-shell 0.7.0 (git+https://github.com/linebender/druid.git)",
+ "futures",
  "glib",
  "infer",
  "log",

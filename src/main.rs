@@ -154,6 +154,13 @@ pub fn main() {
         .unwrap()
         .client_started(Some(&"config".to_string()), Some(&"config".to_string()));
 
+    client.lock().unwrap().new_view("".to_string(), move |_| {});
+
+    client
+        .lock()
+        .unwrap()
+        .send_notification("set_theme", &json!({ "theme_name": "Solarized (light)" }));
+
     client.lock().unwrap().modify_user_config_domain(
         "general",
         &json!({

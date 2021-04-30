@@ -214,7 +214,6 @@ impl AppState {
         match op {
             RpcOperations::AvailableThemes(themes) => {
                 ctx.submit_command(print_command::LIST_THEMES.with(themes.clone()));
-                core.send_notification("set_theme", &json!({ "theme_name": "Solarized (light)" }));
             }
             RpcOperations::AvailablePlugins(_plugins) => {}
             RpcOperations::AvailableLanguages(_langs) => {

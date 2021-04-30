@@ -20,6 +20,8 @@ walkdir = "2"
 # mime type
 infer = "0.3"
 
+futures = "0.3"
+
 #druid-theme-loader = { version = "0.1.0", path = "druid-theme-loader", features = ["notify"] }
 
 # unicode count size
