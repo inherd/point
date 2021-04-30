@@ -61,6 +61,11 @@ impl Widget<AppState> for EditView {
             Some(color) => theme::from_xi_color(color),
         };
 
+        let foreground = match &data.theme.foreground {
+            None => Color::WHITE,
+            Some(color) => theme::from_xi_color(color),
+        };
+
         let size = ctx.size();
         let rect = size.to_rect();
         ctx.fill(rect, &background);
@@ -68,7 +73,9 @@ impl Widget<AppState> for EditView {
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
                 let text = ctx.text();
-                let mut layout = text.new_text_layout(line.text.clone());
+                let mut layout = text
+                    .new_text_layout(line.text.clone())
+                    .text_color(foreground.clone());
 
                 let mut end_index = 0usize;
                 for style in &line.styles {
