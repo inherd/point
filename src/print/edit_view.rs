@@ -5,7 +5,7 @@ use druid::{
     BoxConstraints, Color, Env, Event, EventCtx, FontFamily, LayoutCtx, LifeCycle, LifeCycleCtx,
     PaintCtx, RenderContext, Size, TextLayout, UpdateCtx, Widget,
 };
-use druid_shell::piet::TextLayoutBuilder;
+use druid_shell::piet::{PietTextLayoutBuilder, TextAttribute, TextLayoutBuilder};
 use piet_common::Text;
 
 pub struct EditView {}
@@ -73,32 +73,31 @@ impl Widget<AppState> for EditView {
 
         for line in &data.workspace.line_cache.lines {
             if let Some(line) = line {
-                let mut rich_text = RichText::new(line.text.as_str().into());
+                let text = ctx.text();
+                let mut layout = text.new_text_layout(line.text.clone());
 
                 let mut end_index = 0usize;
                 for style in &line.styles {
                     end_index = end_index + (style.offset as usize + style.length as usize);
                 }
 
+                let mut attrs = vec![];
                 for style in line.styles.iter().rev() {
                     let start_index = end_index - style.length as usize;
                     let line_style = data.styles.get(&(style.style_id as usize));
 
                     if let Some(foreground) = line_style.and_then(|s| s.fg_color) {
-                        let _attr = Attribute::text_color(theme::color_from_u32(foreground));
-                        // rich_text.with_attribute(start_index..end_index, attr);
+                        let attr = TextAttribute::TextColor(theme::color_from_u32(foreground));
+                        attrs.push((start_index, end_index, attr));
                     }
                 }
 
-                let text = ctx.text();
-                let layout = text
-                    .new_text_layout(line.text.clone())
-                    .font(FontFamily::SERIF, 14.0)
-                    .text_color(text_color.clone())
-                    .build()
-                    .unwrap();
+                for (start, end, attr) in attrs {
+                    // layout.range_attribute(start..end, attr);
+                    // layout.default_attribute()
+                }
 
-                ctx.draw_text(&layout, (x0, y));
+                ctx.draw_text(&layout.build().unwrap(), (x0, y));
             }
 
             y += LINE_SPACE;
