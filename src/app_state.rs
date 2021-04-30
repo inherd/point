@@ -20,9 +20,12 @@ use std::collections::HashMap;
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
 pub struct AppState {
     pub title: String,
+
+    #[serde(skip_serializing, skip_deserializing)]
     pub workspace: Workspace,
 
     #[data(ignore)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub theme: ThemeSettings,
     pub theme_name: String,
 
@@ -31,9 +34,12 @@ pub struct AppState {
     pub styles: HashMap<usize, Style>,
 
     #[data(ignore)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub themes: Vec<String>,
 
     pub params: Params,
+
+    #[serde(skip_serializing, skip_deserializing)]
     pub entry: FileEntry,
 
     #[serde(skip_serializing, skip_deserializing)]
@@ -42,15 +48,16 @@ pub struct AppState {
     pub view: Arc<Mutex<ViewCore>>,
 
     #[serde(default)]
+    #[serde(skip_serializing, skip_deserializing)]
+    pub view_id: usize,
+
+    #[serde(default)]
     pub current_file: Option<Arc<Path>>,
     #[serde(default)]
     pub current_dir: Option<Arc<Path>>,
 
     #[serde(default)]
     pub last_dir: Option<Arc<Path>>,
-
-    #[serde(default)]
-    pub view_id: usize,
 }
 
 #[derive(Serialize, Deserialize, Clone, Data, Lens, Debug)]
