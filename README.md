@@ -15,26 +15,29 @@ Todos for spike:
  - [ ] menu design
      - [x] file menu
      - [x] edit menu
+        - [x] theme menu
      - [ ] tool menu
      - [ ] navigate menu
  - [ ] navigate
      - [ ] goto line
+     - [ ] scroll
  - [ ] tool window
      - [ ] bottom
      - [ ] top
      - [ ] left
      - [ ] right
  - [ ] context menu
+     - [ ] basic testing
  - [x] tree file view
  - [x] display code
  - [x] interactive with system api
  - [ ] code editor
-    - [ ] use xi-editor as core
-    - [ ] line cache
+    - [x] use xi-editor as core
+    - [x] line cache
     - [ ] code highlight
     - [ ] auto save file
     - [ ] count chars length
-    - [ ] undo
+    - [ ] event
  - [ ] plugin system
     - [ ] use xi-editor plugins
  - [ ] toolbar for run tasks
